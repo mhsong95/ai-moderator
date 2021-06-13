@@ -1,8 +1,10 @@
-# Mediasoup video conferencing
+# AI Moderator
 
-Example website for multi-party video/audio/screen conferencing using mediasoup. This project is intended to better understand how mediasoup works with a simple example. 
+Example website for video conferencing using mediasoup as SFU (selective forwarding unit) and featuring AI Moderator.
+AI Moderator features transcription of conferences, summarization of the transcripts, stance detection, and etc.
+This project demonstrates how AI Moderator can work on a simple video conferencing environment.
 
-This project is featured on the [mediasoup examples page](https://mediasoup.org/documentation/examples/) with many other examples. Checkout mediasoup at [mediasoup.org](https://mediasoup.org)
+The video conferencing feature is built over [Mediasoup video conferencing](https://https://github.com/Dirvann/mediasoup-sfu-webrtc-video-rooms). Any other features (AI Moderator) are original work of the author.
 
 # Running the code
 
