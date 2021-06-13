@@ -6,7 +6,7 @@ const socket = io()
 
 let producer = null;
 
-nameInput.value = 'bob' + Math.round(Math.random() * 1000)
+// nameInput.value = 'bob' + Math.round(Math.random() * 1000)
 
 socket.request = function request(type, data = {}) {
   return new Promise((resolve, reject) => {

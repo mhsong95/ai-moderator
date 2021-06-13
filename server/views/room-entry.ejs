@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title><%= title %></title>
+	<link rel="stylesheet" type="text/css" href="/css/room-entry.css">
+</head>
+
+<body>
+	<div class="room-entry-form">
+		<h1><%= title %></h1>
+		<form method="POST">
+			<input type="text" name="room_name" placeholder="Room Name" value="<%= room_name %>" <%= room_name_attr %> />
+			<input type="text" name="user_name" placeholder="Your Name" value="<%= user_name %>" required />
+			<input type="submit" value="<%= button_label %>" />
+		</form>
+	</div>
+	<% if (error) { %>
+		<!-- Alert the error message when the fields are not valid. -->
+		<script>alert("<%= error.msg %>")</script>
+	<% } %>
+
+</body>
+
+</html>
