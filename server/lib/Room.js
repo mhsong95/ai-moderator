@@ -1,7 +1,9 @@
 const config = require('../config')
 module.exports = class Room {
-    constructor(room_id, worker, io) {
+    constructor(room_id, room_name, worker, io) {
         this.id = room_id
+        this.name = room_name
+
         const mediaCodecs = config.mediasoup.router.mediaCodecs
         worker.createRouter({
             mediaCodecs
@@ -146,6 +148,7 @@ module.exports = class Room {
     toJson() {
         return {
             id: this.id,
+            name: this.name,
             peers: JSON.stringify([...this.peers])
         }
     }
