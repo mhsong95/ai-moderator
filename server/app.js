@@ -1,97 +1,62 @@
 const express = require('express')
-
-const app = express()
 const https = require('httpolyglot')
+const logger = require("morgan");
+const session = require("express-session");
 const fs = require('fs')
 const mediasoup = require('mediasoup')
 const config = require('./config')
 const path = require('path')
-const Room = require('./lib//Room')
+const Room = require('./lib/Room')
 const Peer = require('./lib/Peer')
 
+// SSL parameters
 const options = {
     key: fs.readFileSync(path.join(__dirname,config.sslKey), 'utf-8'),
     cert: fs.readFileSync(path.join(__dirname,config.sslCrt), 'utf-8')
 }
 
+const app = express()
 const httpsServer = https.createServer(options, app)
 const io = require('socket.io')(httpsServer)
 
+// View engine
 app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "ejs")
 app.engine("html", require("ejs").renderFile)
 
+// Middlewares
 app.use(express.static(path.join(__dirname, 'public')))
+app.use(logger("dev"));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(session({
+    secret: "fh8ewa9f&$#)@sample#secret(&for$#()development&(HFIAO1749",
+    resave: false,
+    saveUninitialized: false,
+}));
 
+app.use("/", require("./routes/index"));
+app.use("/room", require("./routes/room")(io));
+
+/*
 app.get("/", function (req, res, next) {
     res.render("index.html")
 })
+*/
 
 httpsServer.listen(config.listenPort, () => {
     console.log('listening https ' + config.listenPort)
 })
 
+// Dictionary of all rooms. Maps room_id to Room objects.
+const { roomList } = require("./lib/global");
 
+// Methods for creating and selecting mediasoup workers.
+const { createWorkers, getMediasoupWorker } = require("./lib/Worker");
 
-// all mediasoup workers
-let workers = []
-let nextMediasoupWorkerIdx = 0
-
-/**
- * roomList
- * {
- *  room_id: Room {
- *      id:
- *      router:
- *      peers: {
- *          id:,
- *          name:,
- *          master: [boolean],
- *          transports: [Map],
- *          producers: [Map],
- *          consumers: [Map],
- *          rtpCapabilities:
- *      }
- *  }
- * }
- */
-let roomList = new Map()
-
-;
 (async () => {
     await createWorkers()
 })()
-
-
-
-async function createWorkers() {
-    let {
-        numWorkers
-    } = config.mediasoup
-
-    for (let i = 0; i < numWorkers; i++) {
-        let worker = await mediasoup.createWorker({
-            logLevel: config.mediasoup.worker.logLevel,
-            logTags: config.mediasoup.worker.logTags,
-            rtcMinPort: config.mediasoup.worker.rtcMinPort,
-            rtcMaxPort: config.mediasoup.worker.rtcMaxPort,
-        })
-
-        worker.on('died', () => {
-            console.error('mediasoup worker died, exiting in 2 seconds... [pid:%d]', worker.pid);
-            setTimeout(() => process.exit(1), 2000);
-        })
-        workers.push(worker)
-
-        // log worker resource usage
-        /*setInterval(async () => {
-            const usage = await worker.getResourceUsage();
-
-            console.info('mediasoup Worker resource usage [pid:%d]: %o', worker.pid, usage);
-        }, 120000);*/
-    }
-}
-
 
 io.on('connection', socket => {
 
@@ -103,7 +68,7 @@ io.on('connection', socket => {
         } else {
             console.log('---created room--- ', room_id)
             let worker = await getMediasoupWorker()
-            roomList.set(room_id, new Room(room_id, worker, io))
+            roomList.set(room_id, new Room(room_id, "random name", worker, io))
             callback(room_id)
         }
     })
@@ -237,6 +202,7 @@ io.on('connection', socket => {
         await roomList.get(socket.room_id).removePeer(socket.id)
         if (roomList.get(socket.room_id).getPeers().size === 0) {
             roomList.delete(socket.room_id)
+            console.log(`DESTROYED: ${socket.room_id}`);
         }
 
         socket.room_id = null
@@ -258,16 +224,4 @@ function room() {
             id: r.id
         }
     })
-}
-
-/**
- * Get next mediasoup Worker.
- */
-function getMediasoupWorker() {
-    const worker = workers[nextMediasoupWorkerIdx];
-
-    if (++nextMediasoupWorkerIdx === workers.length)
-        nextMediasoupWorkerIdx = 0;
-
-    return worker;
 }
