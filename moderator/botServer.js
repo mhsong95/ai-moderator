@@ -4,7 +4,7 @@
 const express = require("express");
 const https = require("httpolyglot");
 const fs = require("fs");
-const config = require("../server/config");
+const config = require("../media-server/config");
 const path = require("path");
 
 // SSL parameters
