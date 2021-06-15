@@ -24,7 +24,9 @@ module.exports = class Room {
         this.peers.forEach(peer => {
             peer.producers.forEach(producer => {
                 producerList.push({
-                    producer_id: producer.id
+                    producer_id: producer.id,
+                    producer_socket_id: peer.id,
+                    producer_name: peer.name,
                 })
             })
         })
@@ -90,7 +92,8 @@ module.exports = class Room {
             resolve(producer.id)
             this.broadCast(socket_id, 'newProducers', [{
                 producer_id: producer.id,
-                producer_socket_id: socket_id
+                producer_socket_id: socket_id,
+                producer_name: this.peers.get(socket_id).name,
             }])
         }.bind(this))
     }

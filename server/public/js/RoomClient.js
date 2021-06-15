@@ -16,11 +16,10 @@ const _EVENTS = {
 
 class RoomClient {
 
-    constructor(localMediaEl, remoteVideoEl, remoteAudioEl, mediasoupClient, socket, room_id, name, successCallback) {
+    constructor(localMediaEl, remoteMediaEl, mediasoupClient, socket, room_id, name, successCallback) {
         this.name = name
         this.localMediaEl = localMediaEl
-        this.remoteVideoEl = remoteVideoEl
-        this.remoteAudioEl = remoteAudioEl
+        this.remoteMediaEl = remoteMediaEl;
         this.mediasoupClient = mediasoupClient
 
         this.socket = socket
@@ -223,14 +222,17 @@ class RoomClient {
          * data: [ {
          *  producer_id:
          *  producer_socket_id:
+         *  producer_name:
          * }]
          */
         this.socket.on('newProducers', async function (data) {
             console.log('new producers', data)
             for (let {
-                    producer_id
+                    producer_id,
+                    producer_socket_id,
+                    producer_name
                 } of data) {
-                await this.consume(producer_id)
+                await this.consume(producer_id, producer_socket_id, producer_name)
             }
         }.bind(this))
 
@@ -329,7 +331,7 @@ class RoomClient {
                     videoGoogleStartBitrate: 1000
                 };
             }
-            producer = await this.producerTransport.produce(params)
+            let producer = await this.producerTransport.produce(params)
 
             console.log('producer', producer)
 
@@ -343,7 +345,10 @@ class RoomClient {
                 elem.playsinline = false
                 elem.autoplay = true
                 elem.className = "vid"
-                this.localMediaEl.appendChild(elem)
+                this.attachVideo(this.localMediaEl, elem);
+                // this.localMediaEl.appendChild(elem)
+            } else {
+                this.attachAudio(this.localMediaEl, null);
             }
 
             producer.on('trackended', () => {
@@ -357,6 +362,14 @@ class RoomClient {
                         track.stop()
                     })
                     elem.parentNode.removeChild(elem)
+                    this.attachVideo(this.localMediaEl, document.createElement("video"));
+                } else {
+                    for (let childNode of Array.from(this.localMediaEl.childNodes)) {
+                        if (childNode.tagName === "BUTTON") {
+                            this.localMediaEl.removeChild(childNode);
+                            break;
+                        }
+                    }
                 }
                 this.producers.delete(producer.id)
 
@@ -369,6 +382,14 @@ class RoomClient {
                         track.stop()
                     })
                     elem.parentNode.removeChild(elem)
+                    this.attachVideo(this.localMediaEl, document.createElement("video"));
+                } else {
+                    for (let childNode of Array.from(this.localMediaEl.childNodes)) {
+                        if (childNode.tagName === "BUTTON") {
+                            this.localMediaEl.removeChild(childNode);
+                            break;
+                        }
+                    }
                 }
                 this.producers.delete(producer.id)
 
@@ -395,7 +416,7 @@ class RoomClient {
         }
     }
 
-    async consume(producer_id) {
+    async consume(producer_id, producer_socket_id, producer_name) {
 
         //let info = await roomInfo()
 
@@ -407,6 +428,7 @@ class RoomClient {
 
             this.consumers.set(consumer.id, consumer)
 
+            let mediaContainer = document.getElementById(producer_socket_id);
             let elem;
             if (kind === 'video') {
                 elem = document.createElement('video')
@@ -415,14 +437,26 @@ class RoomClient {
                 elem.playsinline = false
                 elem.autoplay = true
                 elem.className = "vid"
-                this.remoteVideoEl.appendChild(elem)
+
+                if (!mediaContainer) {
+                    mediaContainer = this.createMediaContainer(producer_socket_id, elem, null, producer_name);
+                    this.remoteMediaEl.appendChild(mediaContainer);
+                } else {
+                    this.attachVideo(mediaContainer, elem);
+                }
             } else {
                 elem = document.createElement('audio')
                 elem.srcObject = stream
                 elem.id = consumer.id
                 elem.playsinline = false
                 elem.autoplay = true
-                this.remoteAudioEl.appendChild(elem)
+
+                if (!mediaContainer) {
+                    mediaContainer = this.createMediaContainer(producer_socket_id, null, elem, producer_name);
+                    this.remoteMediaEl.appendChild(mediaContainer);
+                } else {
+                    this.attachAudio(mediaContainer, elem);
+                }
             }
 
             consumer.on('trackended', function () {
@@ -488,7 +522,16 @@ class RoomClient {
             elem.srcObject.getTracks().forEach(function (track) {
                 track.stop()
             })
-            elem.parentNode.removeChild(elem)
+            let mediaContainer = elem.parentNode;
+            mediaContainer.removeChild(elem);
+            this.attachVideo(mediaContainer, document.createElement("video"));
+        } else {
+            for (let childNode of Array.from(this.localMediaEl.childNodes)) {
+                if (childNode.tagName === "BUTTON") {
+                    this.localMediaEl.removeChild(childNode);
+                    break;
+                }
+            }
         }
 
         switch (type) {
@@ -533,7 +576,31 @@ class RoomClient {
         elem.srcObject.getTracks().forEach(function (track) {
             track.stop()
         })
-        elem.parentNode.removeChild(elem)
+
+        let type = elem.tagName;
+        let mediaContainer = elem.parentNode;
+        mediaContainer.removeChild(elem);
+
+        if (type === "VIDEO") {
+            if (mediaContainer.childNodes.length === 1) {
+                mediaContainer.parentNode.removeChild(mediaContainer);
+            } else {
+                this.attachVideo(mediaContainer, document.createElement("video"));
+            }
+        } else {
+            for (let childNode of Array.from(mediaContainer.childNodes)) {
+                if (childNode.tagName === "BUTTON") {
+                    mediaContainer.removeChild(childNode);
+                } else if (childNode.tagName === "VIDEO") {
+                    if (!childNode.id) {
+                        mediaContainer.removeChild(childNode);
+                    }
+                }
+            }
+            if (mediaContainer.childNodes.length === 1) {
+                mediaContainer.parentNode.removeChild(mediaContainer);
+            }
+        }
 
         this.consumers.delete(consumer_id)
     }
@@ -582,7 +649,84 @@ class RoomClient {
         this.eventListeners.get(evt).push(callback)
     }
 
+    createMediaContainer(socket_id, videoElem, audioElem, name) {
+        let container = document.createElement("div");
+        container.className = "video-container";
+        container.id = socket_id;
 
+        if (videoElem === null) {
+            videoElem = document.createElement("video");
+        }
+
+        let nameOverlayElem = document.createElement("p");
+        nameOverlayElem.className = "name-overlay";
+        nameOverlayElem.textContent = name;
+        container.appendChild(nameOverlayElem);
+
+        this.attachVideo(container, videoElem);
+        if (audioElem !== null) {
+            this.attachAudio(container, audioElem);
+        }
+
+        return container;
+    }
+
+    attachVideo(mediaContainer, videoElem) {
+        let oldVideos = mediaContainer.getElementsByTagName("video");
+        if (oldVideos.length > 0) {
+            for (let elem of oldVideos) {
+                mediaContainer.removeChild(elem);
+            }
+        }
+
+        mediaContainer.appendChild(videoElem);
+    }
+
+    attachAudio(mediaContainer, audioElem) {
+        let muteButtonElem = document.createElement("button");
+        muteButtonElem.className = "control-overlay";
+
+        let buttonImg = document.createElement("img");
+        buttonImg.src = "/img/unmuted.png";
+        buttonImg.alt = "mute";
+        muteButtonElem.appendChild(buttonImg);
+        muteButtonElem.setAttribute("muted", "unmuted");
+
+        muteButtonElem.onclick = (ev) => {
+            if (muteButtonElem.getAttribute("muted") === "unmuted") {
+                buttonImg.src = "/img/muted.png";
+                buttonImg.alt = "unmute";
+
+                if (mediaContainer.id === this.socket.id) {
+                    this.pauseProducer(mediaType.audio);
+                } else {
+                    if (audioElem) {
+                        audioElem.muted = true;
+                    }
+                }
+
+                muteButtonElem.setAttribute("muted", "muted");
+            } else {
+                buttonImg.src = "/img/unmuted.png";
+                buttonImg.alt = "mute";
+
+                if (mediaContainer.id === this.socket.id) {
+                    this.resumeProducer(mediaType.audio);
+                } else {
+                    if (audioElem) {
+                        audioElem.muted = false;
+                    }
+                }
+
+                muteButtonElem.setAttribute("muted", "unmuted");
+            }
+        }
+
+        mediaContainer.appendChild(muteButtonElem);
+        if (audioElem) {
+            mediaContainer.appendChild(audioElem);
+        }
+    }
 
 
     //////// GETTERS ////////

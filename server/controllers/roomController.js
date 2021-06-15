@@ -1,6 +1,8 @@
 // roomController.js
 // Defines behaviors for the "room" routes (routes/room.js).
 
+const room = require("../routes/room");
+
 module.exports = function (io) {
   const { body, validationResult } = require("express-validator");
   const { v4: uuidV4 } = require("uuid");
@@ -58,7 +60,17 @@ module.exports = function (io) {
 
         // Create a Room instance with given ID, name, worker and io instances.
         let worker = await getMediasoupWorker();
-        roomList.set(room_id, new Room(room_id, room_name, worker, io));
+        let newRoom = new Room(room_id, room_name, worker, io);
+        roomList.set(room_id, newRoom);
+
+        // Set timeout that deletes the room if no one enters for 30 sec.
+        room.roomExpireTimeout = setTimeout(() => {
+          if (newRoom.getPeers().size === 0) {
+            roomList.delete(room_id);
+            console.log(`DESTROYED: ${room_id} after timeout`);
+          }
+          room.roomExpireTimeout = null;
+        }, 30 * 1000);
 
         // Store the user name temporarily in session.
         if (!req.session.nameMap) {
@@ -154,7 +166,7 @@ module.exports = function (io) {
         // Redirect to room creation page if room does not exist.
         res.render("redirect", {
           msg: "Room does not exist",
-          url: "../create",
+          url: "create",
         });
         return;
       }

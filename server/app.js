@@ -84,7 +84,14 @@ io.on('connection', socket => {
                 error: 'room does not exist'
             })
         }
-        roomList.get(room_id).addPeer(new Peer(socket.id, name))
+
+        let room = roomList.get(room_id);
+        if (room.roomExpireTimeout) {
+            clearTimeout(room.roomExpireTimeout);
+            room.roomExpireTimeout = null;
+        }
+
+        room.addPeer(new Peer(socket.id, name))
         socket.room_id = room_id
 
         cb(roomList.get(room_id).toJson())
@@ -180,7 +187,23 @@ io.on('connection', socket => {
     socket.on('disconnect', () => {
         console.log(`---disconnect--- name: ${roomList.get(socket.room_id) && roomList.get(socket.room_id).getPeers().get(socket.id).name}`)
         if (!socket.room_id) return
-        roomList.get(socket.room_id).removePeer(socket.id)
+        if (!roomList.has(socket.room_id)) return;
+
+        let room = roomList.get(socket.room_id);
+        room.removePeer(socket.id);
+
+        if (room.getPeers().size === 0) {
+            if (room.roomExpireTimeout) {
+                clearTimeout(room.roomExpireTimeout);
+            }
+            room.roomExpireTimeout = setTimeout(() => {
+                roomList.delete(room.id);
+                room.roomExpireTimeout = null;
+                console.log(`DESTROYED: ${room.id} after timeout`);
+            }, 30 * 1000);
+        }
+
+        socket.room_id = null;
     })
 
     socket.on('producerClosed', ({
@@ -202,7 +225,7 @@ io.on('connection', socket => {
         await roomList.get(socket.room_id).removePeer(socket.id)
         if (roomList.get(socket.room_id).getPeers().size === 0) {
             roomList.delete(socket.room_id)
-            console.log(`DESTROYED: ${socket.room_id}`);
+            console.log(`DESTROYED: ${socket.room_id} after timeout`);
         }
 
         socket.room_id = null
