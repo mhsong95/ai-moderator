@@ -66,6 +66,7 @@ html, body {
   margin: 4px;
   border-radius: 8px;
   width: 36px;
+  background-color: rgba(0, 255, 0, 0.5);
 }
 
 .control-overlay img {
