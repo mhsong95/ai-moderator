@@ -1,17 +1,36 @@
-const puppeteer = require("puppeteer");
+const io = require("socket.io-client");
+const mediasoupClient = require("mediasoup-client");
+const {
+  version,
+  createWorker,
+  Worker,
+  WorkerSettings,
+  WorkerLogLevel,
+  AiortcMediaStream,
+  AiortcMediaStreamConstraints,
+  AiortcMediaTrackConstraints 
+} = require("mediasoup-client-aiortc");
 
 (async () => {
-  const browser = await puppeteer.launch({
-    args: [
-      '--ignore-certificate-errors',
-      '--autoplay-policy=no-user-gesture-required',
-    ],
+  /*
+  const socket = io("ws://localhost:3016/", {
+    query: "Hi motherfucker",
   });
-  const page = await browser.newPage();
-  await page.goto('https://localhost:3016/room/d0df1db9-cf63-47da-a68d-57d1fcbc4362/moderator');
-  setTimeout(async () => {
-    await page.screenshot({ path: 'example.png' });
-    await browser.close();
-  }, 5 * 1000);
+  socket.on("connect", () => {
+    console.log(`Socket connected! ${socket.id}`);
+  });
+  */
 
-})();
+  let worker = await createWorker({ logLevel: "debug"});
+  let device = new mediasoupClient.Device({
+    handlerFactory: worker.createHandlerFactory(),
+  });
+
+  console.log(device.handlerName);
+  console.log(device);
+
+  console.log(device.rtpCapabilities);
+
+  worker.close();
+  return;
+})().then(() => {});
