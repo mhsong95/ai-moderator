@@ -5,9 +5,9 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server/app.js",
-    "mon": "nodemon server/app.js",
-    "watch": "watchify server/public/index.js -o server/public/bundle.js -v"
+    "start": "node media-server/app.js",
+    "mon": "nodemon media-server/app.js",
+    "watch": "watchify media-server/public/index.js -o media-server/public/bundle.js -v"
   },
   "author": "",
   "license": "ISC",
