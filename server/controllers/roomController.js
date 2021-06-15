@@ -1,8 +1,6 @@
 // roomController.js
 // Defines behaviors for the "room" routes (routes/room.js).
 
-const room = require("../routes/room");
-
 module.exports = function (io) {
   const { body, validationResult } = require("express-validator");
   const { v4: uuidV4 } = require("uuid");
@@ -64,12 +62,12 @@ module.exports = function (io) {
         roomList.set(room_id, newRoom);
 
         // Set timeout that deletes the room if no one enters for 30 sec.
-        room.roomExpireTimeout = setTimeout(() => {
+        newRoom.roomExpireTimeout = setTimeout(() => {
           if (newRoom.getPeers().size === 0) {
             roomList.delete(room_id);
             console.log(`DESTROYED: ${room_id} after timeout`);
           }
-          room.roomExpireTimeout = null;
+          newRoom.roomExpireTimeout = null;
         }, 30 * 1000);
 
         // Store the user name temporarily in session.
