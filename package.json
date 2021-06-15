@@ -18,8 +18,8 @@
     "express-validator": "^6.11.1",
     "httpolyglot": "^0.1.2",
     "mediasoup": "^3.7.12",
-    "mediasoup-client": "^3.6.31",
     "morgan": "^1.10.0",
+    "puppeteer": "^10.0.0",
     "socket.io": "^4.1.2",
     "socket.io-client": "^4.1.2",
     "uuid": "^8.3.2"
