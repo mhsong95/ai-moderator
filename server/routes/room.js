@@ -26,8 +26,5 @@ module.exports = function (io) {
   // GET: a specific room's page (where the conference is ongoing)
   router.get("/:room_id", room_controller.room_get);
 
-  router.get("/:room_id/moderator", room_controller.room_get_moderator);
-
-
   return router;
 };

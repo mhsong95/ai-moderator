@@ -193,26 +193,5 @@ module.exports = function (io) {
         user_name: user_name,
       });
     },
-
-    room_get_moderator: function (req, res, next) {
-      const { room_id } = req.params;
-      if (!roomList.has(room_id)) {
-        // Redirect to room creation page if room does not exist.
-        res.render("redirect", {
-          msg: "Room does not exist",
-          url: "create",
-        });
-        return;
-      }
-
-      // Render the room page.
-      const room_name = roomList.get(room_id).name;
-      res.render("room", {
-        room_id: room_id,
-        room_name: room_name,
-        user_name: "moderator",
-      });
-    },
-
   };
 };
