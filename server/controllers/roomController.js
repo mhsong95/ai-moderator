@@ -175,26 +175,17 @@ module.exports = function (io) {
       if (!user_name) {
         // If the user access is not normal, redirect to room join page.
         res.render("redirect", {
-          msg: "Inappropriate access: first enter your name.",
+          msg: "Please enter your name before joining room",
           url: `join/${room_id}`,
         });
         return;
       }
 
-      setTimeout(() => {
-        // Clear the name stored in the session after 2 hours.
-        req.session.reload((err) => {
-          if (err) return;
-
-          if (req.session.nameMap) {
-            delete req.session.nameMap[room_id];
-            if (Object.keys(req.session.nameMap).length === 0) {
-              delete req.session.nameMap;
-            }
-          }
-          req.session.save();
-        });
-      }, 2 * 3600 * 1000);
+      // Clear the session
+      delete req.session.nameMap[room_id];
+      if (Object.keys(req.session.nameMap).length === 0) {
+        delete req.session.nameMap;
+      }
 
       // Render the room page.
       const room_name = roomList.get(room_id).name;
