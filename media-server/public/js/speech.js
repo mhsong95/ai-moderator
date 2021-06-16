@@ -5,7 +5,7 @@
 // Reference: https://stackoverflow.com/questions/50976084/how-do-i-stream-live-audio-from-the-browser-to-google-cloud-speech-via-socket-io
 
 // TODO: figure out a way to get the right host name.
-const moderatorSocket = io(`https://${window.location.hostname}:3017/`, {
+const moderatorSocket = io(`https://${moderator_hostname}:${moderator_port}/`, {
   query: {
     room_id: room_id,
     name: user_name,

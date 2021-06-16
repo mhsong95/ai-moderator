@@ -9,6 +9,8 @@ module.exports = function (io) {
   const { roomList } = require("../lib/global");
   const { getMediasoupWorker } = require("../lib/Worker");
 
+  const { moderatorHostname, moderatorPort } = require("../config");
+
   return {
     room_create_get: function (req, res, next) {
       res.render("room-entry", {
@@ -191,6 +193,8 @@ module.exports = function (io) {
         room_id: room_id,
         room_name: room_name,
         user_name: user_name,
+        moderator_hostname: moderatorHostname || req.hostname,
+        moderator_port: moderatorPort, 
       });
     },
   };

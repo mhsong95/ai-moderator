@@ -3,7 +3,6 @@ const https = require("httpolyglot");
 const logger = require("morgan");
 const session = require("express-session");
 const fs = require("fs");
-const mediasoup = require("mediasoup");
 const config = require("./config");
 const path = require("path");
 
@@ -53,5 +52,5 @@ io.on("connection", (socket) => {
 });
 
 httpsServer.listen(config.listenPort, () => {
-  console.log("listening https " + config.listenPort);
+  console.log(`media server listening on https ${config.listenPort}`);
 });

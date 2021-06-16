@@ -1,10 +1,13 @@
 const os = require('os')
 
 module.exports = {
+    // for media server
     listenIp: '0.0.0.0',
-    listenPort: 3016,
+    listenPort: 8000,
     sslCrt: '../ssl/cert.pem',
     sslKey: '../ssl/key.pem',
+    moderatorHostname: '',  // empty if you run moderator on the same machine
+    moderatorPort: '8001',  // should be the same as listenPort in '../moderator/config.js'
     
     mediasoup: {
       // Worker settings
