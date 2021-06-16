@@ -6,8 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node media-server/app.js",
-    "mon": "nodemon media-server/app.js",
-    "watch": "watchify media-server/public/index.js -o media-server/public/bundle.js -v"
+    "media-server": "node media-server/app.js",
+    "moderator": "node moderator/botServer.js",
+    "mon-media-server": "nodemon --watch media-server/ --ignore public/ --ignore views/ media-server/app.js",
+    "mon-moderator": "nodemon --watch moderator/ moderator/botServer"
   },
   "author": "",
   "license": "ISC",
