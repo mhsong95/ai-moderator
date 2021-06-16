@@ -10,6 +10,7 @@
     "dev-media-server": "nodemon --watch media-server/ --ignore public/ --ignore view/ media-server/app.js",
     "moderator": "node moderator/server.js",
     "dev-moderator": "nodemon --watch moderator/ moderator/server.js",
+    "summarizer": "python3 summarizer/server.py",
     "watch": "watchify media-server/public/index.js -o media-server/public/bundle.js -v"
   },
   "author": "",
