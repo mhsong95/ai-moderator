@@ -67,7 +67,7 @@ class RoomClient {
 
     async join(name, room_id) {
 
-        socket.request('join', {
+        this.socket.request('join', {
             name,
             room_id
         }).then(async function (e) {

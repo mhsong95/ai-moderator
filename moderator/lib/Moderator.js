@@ -67,10 +67,10 @@ module.exports = class Moderator {
   }
 
   async join(name, room_id, room_secret) {
-    socket
+    this.socket
       .request("moderatorJoin", {
-        name,
         room_id,
+        name,
         room_secret,
       })
       .then(
@@ -189,6 +189,7 @@ module.exports = class Moderator {
       }
 
       // only one needed
+      // TODO: resolve this.consumerTransport === null
       this.consumerTransport = device.createRecvTransport(data);
       this.consumerTransport.on(
         "connect",
@@ -414,6 +415,7 @@ module.exports = class Moderator {
           // transcription
           // and summary
           // capabilities
+          console.log(stream);
         } else {
           // Do something
           // with a
