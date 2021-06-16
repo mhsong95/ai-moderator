@@ -48,10 +48,6 @@ body {
   background: rgba(0, 0, 0, 0.5);
 }
 
-video {
-  z-index: -1;
-}
-
 .name-overlay {
   position: absolute;
   top: 0;
@@ -62,6 +58,7 @@ video {
   color: #fff;
   font-size: 12px;
   line-height: 1;
+  z-index: 10000;
 }
 
 .control-overlay {
@@ -72,6 +69,7 @@ video {
   border-radius: 8px;
   width: 36px;
   background-color: rgba(0, 255, 0, 0.5);
+  z-index: 10001;
 }
 
 .control-overlay img {
