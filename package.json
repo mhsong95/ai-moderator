@@ -8,8 +8,8 @@
     "start": "node media-server/app.js",
     "media-server": "node media-server/app.js",
     "dev-media-server": "nodemon --watch media-server/ --ignore public/ --ignore view/ media-server/app.js",
-    "moderator": "node moderator/moderatorServer.js",
-    "dev-moderator": "nodemon --watch moderator/ moderator/moderatorServer.js",
+    "moderator": "node moderator/server.js",
+    "dev-moderator": "nodemon --watch moderator/ moderator/server.js",
     "watch": "watchify media-server/public/index.js -o media-server/public/bundle.js -v"
   },
   "author": "",
