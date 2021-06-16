@@ -14,7 +14,7 @@ module.exports = function (io, socket) {
     } else {
       console.log("---created room--- ", room_id);
       let worker = await getMediasoupWorker();
-      roomList.set(room_id, new Room(room_id, "random name", worker, io));
+      roomList.set(room_id, new Room(room_id, "random-name", "random-secret", worker, io));
       callback(room_id);
     }
   });

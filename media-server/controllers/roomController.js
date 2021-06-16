@@ -1,6 +1,9 @@
 // roomController.js
 // Defines behaviors for the "room" routes (routes/room.js).
 
+const https = require("https");
+const axios = require("axios");
+
 module.exports = function (io) {
   const { body, validationResult } = require("express-validator");
   const { v4: uuidV4 } = require("uuid");
@@ -58,8 +61,24 @@ module.exports = function (io) {
 
         // Create a Room instance with given ID, name, worker and io instances.
         let worker = await getMediasoupWorker();
-        let newRoom = new Room(room_id, room_name, worker, io);
+        let room_secret = uuidV4();
+        let newRoom = new Room(room_id, room_name, room_secret, worker, io);
         roomList.set(room_id, newRoom);
+
+        // Send a request for a bot to the bot server.
+        axios
+          .post(
+            "https://localhost:3017/",
+            { room_id, room_secret },
+            {
+              httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+              }),
+            }
+          )
+          .then((res) => {
+            console.log(res.status);
+          });
 
         // Set timeout that deletes the room if no one enters for 30 sec.
         newRoom.roomExpireTimeout = setTimeout(() => {

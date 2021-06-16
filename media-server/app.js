@@ -48,8 +48,10 @@ const { createWorkers } = require("./lib/Worker");
 
 // User event handlers
 const registerUserHandler = require("./handlers/userHandler");
+const registerModeratorHandler = require("./handlers/moderatorHandler");
 io.on("connection", (socket) => {
   registerUserHandler(io, socket);
+  registerModeratorHandler(io, socket);
 });
 
 httpsServer.listen(config.listenPort, () => {

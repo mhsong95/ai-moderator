@@ -47,6 +47,10 @@ botApp.post("/", function (req, res, next) {
     });
   };
 
+  let moderator = new Moderator(socket, room_id, room_secret, () => {
+    console.log("Moderator successfully created");
+  });
+
   res.status(200).send();
 });
 

@@ -1,8 +1,9 @@
 const config = require('../config')
 module.exports = class Room {
-    constructor(room_id, room_name, worker, io) {
+    constructor(room_id, room_name, room_secret, worker, io) {
         this.id = room_id
         this.name = room_name
+        this.secret = room_secret;
 
         const mediaCodecs = config.mediasoup.router.mediaCodecs
         worker.createRouter({
@@ -13,6 +14,8 @@ module.exports = class Room {
 
         this.peers = new Map()
         this.io = io
+
+        this.moderator = null;
     }
 
     addPeer(peer) {
