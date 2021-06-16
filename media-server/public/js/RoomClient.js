@@ -356,43 +356,13 @@ class RoomClient {
             })
 
             producer.on('transportclose', () => {
-                console.log('producer transport close')
-                if (!audio) {
-                    elem.srcObject.getTracks().forEach(function (track) {
-                        track.stop()
-                    })
-                    elem.parentNode.removeChild(elem)
-                    this.attachVideo(this.localMediaEl, document.createElement("video"));
-                } else {
-                    for (let childNode of Array.from(this.localMediaEl.childNodes)) {
-                        if (childNode.tagName === "BUTTON") {
-                            this.localMediaEl.removeChild(childNode);
-                            break;
-                        }
-                    }
-                }
-                this.producers.delete(producer.id)
-
+                console.log('producer transport closed')
+                this.closeProducer(type);
             })
 
             producer.on('close', () => {
                 console.log('closing producer')
-                if (!audio) {
-                    elem.srcObject.getTracks().forEach(function (track) {
-                        track.stop()
-                    })
-                    elem.parentNode.removeChild(elem)
-                    this.attachVideo(this.localMediaEl, document.createElement("video"));
-                } else {
-                    for (let childNode of Array.from(this.localMediaEl.childNodes)) {
-                        if (childNode.tagName === "BUTTON") {
-                            this.localMediaEl.removeChild(childNode);
-                            break;
-                        }
-                    }
-                }
-                this.producers.delete(producer.id)
-
+                this.closeProducer(type);
             })
 
             this.producerLabel.set(type, producer.id)

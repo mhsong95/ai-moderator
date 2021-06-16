@@ -145,11 +145,6 @@ module.exports = function (io, socket) {
     }
   );
 
-  socket.on("resume", async (data, callback) => {
-    await consumer.resume();
-    callback();
-  });
-
   socket.on("getMyRoomInfo", (_, cb) => {
     cb(roomList.get(socket.room_id).toJson());
   });
@@ -188,6 +183,7 @@ module.exports = function (io, socket) {
         roomList.get(socket.room_id).getPeers().get(socket.id).name
       }`
     );
+    if (!roomList.has(socket.room_id)) return;
     roomList.get(socket.room_id).closeProducer(socket.id, producer_id);
   });
 
