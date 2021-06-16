@@ -1,0 +1,10 @@
+bert-extractive-summarizer
+spacy
+transformers==2.11.0
+neuralcoref
+tensorflow
+streamlit
+SentencePiece
+sentencepiece
+pytorch_lightning==0.7.5
+
