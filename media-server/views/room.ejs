@@ -57,6 +57,11 @@
   </div>
   <div id="right">
     <div id="messages"></div>
+    <div id="display-choice">
+      <input type="radio" name="transcript" value="both" onchange="displayChoice(this);" checked>Both
+      <input type="radio" name="transcript" value="transcript" onchange="displayChoice(this);">Transcripts
+      <input type="radio" name="transcript" value="summary" onchange="displayChoice(this);">Summary
+    </div>
   </div>
 
 </body>
@@ -68,6 +73,8 @@
     user_name = "<%= user_name %>";
   </script>
   <script src="/js/conference.js"></script>
+  <script src="/js/speech.js"></script>
+  <script src="/js/transcript.js"></script>
 </footer>
 
 </html>

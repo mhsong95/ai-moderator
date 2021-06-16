@@ -7,10 +7,16 @@ const _EVENTS = {
     exitRoom: 'exitRoom',
     openRoom: 'openRoom',
     startVideo: 'startVideo',
+    pauseVideo: 'pauseVideo',
+    resumeVideo: 'resumeVideo',
     stopVideo: 'stopVideo',
     startAudio: 'startAudio',
+    pauseAudio: 'pauseAudio',
+    resumeAudio: 'resumeAudio',
     stopAudio: 'stopAudio',
     startScreen: 'startScreen',
+    pauseScreen: 'pauseScreen',
+    resumeScreen: 'resumeScreen',
     stopScreen: 'stopScreen'
 }
 
@@ -529,6 +535,19 @@ class RoomClient {
         let producer_id = this.producerLabel.get(type)
         this.producers.get(producer_id).pause()
 
+        switch (type) {
+            case mediaType.audio:
+                this.event(_EVENTS.pauseAudio);
+                break;
+            case mediaType.video:
+                this.event(_EVENTS.pauseVideo);
+                break;
+            case mediaType.screen:
+                this.event(_EVENTS.pauseScreen);
+                break;
+            default:
+                return;
+        }
     }
 
     resumeProducer(type) {
@@ -539,6 +558,19 @@ class RoomClient {
         let producer_id = this.producerLabel.get(type)
         this.producers.get(producer_id).resume()
 
+        switch (type) {
+            case mediaType.audio:
+                this.event(_EVENTS.resumeAudio);
+                break;
+            case mediaType.video:
+                this.event(_EVENTS.resumeVideo);
+                break;
+            case mediaType.screen:
+                this.event(_EVENTS.resumeScreen);
+                break;
+            default:
+                return;
+        }
     }
 
     removeConsumer(consumer_id) {
