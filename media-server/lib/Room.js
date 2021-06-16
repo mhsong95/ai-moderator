@@ -27,6 +27,7 @@ module.exports = class Room {
                     producer_id: producer.id,
                     producer_socket_id: peer.id,
                     producer_name: peer.name,
+                    kind: producer.kind,
                 })
             })
         })
@@ -94,6 +95,7 @@ module.exports = class Room {
                 producer_id: producer.id,
                 producer_socket_id: socket_id,
                 producer_name: this.peers.get(socket_id).name,
+                kind: producer.kind,
             }])
         }.bind(this))
     }
