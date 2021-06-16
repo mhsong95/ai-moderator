@@ -10,14 +10,12 @@ const { clerks } = require("./global");
 
 // Google Cloud Speech-to-text client library
 const speech = require("@google-cloud/speech");
-// TODO: put this in config.js or .env file.
-const projectId = "ai-moderator-1621563494698";
-const keyFilename = "../ai-moderator-1fa097a2d18f.json";
+const { projectId, keyFilename } = require("./config");
 const speechClient = new speech.SpeechClient({ projectId, keyFilename });
 
 module.exports = function (io, socket) {
-  // TODO: let user choose some of the configurations.
   // Speech recognition options.
+  // TODO: let user choose some of the configurations.
   const request = {
     config: {
       encoding: "LINEAR16",
@@ -32,7 +30,7 @@ module.exports = function (io, socket) {
       ], // add your own speech context for better recognition
       */
     },
-    interimResults: true, // If you want interim results, set this to true
+    interimResults: true,
   };
 
   // Variables for maintaining infinite stream of recognition.

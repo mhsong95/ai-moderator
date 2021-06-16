@@ -1,7 +1,7 @@
 const https = require("https");
 const fs = require("fs");
-const config = require("../media-server/config");
 const path = require("path");
+const config = require("./config");
 
 // SSL parameters
 const options = {
@@ -12,8 +12,7 @@ const options = {
 const httpsServer = https.createServer(options);
 const io = require("socket.io")(httpsServer, {
   cors: {
-    // TODO: Put the media server host name into config.js
-    origin: "https://localhost:3016",
+    origin: config.mediaServerHost,
   },
 });
 
@@ -49,7 +48,6 @@ io.of("/").adapter.on("delete-room", (room_id) => {
   }
 });
 
-// TODO: add port number into config.js
-httpsServer.listen(3017, () => {
-  console.log(`Moderator server listening on port 3017`);
+httpsServer.listen(config.listenPort, () => {
+  console.log(`moderator server listening https ${config.listenPort}`);
 });

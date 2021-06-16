@@ -3,6 +3,7 @@
 // Clerk also interacts with the summary server.
 
 const axios = require("axios");
+const config = require("./config");
 
 // Maximum length of silence not to switch a paragraph.
 const SILENCE_LIMIT = 10 * 1000;
@@ -95,7 +96,7 @@ module.exports = class Clerk {
     axios
       .post(
         // TODO: include in config.js
-        "http://143.248.138.31:5050",
+        config.summaryHost,
         `userId=${speakerId}&content=${paragraph}`
       )
       .then((response) => {
