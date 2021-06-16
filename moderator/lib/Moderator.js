@@ -455,8 +455,7 @@ module.exports = class Moderator {
       rtpParameters,
       codecOptions,
     });
-    const stream = new MediaStream();
-    stream.addTrack(consumer.track);
+    const stream = new MediaStream([consumer.track]);
     return {
       consumer,
       stream,
