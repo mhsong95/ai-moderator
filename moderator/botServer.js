@@ -31,10 +31,11 @@ botApp.post("/", function (req, res, next) {
   // TODO: check requester IP (only the media server is allowed).
   // Or share a secret in like config.js
   const { room_id, room_secret } = req.body;
-  console.log(`Bot request from ${room_id}`);
+  console.log(`Request for moderator from ${room_id}`);
 
   // TODO: httpAgent option. use io.Manager. put hostname in config.js
   let socket = io("ws://localhost:3016/");
+
   socket.request = function request(type, data = {}) {
     return new Promise((resolve, reject) => {
       socket.emit(type, data, (data) => {
@@ -47,15 +48,29 @@ botApp.post("/", function (req, res, next) {
     });
   };
 
-  let moderator = new Moderator(socket, room_id, room_secret, () => {
-    console.log("Moderator successfully created");
-  });
+  let moderator = new Moderator(
+    socket,
+    room_id,
+    room_secret,
+    () => {
+      moderator.on(Moderator.EVENTS.exitRoom, () => {
+        console.log(`Moderator exited room ${room_id}`);
+        botList.delete(room_id);
+      });
 
-  res.status(200).send();
+      console.log(`Moderator joined room ${room_id}`);
+      botList.set(room_id, moderator);
+
+      res.status(200).send();
+    },
+    (err) => {
+      console.log(`Moderator failed to join room ${room_id}: ${err}`);
+      res.status(500).send();
+    }
+  );
 });
 
 // TODO: create a separate config.js file for botServer
-// TODO: add a new command to package.json
 botServer.listen(3017, () => {
   console.log("Bot server started listening https " + 3017);
 });

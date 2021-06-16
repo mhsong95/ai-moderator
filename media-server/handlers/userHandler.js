@@ -14,7 +14,10 @@ module.exports = function (io, socket) {
     } else {
       console.log("---created room--- ", room_id);
       let worker = await getMediasoupWorker();
-      roomList.set(room_id, new Room(room_id, "random-name", "random-secret", worker, io));
+      roomList.set(
+        room_id,
+        new Room(room_id, "random-name", "random-secret", worker, io)
+      );
       callback(room_id);
     }
   });
@@ -162,13 +165,15 @@ module.exports = function (io, socket) {
     let room = roomList.get(socket.room_id);
     room.removePeer(socket.id);
 
-    if (room.getPeers().size === 0) {
+    if (room.isEmpty()) {
       if (room.roomExpireTimeout) {
         clearTimeout(room.roomExpireTimeout);
       }
-      room.roomExpireTimeout = setTimeout(() => {
-        roomList.delete(room.id);
+      room.roomExpireTimeout = setTimeout(async () => {
         room.roomExpireTimeout = null;
+        await room.clear();
+        roomList.delete(room.id);
+
         console.log(`DESTROYED: ${room.id} after timeout`);
       }, 30 * 1000);
     }
@@ -201,10 +206,18 @@ module.exports = function (io, socket) {
       return;
     }
     // close transports
-    await roomList.get(socket.room_id).removePeer(socket.id);
-    if (roomList.get(socket.room_id).getPeers().size === 0) {
-      roomList.delete(socket.room_id);
-      console.log(`DESTROYED: ${socket.room_id} after timeout`);
+    let room = roomList.get(socket.room_id);
+    await room.removePeer(socket.id);
+
+    if (room.isEmpty()) {
+      if (room.roomExpireTimeout) {
+        clearTimeout(room.roomExpireTimeout);
+      }
+      room.roomExpireTimeout = null;
+      await room.clear();
+      roomList.delete(room.id);
+
+      console.log(`DESTROYED: ${room.id} because empty`);
     }
 
     socket.room_id = null;

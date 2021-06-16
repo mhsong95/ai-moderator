@@ -1,5 +1,8 @@
 const mediasoupClient = require("mediasoup-client");
-const { createWorker, AiortcMediaStream: MediaStream } = require("mediasoup-client-aiortc");
+const {
+  createWorker,
+  AiortcMediaStream: MediaStream,
+} = require("mediasoup-client-aiortc");
 
 const mediaType = {
   audio: "audioType",
@@ -18,7 +21,7 @@ const _EVENTS = {
 };
 
 module.exports = class Moderator {
-  constructor(socket, room_id, room_secret, successCallback) {
+  constructor(socket, room_id, room_secret, successCallback, errback) {
     this.name = "Moderator";
     this.socket = socket;
     this.room_id = room_id;
@@ -44,14 +47,18 @@ module.exports = class Moderator {
       }.bind(this)
     );
 
-    this.createRoom(room_id).then(
-      async function () {
-        await this.join(this.name, room_id, room_secret);
-        this.initSockets();
-        this._isOpen = true;
-        successCallback();
-      }.bind(this)
-    );
+    this.createRoom(room_id)
+      .then(
+        async function () {
+          await this.join(this.name, room_id, room_secret);
+          this.initSockets();
+          this._isOpen = true;
+          successCallback();
+        }.bind(this)
+      )
+      .catch((err) => {
+        errback(err);
+      });
   }
 
   ////////// INIT /////////
@@ -90,6 +97,7 @@ module.exports = class Moderator {
       )
       .catch((e) => {
         console.log(e);
+        throw e;
       });
   }
 

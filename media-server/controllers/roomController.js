@@ -68,6 +68,7 @@ module.exports = function (io) {
         // Send a request for a bot to the bot server.
         axios
           .post(
+            // TODO: store this host name into config.js
             "https://localhost:3017/",
             { room_id, room_secret },
             {
@@ -78,6 +79,7 @@ module.exports = function (io) {
           )
           .then((res) => {
             console.log(res.status);
+            // TODO: retry when status code is 500: moderator failed to join
           });
 
         // Set timeout that deletes the room if no one enters for 30 sec.

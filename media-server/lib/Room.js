@@ -1,4 +1,5 @@
-const config = require('../config')
+const config = require('../config');
+const room = require('../routes/room');
 module.exports = class Room {
     constructor(room_id, room_name, room_secret, worker, io) {
         this.id = room_id
@@ -16,6 +17,7 @@ module.exports = class Room {
         this.io = io
 
         this.moderator = null;
+        this.roomExpireTimeout = null;
     }
 
     addPeer(peer) {
@@ -151,6 +153,30 @@ module.exports = class Room {
         return this.peers
     }
 
+    isEmpty() {
+        return (
+            this.peers.size === 0 || 
+            (this.peers.size === 1 && this.moderator !== null)
+        );
+    }
+
+    async clear() {
+        if (this.router) {
+            this.router.close();
+            this.router = null;
+        }
+
+        if (this.moderator) {
+            let moderator = this.moderator;
+
+            await this.removePeer(moderator.id);
+            this.moderator = null;
+
+            let moderatorSocket = this.io.of("/").sockets.get(moderator.id);
+            moderatorSocket.room_id = null;
+            moderatorSocket.disconnect(true);
+        }
+    }
 
 
     toJson() {
