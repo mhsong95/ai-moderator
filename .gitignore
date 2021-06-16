@@ -108,3 +108,6 @@ moderator/config.js
 
 # venv files
 .venv
+
+# vscode settings
+.vscode
