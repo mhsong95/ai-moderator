@@ -6,13 +6,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node media-server/app.js",
-    "mon": "nodemon media-server/app.js",
+    "media-server": "node --watch media-server/ --ignore public/ --ignore view/ media-server/app.js",
+    "dev-media-server": "nodemon media-server/app.js",
+    "moderator": "node moderator/moderatorServer.js",
+    "dev-moderator": "nodemon --watch moderator/ moderator/moderatorServer.js",
     "watch": "watchify media-server/public/index.js -o media-server/public/bundle.js -v"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
