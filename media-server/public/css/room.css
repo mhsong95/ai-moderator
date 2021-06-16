@@ -100,7 +100,6 @@ video {
   width: 35%;
   height: 100%;
   float: right;
-  padding: 1em;
   display: inline;
   position: absolute;
   border-left: thin solid;
@@ -110,14 +109,11 @@ video {
   list-style-type: none;
   word-wrap: break-word;
   white-space: pre-wrap;
-  margin: 0;
+  padding: 0.5em;
   overflow: hidden;
   overflow-y: scroll;
   height: 95%;
-}
-
-.message-box {
-  padding-right: 1em;
+  border-bottom: thin solid;
 }
 
 span.nametag {
@@ -130,15 +126,15 @@ span.timetag {
   color: darkgrey;
 }
 
-.message {
+.message-box {
   padding: 0.5em 1em;
   margin: 0.1em;
   border-radius: 10px;
   border-bottom: 0.001em solid rgba(40, 167, 70, 0.5);
-
   background: rgba(40, 167, 70, 0.219);
 }
 
 #display-choice {
   height: 5%;
+  padding-left: 0.5em;
 }

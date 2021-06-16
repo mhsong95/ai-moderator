@@ -59,7 +59,7 @@ function displayChoice(choice) {
 
       // Reduce size of summary boxes and add left margin
       for (let summaryBox of summaryBoxes) {
-        summaryBox.style.marginLeft = "1rem";
+        summaryBox.style.marginLeft = "1em";
         summaryBox.style.fontSize = "smaller";
         summaryBox.style.display = "";
       }
@@ -130,7 +130,7 @@ function createMessageBox(name, timestamp) {
 
   summaryBox.className = "summary-box";
   summaryBox.style.fontSize = "smaller";
-  summaryBox.style.marginLeft = "1rem";
+  summaryBox.style.marginLeft = "1em";
   summaryBox.append(summary);
   messageBox.append(summaryBox);
 
