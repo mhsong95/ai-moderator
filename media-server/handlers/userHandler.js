@@ -167,8 +167,13 @@ module.exports = function (io, socket) {
         clearTimeout(room.roomExpireTimeout);
       }
       room.roomExpireTimeout = setTimeout(() => {
-        roomList.delete(room.id);
+        if (room.router) {
+          room.router.close();
+          room.router = null;
+        }
         room.roomExpireTimeout = null;
+
+        roomList.delete(room.id);
         console.log(`DESTROYED: ${room.id} after timeout`);
       }, 30 * 1000);
     }
@@ -201,8 +206,19 @@ module.exports = function (io, socket) {
       return;
     }
     // close transports
-    await roomList.get(socket.room_id).removePeer(socket.id);
+    let room = roomList.get(socket.room_id);
+    await room.removePeer(socket.id);
+
     if (roomList.get(socket.room_id).getPeers().size === 0) {
+      if (room.roomExpireTimeout) {
+        clearTimeout(room.roomExpireTimeout);
+        room.roomExpireTimeout = null;
+      }
+      if (room.router) {
+        room.router.close();
+        room.router = null;
+      }
+
       roomList.delete(socket.room_id);
       console.log(`DESTROYED: ${socket.room_id} after timeout`);
     }
