@@ -169,6 +169,10 @@ module.exports = function (io, socket) {
 
   // Closes recognition stream.
   function stopStream() {
+    if (restartTimeout) {
+      clearTimeout(restartTimeout);
+      restartTimeout = null;
+    }
     if (recognizeStream) {
       recognizeStream.end();
       recognizeStream.removeAllListeners("data");
@@ -209,16 +213,9 @@ module.exports = function (io, socket) {
     stopStream();
   });
 
-  socket.on("disconnect", () => {
-    stopStream();
-  });
-
   // Stop the recognition stream and stop restarting it on disconnection.
   socket.on("disconnect", () => {
     stopStream();
-    if (restartTimeout) {
-      clearTimeout(restartTimeout);
-    }
     console.log(`${socket.name} leaved room ${socket.room_id}`);
   });
 };
