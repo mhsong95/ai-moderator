@@ -1,5 +1,4 @@
 import sys
-print("SYSPATH", sys.path)
 from src.test_summarize_string import KOBERT_SUMMARIZER
 
 srctext1= '네. 시간을 딱 지켜서 잘 말씀해주셨습니다. 다음은 반대 팀 듣겠습니다.'

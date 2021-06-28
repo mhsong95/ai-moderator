@@ -4,7 +4,7 @@ import sys
 
 pwd = sys.path[0]; kobert_path = pwd.split("ai-moderator")[0]+"ai-moderator/summarizer/KoBertSum"
 sys.path.append(kobert_path+"/src")
-print("SYSPATH", sys.path)
+#print("SYSPATH", sys.path)
 
 
 from prepro import data_builder 

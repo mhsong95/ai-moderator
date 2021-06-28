@@ -1,6 +1,6 @@
 bert-extractive-summarizer
 spacy
-transformers==2.11.0
+# transformers==2.11.0
 neuralcoref
 tensorflow
 streamlit
