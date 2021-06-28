@@ -111,3 +111,12 @@ moderator/config.js
 
 # vscode settings
 .vscode
+
+
+# pycache
+__pycache__
+__init__.py
+__init__.pyc
+
+#json / lock for KoBERT
+summarizer/KoBertSum/temp/
