@@ -1,7 +1,25 @@
+import React, { Component } from "react";
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
 const config = require("./config");
+
+import { ResultReason } from "microsoft-cognitiveservices-speech-sdk";
+
+const speechsdk = require("microsoft-cognitiveservices-speech-sdk");
+// const tokenObj = await getTokenOrRefresh();
+const speechKey = "d265d762a40f4cbf87f5d95d9008be41";
+const speechRegion = "eastus";
+console.log(speechKey);
+console.log(speechRegion);
+const speechConfig = speechsdk.SpeechConfig.fromSubscription(
+    speechKey,
+    speechRegion
+);
+speechConfig.speechRecognitionLanguage = "ko-KR";
+
+const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
+const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
 
 // SSL parameters
 const options = {
@@ -18,7 +36,7 @@ const io = require("socket.io")(httpsServer, {
 
 const Clerk = require("./Clerk");
 const { clerks } = require("./global");
-const registerSpeechHandler = require("./msAzureSTT");
+// const registerSpeechHandler = require("./msAzureSTT");
 // const registerSpeechHandler = require("./speechHandler");
 
 io.on("connection", (socket) => {

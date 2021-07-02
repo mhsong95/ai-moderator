@@ -20,7 +20,7 @@ module.exports = function (io, socket) {
     config: {
       encoding: "LINEAR16",
       sampleRateHertz: 16000,
-      languageCode: "en-US",
+      languageCode: "ko-KR",//"en-US",
       enableAutomaticPunctuation: true, // Automatic punctuation
       /*
       speechContexts: [
