@@ -18,7 +18,7 @@ const io = require("socket.io")(httpsServer, {
 
 const Clerk = require("./Clerk");
 const { clerks } = require("./global");
-const registerSpeechHandler = require("./msAzureSTT");
+const registerSpeechHandler = require("./msspeechHandler");
 // const registerSpeechHandler = require("./speechHandler");
 
 io.on("connection", (socket) => {
@@ -34,8 +34,8 @@ io.on("connection", (socket) => {
     socket.name = name;
     console.log(`${name} joined ${room_id} on moderator server`);
 
-    // registerSpeechHandler(io, socket);
-    socket.emit("startSTT");
+    registerSpeechHandler(io, socket);
+    // socket.emit("startSTT");
   } else {
     socket.disconnect(true);
   }
@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
 io.of("/").adapter.on("delete-room", (room_id) => {
   if (clerks.has(room_id)) {
     let clerk = clerks.get(room_id);
-    socket.emit("stopSTT");
+    // socket.emit("stopSTT");
     clerk.clearSwitchTimeout();
     clerks.delete(room_id);
     console.log(`Room deleted: ${room_id}`);
