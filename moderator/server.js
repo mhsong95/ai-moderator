@@ -18,7 +18,12 @@ const io = require("socket.io")(httpsServer, {
 
 const Clerk = require("./Clerk");
 const { clerks } = require("./global");
-const registerSpeechHandler = require("./speechHandler");
+
+// Use msspeechHandler.js for ko-KR transcript
+const registerSpeechHandler = require("./msspeechHandler");
+
+// Use speechHandler.js for en-US transcript
+// const registerSpeechHandler = require("./speechHandler");
 
 io.on("connection", (socket) => {
   const { room_id, name } = socket.handshake.query;
