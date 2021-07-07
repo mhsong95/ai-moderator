@@ -34,7 +34,7 @@ body {
   float: left;
   left: 0;
   bottom: 0;
-  height: 25%;
+  /* height: 75%; */
 }
 
 .video-container[name="local-media"] video {
@@ -79,8 +79,8 @@ body {
 #media-control {
   float: left;
   margin-left: 0.5em;
-  width: min-content;
-  height: 25%;
+  /* width: min-content; */
+  height: 15%;
 }
 
 #media-control button {
