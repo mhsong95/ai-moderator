@@ -5,6 +5,10 @@ body {
   min-height: 720px;
 }
 
+nav {
+  width: 65%;
+}
+
 #left {
   width: 65%;
   height: 100%;
