@@ -93,6 +93,8 @@ module.exports = class Clerk {
     let speakerName = this.speakerName;
     let timestamp = this.timestamp;
 
+    if (paragraph==='') return
+
     axios
       .post(
         // TODO: include in config.js
@@ -106,7 +108,7 @@ module.exports = class Clerk {
         }
 
         // TODO: Get the real confidence value.
-        let confidence = Math.random();
+        let confidence = 1; //Math.random();
         // No summary: just emit the paragraph with an indication that
         // it is not a summary (confidence === -1).
         if (!summary) {
