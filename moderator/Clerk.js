@@ -102,24 +102,35 @@ module.exports = class Clerk {
         `userId=${speakerId}&content=${paragraph}`
       )
       .then((response) => {
-        let summary;
+        let summary, summaryArr;
         if (response.status === 200) {
           summary = response.data;
         }
 
         // TODO: Get the real confidence value.
-        let confidence = 1; //Math.random();
+        let confArr = [1, 1]; //Math.random();
         // No summary: just emit the paragraph with an indication that
         // it is not a summary (confidence === -1).
         if (!summary) {
-          summary = paragraph;
-          confidence = -1;
+          summaryArr = [paragraph, paragraph]
+          confArr = [-1, -1];
+        }
+        else{
+          console.log("SUMMARY::::::")
+          console.log(summary);
+          // Parse returned summary
+          summaryArr = summary.split("@@@@@AB@@@@@EX@@@@@");
+          if(summaryArr[0].length > paragraph.length){
+            console.log(summaryArr[0].length)
+            console.log(paragraph.length)
+            summaryArr[0] = paragraph
+            confArr[0] = -1
+          }
         }
 
-        console.log(summary);
         this.io.sockets
           .to(this.room_id)
-          .emit("summary", summary, confidence, speakerName, timestamp);
+          .emit("summary", summaryArr, confArr, speakerName, timestamp);
       })
       .catch((e) => {
         let summary = paragraph;

@@ -23,74 +23,195 @@ function onTranscript(transcript, name, timestamp) {
 }
 
 // Event listener on summary arrival.
-function onSummary(summary, confidence, name, timestamp) {
+function onSummary(summaryArr, confArr, name, timestamp) {
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
 
   let summaryBox = messageBox.childNodes[2];
+  let exSummaryBox = messageBox.childNodes[3];
 
   let summaryEl = summaryBox.childNodes[0];
-  summaryEl.textContent = summary;
+  summaryEl.textContent = summaryArr[0];
+
+  let exSummaryEl = exSummaryBox.childNodes[0];
+  exSummaryEl.textContent = summaryArr[1];
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
-  if (confidence !== -1) {
-    let confidenceElem = confidenceElement(confidence);
+  if (confArr[0] !== -1) {
+    let confidenceElem = confidenceElement(confArr[0]);
     summaryEl.append(confidenceElem);
   }
+  if (confArr[1] !== -1) {
+    let confidenceElem = confidenceElement(confArr[1]);
+    exSummaryEl.append(confidenceElem);
+  }
+
 
   // Scroll down the messages area.
   messages.scrollTop = messages.scrollHeight;
 }
 
-// Hide or display transcripts or summaries according to radio button choice
-function displayChoice(choice) {
+function displayScript(choice) {
+  let abCheck = document.getElementById("minutes-ab");
+  let exCheck = document.getElementById("minutes-ex");
   let paragraphs = document.getElementsByClassName("paragraph");
   let summaryBoxes = document.getElementsByClassName("summary-box");
-
-  switch (choice.value) {
-    case "both":
-      // Show both: display paragraphs
-      for (let paragraph of paragraphs) {
-        paragraph.style.display = "";
-      }
-
+  let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
+  if (choice.checked) {
+    // Show transcripts only: display paragraphs
+    for (let paragraph of paragraphs) {
+      paragraph.style.display = "";
+    }
+    if (abCheck.checked) {
       // Reduce size of summary boxes and add left margin
       for (let summaryBox of summaryBoxes) {
         summaryBox.style.marginLeft = "1em";
         summaryBox.style.fontSize = "smaller";
         summaryBox.style.display = "";
       }
-
-      break;
-    case "transcript":
-      // Show transcripts only: display paragraphs
-      for (let paragraph of paragraphs) {
-        paragraph.style.display = "";
+    }
+    if (exCheck.checked) {
+      // Reduce size of summary boxes and add left margin
+      for (let summaryBox of exSummaryBoxes) {
+        summaryBox.style.marginLeft = "1em";
+        summaryBox.style.fontSize = "smaller";
+        summaryBox.style.display = "";
       }
-
-      // Hide summary boxes.
-      for (let summaryBox of summaryBoxes) {
-        summaryBox.style.display = "none";
-      }
-      break;
-    case "summary":
-      // Show summaries only: hide paragraphs
-      for (let paragraph of paragraphs) {
-        paragraph.style.display = "none";
-      }
-
+    }
+  }
+  else {
+    if (abCheck.checked) {
       // Larger the summary boxes and remove left margin
       for (let summaryBox of summaryBoxes) {
         summaryBox.style.marginLeft = "";
         summaryBox.style.fontSize = "medium";
         summaryBox.style.display = "";
       }
-      break;
+    }
+    if (exCheck.checked) {
+      // Larger the summary boxes and remove left margin
+      for (let summaryBox of exSummaryBoxes) {
+        summaryBox.style.marginLeft = "";
+        summaryBox.style.fontSize = "medium";
+        summaryBox.style.display = "";
+      }
+    }
+    // Show summaries only: hide paragraphs
+    for (let paragraph of paragraphs) {
+      paragraph.style.display = "none";
+    }
   }
 }
+
+function displayAbSummary(choice) {
+  let transCheck = document.getElementById("minutes-transcript");
+  // let exCheck = document.getElementById("minutes-transcript");
+  let summaryBoxes = document.getElementsByClassName("summary-box");
+  console.log(transCheck);
+  if (!transCheck.checked && choice.checked) {
+    // Larger the summary boxes and remove left margin
+    for (let summaryBox of summaryBoxes) {
+      summaryBox.style.marginLeft = "";
+      summaryBox.style.fontSize = "medium";
+      summaryBox.style.display = "";
+    }
+  }
+  else if (choice.checked) {
+    // Reduce size of summary boxes and add left margin
+    for (let summaryBox of summaryBoxes) {
+      summaryBox.style.marginLeft = "1em";
+      summaryBox.style.fontSize = "smaller";
+      summaryBox.style.display = "";
+    }
+  }
+  else {
+    // Hide summary boxes.
+    for (let summaryBox of summaryBoxes) {
+      summaryBox.style.display = "none";
+    }
+  }
+}
+
+function displayExSummary(choice) {
+  let transCheck = document.getElementById("minutes-transcript");
+  // let abCheck = document.getElementById("minutes-ab");
+  let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
+  // let abSummaryBoxes = document.getElementsByClassName("summary-box");
+  // let paragraphs = document.getElementsByClassName("paragraph");
+  console.log(transCheck);
+  if (!transCheck.checked && choice.checked) {
+    // Larger the summary boxes and remove left margin
+    for (let summaryBox of exSummaryBoxes) {
+      summaryBox.style.marginLeft = "";
+      summaryBox.style.fontSize = "medium";
+      summaryBox.style.display = "";
+    }
+  }
+  else if (choice.checked) {
+    // Reduce size of summary boxes and add left margin
+    for (let summaryBox of exSummaryBoxes) {
+      summaryBox.style.marginLeft = "1em";
+      summaryBox.style.fontSize = "smaller";
+      summaryBox.style.display = "";
+    }
+  }
+  else {
+    // Hide summary boxes.
+    for (let summaryBox of exSummaryBoxes) {
+      summaryBox.style.display = "none";
+    }
+  }
+}
+
+// Hide or display transcripts or summaries according to radio button choice
+// function displayChoice(choice) {
+//   let paragraphs = document.getElementsByClassName("paragraph");
+//   let summaryBoxes = document.getElementsByClassName("summary-box");
+
+//   switch (choice.value) {
+//     case "both":
+//       // Show both: display paragraphs
+//       for (let paragraph of paragraphs) {
+//         paragraph.style.display = "";
+//       }
+
+//       // Reduce size of summary boxes and add left margin
+//       for (let summaryBox of summaryBoxes) {
+//         summaryBox.style.marginLeft = "1em";
+//         summaryBox.style.fontSize = "smaller";
+//         summaryBox.style.display = "";
+//       }
+
+//       break;
+//     case "transcript":
+//       // Show transcripts only: display paragraphs
+//       for (let paragraph of paragraphs) {
+//         paragraph.style.display = "";
+//       }
+
+//       // Hide summary boxes.
+//       for (let summaryBox of summaryBoxes) {
+//         summaryBox.style.display = "none";
+//       }
+//       break;
+//     case "summary":
+//       // Show summaries only: hide paragraphs
+//       for (let paragraph of paragraphs) {
+//         paragraph.style.display = "none";
+//       }
+
+//       // Larger the summary boxes and remove left margin
+//       for (let summaryBox of summaryBoxes) {
+//         summaryBox.style.marginLeft = "";
+//         summaryBox.style.fontSize = "medium";
+//         summaryBox.style.display = "";
+//       }
+//       break;
+//   }
+// }
 
 // Helper functions
 
@@ -127,12 +248,20 @@ function createMessageBox(name, timestamp) {
   // messageBox.childNodes[2]: includes the summary and confidence level
   let summaryBox = document.createElement("div");
   let summary = document.createElement("p");
+  let exSummaryBox = document.createElement("div");
+  let exSummary = document.createElement("p");
 
   summaryBox.className = "summary-box";
   summaryBox.style.fontSize = "smaller";
   summaryBox.style.marginLeft = "1em";
   summaryBox.append(summary);
   messageBox.append(summaryBox);
+
+  exSummaryBox.className = "ex-summary-box";
+  exSummaryBox.style.fontSize = "smaller";
+  exSummaryBox.style.marginLeft = "1em";
+  exSummaryBox.append(exSummary);
+  messageBox.append(exSummaryBox);
 
   // Finally append the box to 'messages' area
   messages.appendChild(messageBox);

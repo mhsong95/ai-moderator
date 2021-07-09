@@ -162,19 +162,44 @@
 
     <div id="right">
       <div id="messages"></div>
-      <div class="form-check form-switch">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          id="flexSwitchCheckChecked"
-          checked
-        />
-        <label class="form-check-label" for="flexSwitchCheckChecked"
-          >Checked switch checkbox input</label
-        >
-      </div>
       <div id="display-choice">
-        <input
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="minutes-transcript"
+            onchange="displayScript(this);"
+            checked
+          />
+          <label class="form-check-label" for="minutes-transcript"
+            >Script</label
+          >
+        </div>
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="minutes-ab"
+            onchange="displayAbSummary(this);"
+            checked
+          />
+          <label class="form-check-label" for="minutes-ab"
+            >Abstractive Summary</label
+          >
+        </div>
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="minutes-ex"
+            onchange="displayExSummary(this);"
+            checked
+          />
+          <label class="form-check-label" for="minutes-ex"
+            >Extractive Summary</label
+          >
+        </div>
+        <!-- <input
           type="radio"
           name="transcript"
           value="both"
@@ -193,7 +218,7 @@
           value="summary"
           onchange="displayChoice(this);"
         />Summary
-      </div>
+      </div> -->
     </div>
   </body>
 
