@@ -9,6 +9,10 @@ moderatorSocket.on("summary", onSummary);
 
 // Event listener on individual transcript arrival.
 function onTranscript(transcript, name, timestamp) {
+  let transCheck = document.getElementById("minutes-transcript").checked;
+  let abCheck = document.getElementById("minutes-ab").checked;
+  let exCheck = document.getElementById("minutes-ex").checked;
+
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
@@ -20,200 +24,151 @@ function onTranscript(transcript, name, timestamp) {
 
   // Scroll down the messages area.
   messages.scrollTop = messages.scrollHeight;
+
+  if (!transCheck && !abCheck && !exCheck) {
+    displayNo(messageBox);
+  }
+  else if (!transCheck) {
+    displayNo(paragraph);
+  }
 }
 
 // Event listener on summary arrival.
 function onSummary(summaryArr, confArr, name, timestamp) {
+  let transCheck = document.getElementById("minutes-transcript").checked;
+  let abCheck = document.getElementById("minutes-ab").checked;
+  let exCheck = document.getElementById("minutes-ex").checked;
+
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
 
-  let summaryBox = messageBox.childNodes[2];
+  let abSummaryBox = messageBox.childNodes[2];
   let exSummaryBox = messageBox.childNodes[3];
 
-  let summaryEl = summaryBox.childNodes[0];
-  summaryEl.textContent = summaryArr[0];
+  let abSummaryEl = abSummaryBox.childNodes[0];
+  abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
 
   let exSummaryEl = exSummaryBox.childNodes[0];
-  exSummaryEl.textContent = summaryArr[1];
+  exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
   if (confArr[0] !== -1) {
     let confidenceElem = confidenceElement(confArr[0]);
-    summaryEl.append(confidenceElem);
+    abSummaryEl.append(confidenceElem);
   }
   if (confArr[1] !== -1) {
     let confidenceElem = confidenceElement(confArr[1]);
     exSummaryEl.append(confidenceElem);
   }
 
+  if (!transCheck && !abCheck && !exCheck) {
+    displayNo(messageBox);
+  }
+  else if (!transCheck) {
+    displayBox(abCheck, abSummaryBox, displayBig);
+    displayBox(exCheck, exSummaryBox, displayBig);
+  }
+  else {
+    if (!abCheck) {
+      displayNo(abSummaryBox);
+    }
+    if (!exCheck) {
+      displayNo(exSummaryBox);
+    }
+  }
 
   // Scroll down the messages area.
   messages.scrollTop = messages.scrollHeight;
 }
 
-function displayScript(choice) {
-  let abCheck = document.getElementById("minutes-ab");
-  let exCheck = document.getElementById("minutes-ex");
+function displayScript() {
+  let transCheck = document.getElementById("minutes-transcript").checked;
+  let abCheck = document.getElementById("minutes-ab").checked;
+  let exCheck = document.getElementById("minutes-ex").checked;
+
+  let messageBoxes = document.getElementsByClassName("message-box");
   let paragraphs = document.getElementsByClassName("paragraph");
-  let summaryBoxes = document.getElementsByClassName("summary-box");
+  let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
   let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
-  if (choice.checked) {
-    // Show transcripts only: display paragraphs
-    for (let paragraph of paragraphs) {
-      paragraph.style.display = "";
-    }
-    if (abCheck.checked) {
-      // Reduce size of summary boxes and add left margin
-      for (let summaryBox of summaryBoxes) {
-        summaryBox.style.marginLeft = "1em";
-        summaryBox.style.fontSize = "smaller";
-        summaryBox.style.display = "";
-      }
-    }
-    if (exCheck.checked) {
-      // Reduce size of summary boxes and add left margin
-      for (let summaryBox of exSummaryBoxes) {
-        summaryBox.style.marginLeft = "1em";
-        summaryBox.style.fontSize = "smaller";
-        summaryBox.style.display = "";
-      }
-    }
+
+  if (!transCheck && !abCheck && !exCheck) {
+    // Hide message layout
+    displayBoxes(false, messageBoxes, displayNo);
   }
   else {
-    if (abCheck.checked) {
-      // Larger the summary boxes and remove left margin
-      for (let summaryBox of summaryBoxes) {
-        summaryBox.style.marginLeft = "";
-        summaryBox.style.fontSize = "medium";
-        summaryBox.style.display = "";
-      }
+    // Show message layout
+    displayBoxes(true, messageBoxes, displayYes);
+
+    // If transCheck==true, show paragraphs
+    displayBoxes(transCheck, paragraphs, displayYes);
+
+    if (transCheck) {
+      // If Abstractive Summary checked, reduce size of summary boxes and add left margin
+      // otherwise, hide exSummaryBoxes.
+      displayBoxes(abCheck, abSummaryBoxes, displaySm);
+
+      // If Extractive Summary checked, reduce size of summary boxes and add left margin
+      // otherwise, hide exSummaryBoxes.
+      displayBoxes(exCheck, exSummaryBoxes, displaySm);
     }
-    if (exCheck.checked) {
-      // Larger the summary boxes and remove left margin
-      for (let summaryBox of exSummaryBoxes) {
-        summaryBox.style.marginLeft = "";
-        summaryBox.style.fontSize = "medium";
-        summaryBox.style.display = "";
-      }
-    }
-    // Show summaries only: hide paragraphs
-    for (let paragraph of paragraphs) {
-      paragraph.style.display = "none";
+    else {
+      // If Abstractive Summary checked, larger the summary boxes and remove left margin
+      // otherwise, hide abSummaryBoxes.
+      displayBoxes(abCheck, abSummaryBoxes, displayBig);
+
+      // If Extractive Summary checked, larger the summary boxes and remove left margin
+      // otherwise, hide exSummaryBoxes.
+      displayBoxes(exCheck, exSummaryBoxes, displayBig);
     }
   }
 }
 
-function displayAbSummary(choice) {
-  let transCheck = document.getElementById("minutes-transcript");
-  // let exCheck = document.getElementById("minutes-transcript");
-  let summaryBoxes = document.getElementsByClassName("summary-box");
-  console.log(transCheck);
-  if (!transCheck.checked && choice.checked) {
-    // Larger the summary boxes and remove left margin
-    for (let summaryBox of summaryBoxes) {
-      summaryBox.style.marginLeft = "";
-      summaryBox.style.fontSize = "medium";
-      summaryBox.style.display = "";
-    }
-  }
-  else if (choice.checked) {
-    // Reduce size of summary boxes and add left margin
-    for (let summaryBox of summaryBoxes) {
-      summaryBox.style.marginLeft = "1em";
-      summaryBox.style.fontSize = "smaller";
-      summaryBox.style.display = "";
-    }
+//////////////////////////////////////////////
+/************* Helper functions *************/
+
+// Change given box's css style to bigger text
+function displayBig(box) {
+  box.style.marginLeft = "";
+  box.style.fontSize = "medium";
+  box.style.display = "";
+}
+
+// Reduce size of box and add left margin
+function displaySm(box) {
+  box.style.marginLeft = "1em";
+  box.style.fontSize = "smaller";
+  box.style.display = "";
+}
+
+// Hide box
+function displayNo(box) {
+  box.style.display = "none";
+}
+
+// Show box
+function displayYes(box) {
+  box.style.display = "";
+}
+
+// Disply box if 'cond' is true, use given function 'fn' to show the box
+function displayBox(cond, box, fn) {
+  if (cond) {
+    fn(box);
   }
   else {
-    // Hide summary boxes.
-    for (let summaryBox of summaryBoxes) {
-      summaryBox.style.display = "none";
-    }
+    displayNo(box);
   }
 }
 
-function displayExSummary(choice) {
-  let transCheck = document.getElementById("minutes-transcript");
-  // let abCheck = document.getElementById("minutes-ab");
-  let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
-  // let abSummaryBoxes = document.getElementsByClassName("summary-box");
-  // let paragraphs = document.getElementsByClassName("paragraph");
-  console.log(transCheck);
-  if (!transCheck.checked && choice.checked) {
-    // Larger the summary boxes and remove left margin
-    for (let summaryBox of exSummaryBoxes) {
-      summaryBox.style.marginLeft = "";
-      summaryBox.style.fontSize = "medium";
-      summaryBox.style.display = "";
-    }
-  }
-  else if (choice.checked) {
-    // Reduce size of summary boxes and add left margin
-    for (let summaryBox of exSummaryBoxes) {
-      summaryBox.style.marginLeft = "1em";
-      summaryBox.style.fontSize = "smaller";
-      summaryBox.style.display = "";
-    }
-  }
-  else {
-    // Hide summary boxes.
-    for (let summaryBox of exSummaryBoxes) {
-      summaryBox.style.display = "none";
-    }
+// Display boxes if 'cond' is true, use given function 'fn' to show the box
+function displayBoxes(cond, boxes, fn) {
+  for (let box of boxes) {
+    displayBox(cond, box, fn);
   }
 }
-
-// Hide or display transcripts or summaries according to radio button choice
-// function displayChoice(choice) {
-//   let paragraphs = document.getElementsByClassName("paragraph");
-//   let summaryBoxes = document.getElementsByClassName("summary-box");
-
-//   switch (choice.value) {
-//     case "both":
-//       // Show both: display paragraphs
-//       for (let paragraph of paragraphs) {
-//         paragraph.style.display = "";
-//       }
-
-//       // Reduce size of summary boxes and add left margin
-//       for (let summaryBox of summaryBoxes) {
-//         summaryBox.style.marginLeft = "1em";
-//         summaryBox.style.fontSize = "smaller";
-//         summaryBox.style.display = "";
-//       }
-
-//       break;
-//     case "transcript":
-//       // Show transcripts only: display paragraphs
-//       for (let paragraph of paragraphs) {
-//         paragraph.style.display = "";
-//       }
-
-//       // Hide summary boxes.
-//       for (let summaryBox of summaryBoxes) {
-//         summaryBox.style.display = "none";
-//       }
-//       break;
-//     case "summary":
-//       // Show summaries only: hide paragraphs
-//       for (let paragraph of paragraphs) {
-//         paragraph.style.display = "none";
-//       }
-
-//       // Larger the summary boxes and remove left margin
-//       for (let summaryBox of summaryBoxes) {
-//         summaryBox.style.marginLeft = "";
-//         summaryBox.style.fontSize = "medium";
-//         summaryBox.style.display = "";
-//       }
-//       break;
-//   }
-// }
-
-// Helper functions
 
 // Creates a container element (message box)
 // that holds a paragraph and its summary.
@@ -245,17 +200,19 @@ function createMessageBox(name, timestamp) {
   paragraph.style.fontSize = "medium";
   messageBox.append(paragraph);
 
-  // messageBox.childNodes[2]: includes the summary and confidence level
-  let summaryBox = document.createElement("div");
-  let summary = document.createElement("p");
+  // messageBox.childNodes[2]: includes the abstraxtive summary and confidence level
+  let abSummaryBox = document.createElement("div");
+  let abSummary = document.createElement("p");
+
+  // messageBox.childNodes[3]: includes the abstraxtive summary and confidence level
   let exSummaryBox = document.createElement("div");
   let exSummary = document.createElement("p");
 
-  summaryBox.className = "summary-box";
-  summaryBox.style.fontSize = "smaller";
-  summaryBox.style.marginLeft = "1em";
-  summaryBox.append(summary);
-  messageBox.append(summaryBox);
+  abSummaryBox.className = "ab-summary-box";
+  abSummaryBox.style.fontSize = "smaller";
+  abSummaryBox.style.marginLeft = "1em";
+  abSummaryBox.append(abSummary);
+  messageBox.append(abSummaryBox);
 
   exSummaryBox.className = "ex-summary-box";
   exSummaryBox.style.fontSize = "smaller";

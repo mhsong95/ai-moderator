@@ -114,7 +114,7 @@ nav {
   padding: 0.5em;
   overflow: hidden;
   overflow-y: scroll;
-  height: 95%;
+  height: 90%;
   border-bottom: thin solid;
 }
 
@@ -137,6 +137,6 @@ span.timetag {
 }
 
 #display-choice {
-  height: 5%;
-  padding-left: 0.5em;
+  /* height: 7%; */
+  padding: 0.5em;
 }

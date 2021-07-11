@@ -24,6 +24,7 @@
     "express-session": "^1.17.2",
     "express-validator": "^6.11.1",
     "httpolyglot": "^0.1.2",
+    "jshint": "^2.13.0",
     "livereload": "^0.9.3",
     "mediasoup": "^3.7.12",
     "microsoft-cognitiveservices-speech-sdk": "^1.17.0",
