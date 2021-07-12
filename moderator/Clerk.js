@@ -9,7 +9,7 @@ const config = require("./config");
 const SILENCE_LIMIT = 10 * 1000;
 
 module.exports = class Clerk {
-  constructor(io, room_id) {
+  constructor (io, room_id) {
     this.io = io;
     this.room_id = room_id;
 
@@ -78,6 +78,7 @@ module.exports = class Clerk {
    * Broadcasts a transcript to the room.
    */
   publishTranscript(transcript, name, timestamp) {
+    if (transcript === '') return;
     this.io.sockets
       .to(this.room_id)
       .emit("transcript", transcript, name, timestamp);
@@ -93,7 +94,7 @@ module.exports = class Clerk {
     let speakerName = this.speakerName;
     let timestamp = this.timestamp;
 
-    if (paragraph==='') return
+    if (paragraph === '') return;
 
     axios
       .post(
@@ -115,12 +116,12 @@ module.exports = class Clerk {
           summaryArr = [paragraph, paragraph]
           confArr = [-1, -1];
         }
-        else{
+        else {
           console.log("SUMMARY::::::")
           console.log(summary);
           // Parse returned summary
           summaryArr = summary.split("@@@@@AB@@@@@EX@@@@@");
-          if(summaryArr[0].length > paragraph.length){
+          if (summaryArr[0].length > paragraph.length) {
             console.log(summaryArr[0].length)
             console.log(paragraph.length)
             summaryArr[0] = paragraph

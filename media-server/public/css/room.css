@@ -136,6 +136,20 @@ span.timetag {
   background: rgba(40, 167, 70, 0.219);
 }
 
+.edit-btn {
+  display: none;
+  float: right;
+  opacity: 0.5;
+  /* z-index: 1; */
+}
+
+.paragraph:hover .edit-btn{
+  display: block;
+}
+
+
+/* .fa-pen */
+
 #display-choice {
   /* height: 7%; */
   padding: 0.5em;

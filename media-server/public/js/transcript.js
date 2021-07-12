@@ -3,6 +3,7 @@
 // Includes UI control on transcription and summary data arrival.
 
 const messages = document.getElementById("messages");
+// const { roomList } = require("../../lib/global");
 
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
@@ -80,6 +81,17 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     }
   }
 
+  // Add edit button in order to allow user change contents
+  let paragraph = messageBox.childNodes[1];
+  let editBtn1 = document.createElement("span");
+  editBtn1.className = "edit-btn";
+  editBtn1.id = "edit-" + timestamp.toString();
+  editBtn1.onclick = function () { editParagraph(timestamp.toString()) };
+  let pen1 = document.createElement("i");
+  pen1.className = "fas fa-pen";
+  editBtn1.append(pen1);
+  paragraph.append(editBtn1);
+
   // Scroll down the messages area.
   messages.scrollTop = messages.scrollHeight;
 }
@@ -144,7 +156,46 @@ function displayBoxesWithSearch(cond, boxes, fn, searchword) {
   }
 }
 
+function editParagraph(timestamp) {
+  console.log("Edit Paragraph");
+  // console.log(editbtn.id.split('edit-')[0]);/
+  let messageBox = document.getElementById(timestamp);
+  if (!messageBox) {
+    console.log("ERROR:::::::::::::::::EDITING NO MSG BOX");
+    return;
+  }
+  let paragraph = messageBox.childNodes[1];
+  console.log(paragraph.textContent);
+  paragraph.contentEditable = "true";
 
+  // change icon
+  console.log(paragraph);
+  console.log(paragraph.childNodes[1]);
+
+  paragraph.childNodes[1].style.opacity = "0.8";
+  paragraph.childNodes[1].childNodes[0].className = "fas fa-check";
+
+  paragraph.childNodes[1].onclick = function () { finishEditParagraph(timestamp); };
+}
+
+function finishEditParagraph(timestamp) {
+  console.log("Edit Paragraph");
+  // console.log(editbtn.id.split('edit-')[0]);/
+  let messageBox = document.getElementById(timestamp);
+
+  let paragraph = messageBox.childNodes[1];
+  console.log(paragraph.textContent);
+  paragraph.contentEditable = "false";
+
+  // change icon
+  console.log(paragraph);
+  console.log(paragraph.childNodes[1]);
+
+  paragraph.childNodes[1].style.opacity = "0.5";
+  paragraph.childNodes[1].childNodes[0].className = "fas fa-pen";
+
+  paragraph.childNodes[1].onclick = function () { editParagraph(timestamp); };
+}
 
 function displayScript() {
   let transCheck = document.getElementById("minutes-transcript").checked;
@@ -152,6 +203,7 @@ function displayScript() {
   let exCheck = document.getElementById("minutes-ex").checked;
 
   let messageBoxes = document.getElementsByClassName("message-box");
+
   let paragraphs = document.getElementsByClassName("paragraph");
   let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
   let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
@@ -239,6 +291,11 @@ function createMessageBox(name, timestamp) {
   let messageBox = document.createElement("div");
   messageBox.setAttribute("id", timestamp.toString());
   messageBox.className = "message-box";
+
+  if (user_name == name) {
+    messageBox.style.borderBottom = "0.001em solid rgba(40, 70, 167, 0.5)";
+    messageBox.style.background = "rgba(40, 70, 167, 0.219)";
+  }
 
   // messageBox.childNodes[0]: includes title - timestamp and name.
   let title = document.createElement("div");
