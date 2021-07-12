@@ -3,6 +3,7 @@
 // Includes UI control on transcription and summary data arrival.
 
 const messages = document.getElementById("messages");
+// const { roomList } = require("../../lib/global");
 
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
@@ -80,6 +81,16 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     }
   }
 
+  // Add edit button in order to allow user change contents
+  // let paragraph = messageBox.childNodes[1];
+  // let editBtn1 = document.createElement("span");
+  // editBtn1.className = "edit-btn";
+  // editBtn1.onclick = editParagraph();
+  // let pen1 = document.createElement("i");
+  // pen1.className = "fas fa-pen";
+  // editBtn1.append(pen1);
+  // paragraph.append(editBtn1);
+
   // Scroll down the messages area.
   messages.scrollTop = messages.scrollHeight;
 }
@@ -90,6 +101,8 @@ function displayScript() {
   let exCheck = document.getElementById("minutes-ex").checked;
 
   let messageBoxes = document.getElementsByClassName("message-box");
+  let myMessageBoxes = document.getElementsByClassName("message-box-me");
+
   let paragraphs = document.getElementsByClassName("paragraph");
   let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
   let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
@@ -97,10 +110,12 @@ function displayScript() {
   if (!transCheck && !abCheck && !exCheck) {
     // Hide message layout
     displayBoxes(false, messageBoxes, displayNo);
+    displayBoxes(false, myMessageBoxes, displayNo);
   }
   else {
     // Show message layout
     displayBoxes(true, messageBoxes, displayYes);
+    displayBoxes(true, myMessageBoxes, displayYes);
 
     // If transCheck==true, show paragraphs
     displayBoxes(transCheck, paragraphs, displayYes);
@@ -176,7 +191,16 @@ function displayBoxes(cond, boxes, fn) {
 function createMessageBox(name, timestamp) {
   let messageBox = document.createElement("div");
   messageBox.setAttribute("id", timestamp.toString());
-  messageBox.className = "message-box";
+
+  console.log("ModeratorSocket.name??");
+  console.log(user_name);
+
+  if (user_name == name) {
+    messageBox.className = "message-box-me";
+  }
+  else {
+    messageBox.className = "message-box";
+  }
 
   // messageBox.childNodes[0]: includes title - timestamp and name.
   let title = document.createElement("div");
