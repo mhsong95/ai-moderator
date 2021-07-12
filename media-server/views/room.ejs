@@ -130,6 +130,11 @@
         <label class="btn btn-outline-warning shadow-none" for="minutes-ab">Abstractive Summary</label>
         <input type="checkbox" class="btn-check" id="minutes-ex" onclick="displayScript();" checked>
         <label class="btn btn-outline-warning shadow-none" for="minutes-ex">Extractive Summary</label>
+
+        <div style="margin-top: 1em; ">
+          <input type="text" id="search-word" placeholder="SEARCH" onkeydown="displayScriptWithSearch();">
+          <button type="button" onclick="displayScriptWithSearch();" width="30px"s style="padding: 0px; margin: 0px;" ><img src="/img/search.png" width="30px" style="padding: 0px; margin: 0px;"></button>
+        </div>
       </div>
       <div id="messages"></div>
   </body>
