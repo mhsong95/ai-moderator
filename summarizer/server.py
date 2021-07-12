@@ -89,11 +89,10 @@ class echoHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('Content-Length'))
         post_body = self.rfile.read(content_len).decode('utf-8')
         fields = parse_qs(post_body)
-        #res = bert_summarizing_model(fields['content'][0], 1, 0); print(res)
-        # kobert_res = kobert_summarizing_model(fields['content'][0], 1, 0)
-        # kobart_res = kobart_summarizing_model(fields['content'][0])
+
         pororo_ab_res = pororo_abstractive_model(fields['content'][0])
         pororo_ex_res = pororo_extractive_model(fields['content'][0])
+        
         print('Pororo Abstractive:::')
         print(pororo_ab_res)
         print('Pororo Extractive:::')

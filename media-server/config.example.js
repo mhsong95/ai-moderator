@@ -3,7 +3,7 @@ const os = require('os')
 module.exports = {
     // for media server
     listenIp: '0.0.0.0',
-    listenPort: 8000,
+    listenPort: 8080,
     sslCrt: '../ssl/cert.pem',
     sslKey: '../ssl/key.pem',
     moderatorHostname: '',  // empty if you run moderator on the same machine
@@ -58,7 +58,8 @@ module.exports = {
         listenIps: [
           {
             ip: '0.0.0.0',      
-            announcedIp:'127.0.0.1' // replace by public IP address
+            announcedIp:'143.248.136.68'  // My public IP address (CPS)
+            // announcedIp:'127.0.0.1' // replace by public IP address
           }
         ],
         maxIncomingBitrate: 1500000,
