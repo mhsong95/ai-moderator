@@ -136,22 +136,19 @@ span.timetag {
   background: rgba(40, 167, 70, 0.219);
 }
 
-.message-box-me {
-  padding: 0.5em 1em;
-  margin: 0.1em;
-  border-radius: 10px;
-  border-bottom: 0.001em solid rgba(40, 70, 167, 0.5);
-  background: rgba(40, 70, 167, 0.219);
-}
-
 .edit-btn {
-  /* display: b/ock; */
+  display: none;
   float: right;
+  opacity: 0.5;
+  /* z-index: 1; */
 }
 
-.edit-btn:hover {
+.paragraph:hover .edit-btn{
   display: block;
 }
+
+
+/* .fa-pen */
 
 #display-choice {
   /* height: 7%; */

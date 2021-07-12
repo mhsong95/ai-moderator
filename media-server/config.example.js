@@ -9,7 +9,7 @@ module.exports = {
     moderatorHostname: '',  // empty if you run moderator on the same machine
     moderatorPort: '8001',  // should be the same as listenPort in '../moderator/config.js'
     
-    summaryHost: 'http://143.248.136.68:5050',
+    summaryHost: '127.0.0.1', // edit this to your summaryhost
 
     mediasoup: {
       // Worker settings
