@@ -30,6 +30,15 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
     let confidenceElem = confidenceElement(confArr[1]);
     exSummaryEl.append(confidenceElem);
   }
+
+  let editBtn1 = document.createElement("span");
+  editBtn1.className = "edit-btn";
+  editBtn1.id = "edit-" + timestamp;
+  editBtn1.onclick = function () { editParagraph(timestamp) };
+  let pen1 = document.createElement("i");
+  pen1.className = "fas fa-pen";
+  editBtn1.append(pen1);
+  paragraph.append(editBtn1);
 }
 
 function onUpdateSummary(summaryArr, confArr, timestamp) {
@@ -72,9 +81,6 @@ function onTranscript(transcript, name, timestamp) {
   // Append the new transcript to the old paragraph.
   let paragraph = messageBox.childNodes[1];
   paragraph.textContent += transcript + " ";
-
-  // Scroll down the messages area.
-  // messages.scrollTop = messages.scrollHeight;
 
   if (!transCheck && !abCheck && !exCheck) {
     displayNo(messageBox);
@@ -150,9 +156,6 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   pen1.className = "fas fa-pen";
   editBtn1.append(pen1);
   paragraph.append(editBtn1);
-
-  // Scroll down the messages area.
-  // messages.scrollTop = messages.scrollHeight;
 }
 
 function displayScriptWithSearch() {
