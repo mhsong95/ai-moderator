@@ -3,24 +3,37 @@
 // Includes UI control on transcription and summary data arrival.
 
 const messages = document.getElementById("messages");
-// const { roomList } = require("../../lib/global");
 
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
 
 moderatorSocket.on("updateParagraph", onUpdateParagraph);
-// moderatorSocket.on("updateSummary", onUpdateSummary);
+moderatorSocket.on("updateSummary", onUpdateSummary);
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
-  console.log("updateParagraph");
-
   let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[1];
+  let abSummaryEl = messageBox.childNodes[2].childNodes[0];
+  let exSummaryEl = messageBox.childNodes[3].childNodes[0];
+
   paragraph.textContent = newParagraph;
+  abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
+  exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
+
+  // If confidence === -1, the summary result is only the paragraph itself.
+  // Do not put confidence element as a sign of "this is not a summary"
+  if (confArr[0] !== -1) {
+    let confidenceElem = confidenceElement(confArr[0]);
+    abSummaryEl.append(confidenceElem);
+  }
+  if (confArr[1] !== -1) {
+    let confidenceElem = confidenceElement(confArr[1]);
+    exSummaryEl.append(confidenceElem);
+  }
 }
 
 function onUpdateSummary(summaryArr, confArr, timestamp) {
-  console.log("updateParagraph");
+  console.log("updateSummary");
 
   let messageBox = document.getElementById(timestamp);
 
@@ -142,16 +155,70 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   // messages.scrollTop = messages.scrollHeight;
 }
 
-function editParagraph(timestamp) {
-  console.log("Edit Paragraph");
-  // console.log(editbtn.id.split('edit-')[0]);/
-  let messageBox = document.getElementById(timestamp);
-  if (!messageBox) {
-    console.log("ERROR:::::::::::::::::EDITING NO MSG BOX");
-    return;
+function displayScriptWithSearch() {
+  // Word which filtering the message boxes
+  let searchword = document.getElementById("search-word").value
+
+  let transCheck = document.getElementById("minutes-transcript").checked;
+  let abCheck = document.getElementById("minutes-ab").checked;
+  let exCheck = document.getElementById("minutes-ex").checked;
+
+  let messageBoxes = document.getElementsByClassName("message-box");
+  let paragraphs = document.getElementsByClassName("paragraph");
+  let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
+  let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
+
+  if (!transCheck && !abCheck && !exCheck) {
+    // Hide message layout
+    displayBoxesWithSearch(false, messageBoxes, displayNo, searchword);
   }
+  else {
+    // Show message layout
+    displayBoxesWithSearch(true, messageBoxes, displayYes, searchword);
+
+    // If transCheck==true, show paragraphs
+    displayBoxesWithSearch(transCheck, paragraphs, displayYes, searchword);
+
+    if (transCheck) {
+      // If Abstractive Summary checked, reduce size of summary boxes and add left margin
+      // otherwise, hide exSummaryBoxes.
+      displayBoxesWithSearch(abCheck, abSummaryBoxes, displaySm, searchword);
+
+      // If Extractive Summary checked, reduce size of summary boxes and add left margin
+      // otherwise, hide exSummaryBoxes.
+      displayBoxesWithSearch(exCheck, exSummaryBoxes, displaySm, searchword);
+    }
+    else {
+      // If Abstractive Summary checked, larger the summary boxes and remove left margin
+      // otherwise, hide abSummaryBoxes.
+      displayBoxesWithSearch(abCheck, abSummaryBoxes, displayBig, searchword);
+
+      // If Extractive Summary checked, larger the summary boxes and remove left margin
+      // otherwise, hide exSummaryBoxes.
+      displayBoxesWithSearch(exCheck, exSummaryBoxes, displayBig, searchword);
+    }
+  }
+}
+
+// Display boxes if ('cond' is true and the 'searchword in the paragraph'), use given function 'fn' to show the box
+function displayBoxesWithSearch(cond, boxes, fn, searchword) {
+  console.log("DisplayBoxesWithSearch() Called =>" + searchword);
+  for (let box of boxes) {
+
+    if (searchword == "") {
+      displayBox(cond, box, fn, searchword);
+    }
+    else {
+      // console.log(`PARAGRAPH: ${box.childNodes[1].textContent} `);
+      displayBox(cond && box.childNodes[1].textContent.includes(searchword), box, fn, searchword);
+    }
+  }
+}
+
+function editParagraph(timestamp) {
+  let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[1];
-  console.log(paragraph.textContent);
+
   paragraph.contentEditable = "true";
 
   // change icon
@@ -165,8 +232,6 @@ function editParagraph(timestamp) {
 }
 
 function finishEditParagraph(timestamp) {
-  console.log("Edit Paragraph");
-  // console.log(editbtn.id.split('edit-')[0]);/
   let messageBox = document.getElementById(timestamp);
 
   let paragraph = messageBox.childNodes[1];

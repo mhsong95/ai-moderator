@@ -22,7 +22,7 @@ const _EVENTS = {
 
 class RoomClient {
 
-    constructor(localMediaEl, remoteMediaEl, mediasoupClient, socket, room_id, name, successCallback) {
+    constructor (localMediaEl, remoteMediaEl, mediasoupClient, socket, room_id, name, successCallback) {
         this.name = name
         this.localMediaEl = localMediaEl
         this.remoteMediaEl = remoteMediaEl;
@@ -124,9 +124,9 @@ class RoomClient {
                 dtlsParameters
             }, callback, errback) {
                 this.socket.request('connectTransport', {
-                        dtlsParameters,
-                        transport_id: data.id
-                    })
+                    dtlsParameters,
+                    transport_id: data.id
+                })
                     .then(callback)
                     .catch(errback)
             }.bind(this));
@@ -187,9 +187,9 @@ class RoomClient {
                 dtlsParameters
             }, callback, errback) {
                 this.socket.request('connectTransport', {
-                        transport_id: this.consumerTransport.id,
-                        dtlsParameters
-                    })
+                    transport_id: this.consumerTransport.id,
+                    dtlsParameters
+                })
                     .then(callback)
                     .catch(errback);
             }.bind(this));
@@ -234,10 +234,10 @@ class RoomClient {
         this.socket.on('newProducers', async function (data) {
             console.log('new producers', data)
             for (let {
-                    producer_id,
-                    producer_socket_id,
-                    producer_name
-                } of data) {
+                producer_id,
+                producer_socket_id,
+                producer_name
+            } of data) {
                 await this.consume(producer_id, producer_socket_id, producer_name)
             }
         }.bind(this))
@@ -304,7 +304,7 @@ class RoomClient {
             console.log('producer already exists for this type ' + type)
             return
         }
-        console.log('mediacontraints:',mediaConstraints)
+        console.log('mediacontraints:', mediaConstraints)
         let stream;
         try {
             stream = screen ? await navigator.mediaDevices.getDisplayMedia() : await navigator.mediaDevices.getUserMedia(mediaConstraints)
@@ -317,21 +317,21 @@ class RoomClient {
             };
             if (!audio && !screen) {
                 params.encodings = [{
-                        rid: 'r0',
-                        maxBitrate: 100000,
-                        //scaleResolutionDownBy: 10.0,
-                        scalabilityMode: 'S1T3'
-                    },
-                    {
-                        rid: 'r1',
-                        maxBitrate: 300000,
-                        scalabilityMode: 'S1T3'
-                    },
-                    {
-                        rid: 'r2',
-                        maxBitrate: 900000,
-                        scalabilityMode: 'S1T3'
-                    }
+                    rid: 'r0',
+                    maxBitrate: 100000,
+                    //scaleResolutionDownBy: 10.0,
+                    scalabilityMode: 'S1T3'
+                },
+                {
+                    rid: 'r1',
+                    maxBitrate: 300000,
+                    scalabilityMode: 'S1T3'
+                },
+                {
+                    rid: 'r2',
+                    maxBitrate: 900000,
+                    scalabilityMode: 'S1T3'
+                }
                 ];
                 params.codecOptions = {
                     videoGoogleStartBitrate: 1000
@@ -732,17 +732,6 @@ class RoomClient {
         console.log("rc.updateParagraph")
         console.log(editor)
         moderatorSocket.emit("updateParagraph", paragraph, timestamp, editor);
-        // await this.socket.request('changeParagraph', {
-        //     paragraph, timestamp, editor
-        // }).then(e => {
-        //     console.log(e);
-        //     console.log(moderatorSocket);
-        //     moderatorSocket.emit("updateParagraph", e.paragraph, e.timestamp);
-        //     moderatorSocket.emit("updateSummary", e.summaryArr, e.confArr, e.timestamp);
-        // }).
-        // catch(err => {
-        //     console.log(err)
-        // })
     }
 
     //////// GETTERS ////////
