@@ -8,6 +8,43 @@ const messages = document.getElementById("messages");
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
 
+rc.socket.on("updateParagraph", onUpdateParagraph);
+rc.socket.on("updateSummary", onUpdateSummary);
+
+function onUpdateParagraph(newParagraph, timestamp) {
+  console.log("updateParagraph");
+
+  let messageBox = document.getElementById(timestamp);
+  let paragraph = messageBox.childNodes[1];
+  paragraph.textContent = newParagraph;
+}
+
+function onUpdateSummary(summaryArr, confArr, timestamp) {
+  console.log("updateParagraph");
+
+  let messageBox = document.getElementById(timestamp);
+
+  let abSummaryBox = messageBox.childNodes[2];
+  let exSummaryBox = messageBox.childNodes[3];
+
+  let abSummaryEl = abSummaryBox.childNodes[0];
+  abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
+
+  let exSummaryEl = exSummaryBox.childNodes[0];
+  exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
+
+  // If confidence === -1, the summary result is only the paragraph itself.
+  // Do not put confidence element as a sign of "this is not a summary"
+  if (confArr[0] !== -1) {
+    let confidenceElem = confidenceElement(confArr[0]);
+    abSummaryEl.append(confidenceElem);
+  }
+  if (confArr[1] !== -1) {
+    let confidenceElem = confidenceElement(confArr[1]);
+    exSummaryEl.append(confidenceElem);
+  }
+}
+
 // Event listener on individual transcript arrival.
 function onTranscript(transcript, name, timestamp) {
   let transCheck = document.getElementById("minutes-transcript").checked;
@@ -186,6 +223,9 @@ function finishEditParagraph(timestamp) {
   let paragraph = messageBox.childNodes[1];
   console.log(paragraph.textContent);
   paragraph.contentEditable = "false";
+
+  // update paragraph and summary on all users
+  rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
 
   // change icon
   console.log(paragraph);

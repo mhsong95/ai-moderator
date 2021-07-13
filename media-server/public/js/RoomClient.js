@@ -728,7 +728,16 @@ class RoomClient {
         }
     }
 
-
+    async updateParagraph(paragraph, timestamp, editor) {
+        console.log("rc.updateParagraph")
+        console.log(editor)
+        await this.socket.request('changeParagraph', {
+            paragraph, timestamp, editor
+        }).catch(err => {
+            console.log(err)
+        })
+    }
+    
     //////// GETTERS ////////
 
     isOpen() {

@@ -1,0 +1,21 @@
+{
+  "name": "moderator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "moderator": "node server.js",
+    "dev-moderator": "nodemon server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "microsoft-cognitiveservices-speech-sdk": "^1.17.0",
+    "socket.io": "^4.1.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.9"
+  }
+}

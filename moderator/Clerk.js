@@ -134,12 +134,12 @@ module.exports = class Clerk {
           .emit("summary", summaryArr, confArr, speakerName, timestamp);
       })
       .catch((e) => {
-        let summary = paragraph;
-        let confidence = -1;
+        let summaryArr = [paragraph, paragraph]
+        let confArr = [-1, -1];
 
         this.io.sockets
           .to(this.room_id)
-          .emit("summary", summary, confidence, speakerName, timestamp);
+          .emit("summary", summaryArr, confArr, speakerName, timestamp);
       });
   }
 };
