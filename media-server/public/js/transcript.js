@@ -61,7 +61,7 @@ function onTranscript(transcript, name, timestamp) {
   paragraph.textContent += transcript + " ";
 
   // Scroll down the messages area.
-  messages.scrollTop = messages.scrollHeight;
+  // messages.scrollTop = messages.scrollHeight;
 
   if (!transCheck && !abCheck && !exCheck) {
     displayNo(messageBox);
@@ -139,7 +139,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   paragraph.append(editBtn1);
 
   // Scroll down the messages area.
-  messages.scrollTop = messages.scrollHeight;
+  // messages.scrollTop = messages.scrollHeight;
 }
 
 function displayScriptWithSearch(){
