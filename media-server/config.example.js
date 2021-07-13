@@ -60,7 +60,7 @@ module.exports = {
         listenIps: [
           {
             ip: '0.0.0.0',      
-            announcedIp:'143.248.136.68'  // My public IP address (CPS)
+            announcedIp:'127.0.0.1'  // My public IP address (CPS)
             // announcedIp:'127.0.0.1' // replace by public IP address
           }
         ],

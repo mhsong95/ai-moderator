@@ -84,12 +84,21 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
   let abSummaryBox = messageBox.childNodes[2];
   let exSummaryBox = messageBox.childNodes[3];
+  let keywordBox = messageBox.childNodes[4];
 
   let abSummaryEl = abSummaryBox.childNodes[0];
   abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
 
   let exSummaryEl = exSummaryBox.childNodes[0];
   exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
+
+  let keywordEl = keywordBox.childNodes[0];
+  keywordList = "";
+  for (keyword of summaryArr.slice(2)){
+    keywordList += "#" + keyword + " ";
+  }
+  keywordEl.textContent = "[Keywords]\n" + keywordList;
+
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
@@ -247,6 +256,7 @@ function displayScript() {
   let paragraphs = document.getElementsByClassName("paragraph");
   let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
   let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
+  let keywordBoxes = document.getElementsByClassName("keyword-box")
 
   if (!transCheck && !abCheck && !exCheck) {
     // Hide message layout
@@ -367,6 +377,10 @@ function createMessageBox(name, timestamp) {
   let exSummaryBox = document.createElement("div");
   let exSummary = document.createElement("p");
 
+  // messageBox.childNodes[4]: includes the keywords
+  let keywordBox = document.createElement("div");
+  let keywords = document.createElement("p")
+
   abSummaryBox.className = "ab-summary-box";
   abSummaryBox.style.fontSize = "smaller";
   abSummaryBox.style.marginLeft = "1em";
@@ -378,6 +392,12 @@ function createMessageBox(name, timestamp) {
   exSummaryBox.style.marginLeft = "1em";
   exSummaryBox.append(exSummary);
   messageBox.append(exSummaryBox);
+
+  keywordBox.className = "keyword-box";
+  keywordBox.style.fontSize = "smaller";
+  keywordBox.style.marginLeft = "1em";
+  keywordBox.append(keywords);
+  messageBox.append(keywordBox);
 
   // Finally append the box to 'messages' area
   messages.appendChild(messageBox);

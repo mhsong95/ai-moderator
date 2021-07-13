@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node media-server/app.js",
-    "media-server": "nodemon media-server/app.js",
+    "start": "nodemon media-server/app.js",
+    "media-server": "node media-server/app.js",
     "dev-media-server": "nodemon --watch media-server/ --ignore public/ --ignore view/ media-server/app.js",
     "moderator": "node moderator/server.js",
     "dev-moderator": "nodemon --watch moderator/ moderator/server.js",
