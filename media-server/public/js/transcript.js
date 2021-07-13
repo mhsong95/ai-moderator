@@ -8,10 +8,10 @@ const messages = document.getElementById("messages");
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
 
-rc.socket.on("updateParagraph", onUpdateParagraph);
-rc.socket.on("updateSummary", onUpdateSummary);
+moderatorSocket.on("updateParagraph", onUpdateParagraph);
+// moderatorSocket.on("updateSummary", onUpdateSummary);
 
-function onUpdateParagraph(newParagraph, timestamp) {
+function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   console.log("updateParagraph");
 
   let messageBox = document.getElementById(timestamp);

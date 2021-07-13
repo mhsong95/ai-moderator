@@ -10,7 +10,7 @@ const axios = require("axios");
 const config = require("../config");
 
 module.exports = function (io, socket) {
-  socket.on("changeParagraph", async ({ paragraph, timestamp, editor }) => {
+  socket.on("changeParagraph", async ({ paragraph, timestamp, editor }, callback) => {
     console.log("userHandler:::::updateParagraph");
     console.log(config.summaryHost);
     axios
@@ -46,15 +46,13 @@ module.exports = function (io, socket) {
           }
         }
 
-        socket.emit("updateParagraph", paragraph, timestamp);
-        socket.emit("updateSummary", summaryArr, confArr, timestamp);
+        callback({paragraph, summaryArr, confArr, timestamp});
       })
       .catch((e) => {
         let summaryArr = [paragraph, paragraph]
         let confArr = [-1, -1];
 
-        socket.emit("updateParagraph", paragraph, timestamp);
-        socket.emit("updateSummary", summaryArr, confArr, timestamp);
+        callback({paragraph, summaryArr, confArr, timestamp});
       });
   });
 

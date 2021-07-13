@@ -224,6 +224,10 @@ module.exports = function (io, socket) {
         startStream();
     }
 
+    socket.on("updateParagraph", (paragraph, timestamp, editor) => {
+        clerks.get(socket.room_id).updateParagraph(paragraph, timestamp, editor);
+    })
+
     // socket event listeners
     socket.on("startRecognition", () => {
         startStream();

@@ -142,4 +142,53 @@ module.exports = class Clerk {
           .emit("summary", summaryArr, confArr, speakerName, timestamp);
       });
   }
+
+  updateParagraph(paragraph, timestamp, editor) {
+    axios
+    .post(
+      // TODO: include in config.js
+      config.summaryHost,
+      `userId=${editor}&content=${paragraph}`
+    )
+    .then((response) => {
+      let summary, summaryArr;
+      if (response.status === 200) {
+        summary = response.data;
+      }
+
+      // TODO: Get the real confidence value.
+      let confArr = [1, 1]; //Math.random();
+      // No summary: just emit the paragraph with an indication that
+      // it is not a summary (confidence === -1).
+      if (!summary) {
+        summaryArr = [paragraph, paragraph]
+        confArr = [-1, -1];
+      }
+      else {
+        console.log("SUMMARY::::::")
+        console.log(summary);
+        // Parse returned summary
+        summaryArr = summary.split("@@@@@AB@@@@@EX@@@@@");
+        if (summaryArr[0].length > paragraph.length) {
+          console.log(summaryArr[0].length)
+          console.log(paragraph.length)
+          summaryArr[0] = paragraph
+          confArr[0] = -1
+        }
+      }
+
+      this.io.sockets
+        .to(this.room_id)
+        .emit("updateParagraph", paragraph, summaryArr, confArr, timestamp);
+    })
+    .catch((e) => {
+      let summaryArr = [paragraph, paragraph]
+      let confArr = [-1, -1];
+
+      this.io.sockets
+        .to(this.room_id)
+        .emit("updateParagraph", paragraph, summaryArr, confArr, timestamp);
+    });
+
+  }
 };
