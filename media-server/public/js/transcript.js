@@ -96,66 +96,6 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-function displayScriptWithSearch(){
-  // Word which filtering the message boxes
-  let searchword = document.getElementById("search-word").value
-
-  let transCheck = document.getElementById("minutes-transcript").checked;
-  let abCheck = document.getElementById("minutes-ab").checked;
-  let exCheck = document.getElementById("minutes-ex").checked;
-
-  let messageBoxes = document.getElementsByClassName("message-box");
-  let paragraphs = document.getElementsByClassName("paragraph");
-  let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
-  let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
-
-  if (!transCheck && !abCheck && !exCheck) {
-    // Hide message layout
-    displayBoxesWithSearch(false, messageBoxes, displayNo, searchword);
-  }
-  else {
-    // Show message layout
-    displayBoxesWithSearch(true, messageBoxes, displayYes, searchword);
-
-    // If transCheck==true, show paragraphs
-    displayBoxesWithSearch(transCheck, paragraphs, displayYes, searchword);
-
-    if (transCheck) {
-      // If Abstractive Summary checked, reduce size of summary boxes and add left margin
-      // otherwise, hide exSummaryBoxes.
-      displayBoxesWithSearch(abCheck, abSummaryBoxes, displaySm, searchword);
-
-      // If Extractive Summary checked, reduce size of summary boxes and add left margin
-      // otherwise, hide exSummaryBoxes.
-      displayBoxesWithSearch(exCheck, exSummaryBoxes, displaySm, searchword);
-    }
-    else {
-      // If Abstractive Summary checked, larger the summary boxes and remove left margin
-      // otherwise, hide abSummaryBoxes.
-      displayBoxesWithSearch(abCheck, abSummaryBoxes, displayBig, searchword);
-
-      // If Extractive Summary checked, larger the summary boxes and remove left margin
-      // otherwise, hide exSummaryBoxes.
-      displayBoxesWithSearch(exCheck, exSummaryBoxes, displayBig, searchword);
-    }
-  }
-}
-
-// Display boxes if ('cond' is true and the 'searchword in the paragraph'), use given function 'fn' to show the box
-function displayBoxesWithSearch(cond, boxes, fn, searchword) {
-  console.log("DisplayBoxesWithSearch() Called =>"+searchword);
-  for (let box of boxes) {
-
-    if (searchword == ""){
-      displayBox(cond, box, fn, searchword);
-    }
-    else {
-      // console.log(`PARAGRAPH: ${box.childNodes[1].textContent} `);
-      displayBox(cond && box.childNodes[1].textContent.includes(searchword), box, fn, searchword);
-    }
-  }
-}
-
 function editParagraph(timestamp) {
   console.log("Edit Paragraph");
   // console.log(editbtn.id.split('edit-')[0]);/
@@ -239,6 +179,46 @@ function displayScript() {
     }
   }
 }
+
+function displayUnitOfBox(){
+  let searchword = document.getElementById("search-word").value
+
+  let transCheck = document.getElementById("minutes-transcript").checked;
+  let abCheck = document.getElementById("minutes-ab").checked;
+  let exCheck = document.getElementById("minutes-ex").checked;
+
+  let messageBoxes = document.getElementsByClassName("message-box");
+  let paragraphs = document.getElementsByClassName("paragraph");
+  let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
+  let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
+
+  for (var i = 0; i < messageBoxes.length; i++){ // access each i-th index of boxes at the same time
+    let isfiltered = paragraphs[i].textContent.includes(searchword);
+
+    let messageBox = messageBoxes[i];
+    let paragraph = paragraphs[i];
+    let abSummaryBox = abSummaryBoxes[i];
+    let exSummaryBox = exSummaryBoxes[i];
+
+    if (!transCheck && !abCheck && !exCheck) {
+      displayBox(false && isfiltered, messageBox, displayNo);
+    }
+    else {
+      displayBox(true && isfiltered, messageBox, displayYes);
+      displayBox(transCheck && isfiltered, paragraph, displayYes);
+  
+      if (transCheck) {
+        displayBox(abCheck && isfiltered, abSummaryBox, displaySm);
+        displayBox(exCheck && isfiltered, exSummaryBox, displaySm);
+      }
+      else {
+        displayBox(abCheck && isfiltered, abSummaryBox, displayBig);
+        displayBox(exCheck && isfiltered, exSummaryBox, displayBig);
+      }
+    }
+  }
+}
+
 
 //////////////////////////////////////////////
 /************* Helper functions *************/
