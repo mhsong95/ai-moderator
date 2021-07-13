@@ -127,7 +127,7 @@ def keyword_extractor(newText):
     sentences = processedText.split('. ')
     try:
         keywords = summarize_with_keywords(sentences, min_count=1, max_length=15)
-        for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:3]:
+        for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:5]:
             # TODO: Decide the bottom limit of r
             if r > 1.0:
                 newText.add_keyword(word)
@@ -188,7 +188,6 @@ class echoHandler(BaseHTTPRequestHandler):
 
 def main():
     PORT = 4040
-
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()
