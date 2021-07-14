@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node media-server/app.js",
-    "media-server": "node media-server/app.js",
+    "media-server": "nodemon media-server/app.js",
     "dev-media-server": "nodemon --watch media-server/ --ignore public/ --ignore view/ media-server/app.js",
     "moderator": "node moderator/server.js",
     "dev-moderator": "nodemon --watch moderator/ moderator/server.js",
@@ -18,18 +18,20 @@
   "dependencies": {
     "@google-cloud/speech": "^4.5.2",
     "axios": "^0.21.1",
+    "bootstrap": "^5.0.2",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "express-validator": "^6.11.1",
     "httpolyglot": "^0.1.2",
+    "livereload": "^0.9.3",
     "mediasoup": "^3.7.12",
     "microsoft-cognitiveservices-speech-sdk": "^1.17.0",
     "morgan": "^1.10.0",
-    "socket.io": "^4.1.2",
-    "uuid": "^8.3.2"
+    "node-livereload": "^0.6.0",
+    "socket.io": "^4.1.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.9"
   }
 }

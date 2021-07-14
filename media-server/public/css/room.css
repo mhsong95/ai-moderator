@@ -5,6 +5,10 @@ body {
   min-height: 720px;
 }
 
+nav {
+  width: 65%;
+}
+
 #left {
   width: 65%;
   height: 100%;
@@ -34,7 +38,7 @@ body {
   float: left;
   left: 0;
   bottom: 0;
-  height: 25%;
+  /* height: 75%; */
 }
 
 .video-container[name="local-media"] video {
@@ -79,8 +83,8 @@ body {
 #media-control {
   float: left;
   margin-left: 0.5em;
-  width: min-content;
-  height: 25%;
+  /* width: min-content; */
+  height: 15%;
 }
 
 #media-control button {
@@ -110,7 +114,7 @@ body {
   padding: 0.5em;
   overflow: hidden;
   overflow-y: scroll;
-  height: 95%;
+  height: 90%;
   border-bottom: thin solid;
 }
 
@@ -132,7 +136,21 @@ span.timetag {
   background: rgba(40, 167, 70, 0.219);
 }
 
+.edit-btn {
+  display: none;
+  float: right;
+  opacity: 0.5;
+  /* z-index: 1; */
+}
+
+.paragraph:hover .edit-btn{
+  display: block;
+}
+
+
+/* .fa-pen */
+
 #display-choice {
-  height: 5%;
-  padding-left: 0.5em;
+  /* height: 7%; */
+  padding: 0.5em;
 }

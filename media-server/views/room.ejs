@@ -1,82 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>
-    <%= user_name %>@<%= room_name %>
-  </title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/modules/mediasoupclient.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/EventEmitter/5.2.8/EventEmitter.min.js"></script>
-  <script src="/js/RoomClient.js"></script>
-  <link rel="stylesheet" href="/css/room.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"></script>
 
+    <title>
+      <%= user_name %>@<%= room_name %>
+    </title>
 
-</head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/modules/mediasoupclient.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/EventEmitter/5.2.8/EventEmitter.min.js"></script>
+    <script src="/js/RoomClient.js"></script>
+    <link rel="stylesheet" href="/css/room.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+  </head>
 
-<body>
-  <div id="left">
-    <div id="remote-media"></div>
-    <div name="local-media" id="local-media" class="video-container">
-      <p class="name-overlay">
-        <%= user_name %>
-      </p>
-      <video id="local-video" autoplay inline></video>
+  <body>
+    <!-- Left Layout -->
+    <div id="left">
+      <!-- Videos -->
+      <div id="remote-media">
+        <div name="local-media" id="local-media" class="video-container">
+          <p class="name-overlay">
+            <%= user_name %>
+          </p>
+          <video id="local-video" autoplay inline></video>
+        </div>
+      </div>
+      <!-- <div name="local-media" id="local-media" class="video-container">
+        <p class="name-overlay"><%= user_name %></p>
+        <video id="local-video" autoplay inline></video>
+      </div> -->
+
+      <!-- Bottom Navbar Buttons -->
+      <nav class="navbar navbar-expand-lg fixed-bottom">
+        <div id="media-control" class="container-fluid btn-toolbar d-grid gap-2 d-md-block" role="toolbar">
+          <!-- invite button -->
+          <div class="btn-group me-2" role="group">
+            <button class="btn btn-outline-success btn-md shadow-none" onclick="copyJoinLink()">
+              <i class="fas fa-users"></i>
+              Invite
+            </button>
+          </div>
+          <!-- Video button -->
+          <div class="btn-group btn-group-md dropup me-2" role="group">
+            <button type="button" class="btn btn-outline-primary btn-md shadow-none mx-auto" id="start-video-button"
+              style="display: none"
+              onclick="this.disabled = true; rc.produce(RoomClient.mediaType.video, document.getElementById('video-select').value);">
+              <i class="fas fa-video-slash"></i>
+              Show Video
+            </button>
+            <button type="button" id="stop-video-button" style="display: none"
+              class="btn btn-outline-primary btn-md shadow-none rounded-start"
+              onclick="this.disabled = true; rc.closeProducer(RoomClient.mediaType.video);">
+              <i class="fas fa-video"></i>
+              Hide Video
+            </button>
+            <button type="button" class="
+                btn btn-outline-primary btn-md
+                shadow-none
+                dropdown-toggle dropdown-toggle-split
+              " data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <h6 class="dropdown-header">Available Video Sources</h6>
+              </li>
+              <select id="video-select" class="form-select form-select-sm shadow-none"></select>
+            </ul>
+          </div>
+          <div class="btn-group dropup me-2" role="group">
+            <button type="button" id="start-audio-button" style="display: none"
+              class="btn btn-outline-primary btn-md shadow-none"
+              onclick="this.disabled = true; rc.produce(RoomClient.mediaType.audio, document.getElementById('audio-select').value);">
+              <i class="fas fa-volume-mute"></i>
+              Open Audio
+            </button>
+            <button type="button" id="stop-audio-button" style="display: none"
+              class="btn btn-outline-primary btn-md shadow-none rounded-start"
+              onclick="this.disabled = true; rc.closeProducer(RoomClient.mediaType.audio);">
+              <i class="fas fa-volume-up"></i>
+              Close Audio
+            </button>
+            <button type="button" class="
+                btn btn-outline-primary btn-md
+                shadow-none
+                dropdown-toggle dropdown-toggle-split
+              " data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <h6 class="dropdown-header">Available Audio Sources</h6>
+              </li>
+              <select id="audio-select" class="form-select form-select-sm shadow-none"></select>
+            </ul>
+          </div>
+          <!-- <div class="btn-group" role="group">
+            <button
+              id="screen-share"
+              class="btn btn-outline-primary btn-md shadow-none"
+              onclick="startScreenSharing()"
+            >
+              <i class="fas fa-chevron-up"></i>
+              Share Screen
+            </button>
+          </div> -->
+        </div>
+      </nav>
     </div>
-    <div id="media-control">
-      <button class="btn btn-outline-success btn-sm" onclick="copyJoinLink()">Invite</button>
-      <br>
-      <button id='start-video-button' style="display:none" class='btn btn-outline-primary btn-sm'
-        onclick="this.disabled = true; rc.produce(RoomClient.mediaType.video, document.getElementById('video-select').value);">Video</button>
-      <button id='stop-video-button' style="display:none" class='btn btn-outline-primary btn-sm'
-        onclick="this.disabled = true; rc.closeProducer(RoomClient.mediaType.video);">Close
-        Video</button>
-      <br>
-      <button id='start-audio-button' style="display:none" class='btn btn-outline-primary btn-sm'
-        onclick="this.disabled = true; rc.produce(RoomClient.mediaType.audio, document.getElementById('audio-select').value);">Audio</button>
-      <button id='stop-audio-button' style="display:none" class='btn btn-outline-primary btn-sm'
-        onclick="this.disabled = true; rc.closeProducer(RoomClient.mediaType.audio);">Close
-        Audio</button>
-      <br>
-    </div>
-    <div id="media-select">
-      Video source: <select id="video-select" class="custom-select custom-select-sm"></select>
-      <br>
-      Audio source: <select id="audio-select" class="custom-select custom-select-sm"></select>
-    </div>
-  </div>
-  <div id="right">
-    <div id="messages"></div>
-    <div id="display-choice">
-      <input type="radio" name="transcript" value="both" onchange="displayChoice(this);" checked>Both
-      <input type="radio" name="transcript" value="transcript" onchange="displayChoice(this);">Transcripts
-      <input type="radio" name="transcript" value="summary" onchange="displayChoice(this);">Summary
-    </div>
-  </div>
 
-</body>
+    <div id="right">
+      <div class="border bg-light bg-gradient" id="display-choice">
+        <p class="h5" style="margin-bottom: 0.5em;"><strong>Script type</strong></p>
+        <input type="checkbox" class="btn-check" id="minutes-transcript" onclick="displayUnitOfBox();" checked>
+        <label class="btn btn-outline-warning shadow-none" for="minutes-transcript">Whole Script</label>
+        <input type="checkbox" class="btn-check" id="minutes-ab" onclick="displayUnitOfBox();" checked>
+        <label class="btn btn-outline-warning shadow-none" for="minutes-ab">Abstractive Summary</label>
+        <input type="checkbox" class="btn-check" id="minutes-ex" onclick="displayUnitOfBox();" checked>
+        <label class="btn btn-outline-warning shadow-none" for="minutes-ex">Extractive Summary</label>
 
-<footer>
-  <script>
-    const room_id = "<%= room_id %>";
-    const room_name = "<%= room_name%>";
-    const user_name = "<%= user_name %>";
-    const moderator_hostname = "<%= moderator_hostname %>";
-    const moderator_port = "<%= moderator_port %>";
-  </script>
-  <script src="/js/conference.js"></script>
-  <script src="/js/speech.js"></script>
-  <script src="/js/transcript.js"></script>
-</footer>
+        <div style="margin-top: 1em; ">
+          <input type="text" id="search-word" placeholder="SEARCH" onkeydown="displayUnitOfBox();">
+          <button type="button" onclick="displayUnitOfBox();" width="30px"s style="padding: 0px; margin: 0px;" ><img src="/img/search.png" width="30px" style="padding: 0px; margin: 0px;"></button>
+        </div>
+      </div>
+      <div id="messages"></div>
+  </body>
+
+  <footer>
+    <script>
+      const room_id = "<%= room_id %>";
+      const room_name = "<%= room_name%>";
+      const user_name = "<%= user_name %>";
+      const moderator_hostname = "<%= moderator_hostname %>";
+      const moderator_port = "<%= moderator_port %>";
+    </script>
+    <script src="/js/conference.js"></script>
+    <script src="/js/speech.js"></script>
+    <script src="/js/transcript.js"></script>
+  </footer>
 
 </html>

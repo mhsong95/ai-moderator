@@ -68,13 +68,17 @@ def bert_summarizing_model(input_txt, sent, ratio):
 ################# Pororo ###########################################
 from pororo import Pororo
 summ_abstractive = Pororo(task="summarization", model="abstractive", lang="ko")
-def pororo_summarizizing_model(input_txt):
+summ_extractive = Pororo(task="summarization", model="extractive", lang="ko")
+def pororo_abstractive_model(input_txt):
     summary = summ_abstractive(input_txt)
     if len(summary) > len(input_txt):
         print("INVALID:::")
         print(input_txt)
     return summary
 
+def pororo_extractive_model(input_txt):
+    summary = summ_extractive(input_txt)
+    return summary
 ################# Pororo ###########################################
 
 
@@ -88,13 +92,19 @@ class echoHandler(BaseHTTPRequestHandler):
         #res = bert_summarizing_model(fields['content'][0], 1, 0); print(res)
         # kobert_res = kobert_summarizing_model(fields['content'][0], 1, 0)
         # kobart_res = kobart_summarizing_model(fields['content'][0])
-        pororo_res = pororo_summarizizing_model(fields['content'][0])
-        print(pororo_res)
+        pororo_ab_res = pororo_abstractive_model(fields['content'][0])
+        pororo_ex_res = pororo_extractive_model(fields['content'][0])
+        print('Pororo Abstractive:::')
+        print(pororo_ab_res)
+        print('Pororo Extractive:::')
+        print(pororo_ex_res)
+
+        res = pororo_ab_res+'@@@@@AB@@@@@EX@@@@@'+pororo_ex_res
 
         self.send_response(200)
         self.send_header('content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(pororo_res.encode())
+        self.wfile.write(res.encode())
 
 def main():
     PORT = 5050

@@ -442,8 +442,6 @@ class RoomClient {
                 this.removeConsumer(consumer.id)
             }.bind(this))
 
-
-
         }.bind(this))
     }
 

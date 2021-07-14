@@ -9,7 +9,7 @@ const config = require("./config");
 const SILENCE_LIMIT = 10 * 1000;
 
 module.exports = class Clerk {
-  constructor(io, room_id) {
+  constructor (io, room_id) {
     this.io = io;
     this.room_id = room_id;
 
@@ -78,6 +78,7 @@ module.exports = class Clerk {
    * Broadcasts a transcript to the room.
    */
   publishTranscript(transcript, name, timestamp) {
+    if (transcript === '') return;
     this.io.sockets
       .to(this.room_id)
       .emit("transcript", transcript, name, timestamp);
@@ -93,6 +94,8 @@ module.exports = class Clerk {
     let speakerName = this.speakerName;
     let timestamp = this.timestamp;
 
+    if (paragraph === '') return;
+
     axios
       .post(
         // TODO: include in config.js
@@ -100,24 +103,35 @@ module.exports = class Clerk {
         `userId=${speakerId}&content=${paragraph}`
       )
       .then((response) => {
-        let summary;
+        let summary, summaryArr;
         if (response.status === 200) {
           summary = response.data;
         }
 
         // TODO: Get the real confidence value.
-        let confidence = Math.random();
+        let confArr = [1, 1]; //Math.random();
         // No summary: just emit the paragraph with an indication that
         // it is not a summary (confidence === -1).
         if (!summary) {
-          summary = paragraph;
-          confidence = -1;
+          summaryArr = [paragraph, paragraph]
+          confArr = [-1, -1];
+        }
+        else {
+          console.log("SUMMARY::::::")
+          console.log(summary);
+          // Parse returned summary
+          summaryArr = summary.split("@@@@@AB@@@@@EX@@@@@");
+          if (summaryArr[0].length > paragraph.length) {
+            console.log(summaryArr[0].length)
+            console.log(paragraph.length)
+            summaryArr[0] = paragraph
+            confArr[0] = -1
+          }
         }
 
-        console.log(summary);
         this.io.sockets
           .to(this.room_id)
-          .emit("summary", summary, confidence, speakerName, timestamp);
+          .emit("summary", summaryArr, confArr, speakerName, timestamp);
       })
       .catch((e) => {
         let summary = paragraph;

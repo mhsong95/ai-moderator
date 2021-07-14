@@ -74,20 +74,17 @@ function reveal(elem) {
 }
 
 function addListeners() {
-  /*
   rc.on(RoomClient.EVENTS.startScreen, () => {
     hide(startScreenButton)
     reveal(stopScreenButton)
     stopScreenButton.disabled = false;
   })
-
   rc.on(RoomClient.EVENTS.stopScreen, () => {
     hide(stopScreenButton)
     reveal(startScreenButton)
     startScreenButton.disabled = false;
 
   })
-  */
 
   rc.on(RoomClient.EVENTS.stopAudio, () => {
     hide(stopAudioButton);
