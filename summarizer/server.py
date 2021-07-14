@@ -28,42 +28,42 @@ def bert_summarizing_model(input_txt, sent, ratio):
 
 ################# Ko-BERT & Ko-BART ###########################################
 # INITIALIZE [Ko-BERT & Ko-BART] 
-# import sys
-# pwd = sys.path[0]
-# kobert_path = pwd.split("ai-moderator")[0]+"ai-moderator/summarizer/KoBertSum"
-# kobart_path = pwd.split("ai-moderator")[0]+"ai-moderator/summarizer/KoBART-summarization"
-# sys.path.append(kobert_path); sys.path.append(kobart_path); 
+import sys
+pwd = sys.path[0]
+kobert_path = pwd.split("ai-moderator")[0]+"ai-moderator/summarizer/KoBertSum"
+kobart_path = pwd.split("ai-moderator")[0]+"ai-moderator/summarizer/KoBART-summarization"
+sys.path.append(kobert_path); sys.path.append(kobart_path); 
 
-# # Ko-BERT
-# from src.test_summarize_string import KOBERT_SUMMARIZER
-# kobert_model = KOBERT_SUMMARIZER()
+# Ko-BERT
+from src.test_summarize_string import KOBERT_SUMMARIZER
+kobert_model = KOBERT_SUMMARIZER()
 
-# # Ko-BART
-# import torch
-# from kobart import get_kobart_tokenizer
-# from transformers.modeling_bart import BartForConditionalGeneration 
-# #from transformers.models.bart import BartForConditionalGeneration
-# kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart_summary')#, from_tf=True)
-# kobart_tokenizer = get_kobart_tokenizer()
+# Ko-BART
+import torch
+from kobart import get_kobart_tokenizer
+from transformers.modeling_bart import BartForConditionalGeneration 
+#from transformers.models.bart import BartForConditionalGeneration
+kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart_summary')#, from_tf=True)
+kobart_tokenizer = get_kobart_tokenizer()
 
+def kobert_summarizing_model(input_txt):
+    sent = 3
+    encode = kobert_model.encode(input_txt)
+    summaries = kobert_model.generate(encode, sent)
+    summary = " ".join(summaries)
 
-# def kobert_summarizing_model(input_txt, sent, ratio):
-#     encode = kobert_model.encode(input_txt)
-#     summaries = kobert_model.generate(encode, sent)
-#     summary = " ".join(summaries)
+    return summary
 
-#     return summary
+def kobart_summarizing_model(input_txt):
+    text = input_txt.replace('\n', '')
 
-# def kobart_summarizing_model(input_txt):
-#     text = input_txt.replace('\n', '')
-
-#     input_ids = kobart_tokenizer.encode(text)
-#     input_ids = torch.tensor(input_ids)
-#     input_ids = input_ids.unsqueeze(0)
-#     summary = kobart_model.generate(input_ids, eos_token_id=1, max_length=64, num_beams=5, early_stopping=True)
-#     summary = kobart_tokenizer.decode(summary[0], skip_special_tokens=True)
+    input_ids = kobart_tokenizer.encode(text)
+    input_ids = torch.tensor(input_ids)
+    input_ids = input_ids.unsqueeze(0)
+    summary = kobart_model.generate(input_ids, eos_token_id=1, max_length=64, num_beams=5, early_stopping=True)
+    summary = kobart_tokenizer.decode(summary[0], skip_special_tokens=True)
     
-#     return summary
+    return summary
 ################# Ko-BERT & Ko-BART ###########################################
 
 ################# Pororo ###########################################
@@ -159,13 +159,17 @@ class echoHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('Content-Length'))
         post_body = self.rfile.read(content_len).decode('utf-8')
         fields = parse_qs(post_body)
-            
+        text = fields['content'][0]
+
         # Get summaries
-        pororo_ab_res = pororo_abstractive_model(fields['content'][0])
-        pororo_ex_res = pororo_extractive_model(fields['content'][0])
+        pororo_ab_res = pororo_abstractive_model(text)
+        pororo_ex_res = pororo_extractive_model(text)
+
+        kobart_ab_res = kobert_summarizing_model(text)
+        kobert_ex_res = kobert_summarizing_model(text)
 
         # Extract Keywords
-        newText = TextClass(fields['content'][0])
+        newText = TextClass(text)
         newText = keyword_extractor(newText)
 
         print('Pororo Abstractive:::')
