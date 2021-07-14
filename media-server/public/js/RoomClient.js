@@ -728,10 +728,15 @@ class RoomClient {
         }
     }
 
-    async updateParagraph(paragraph, timestamp, editor) {
+    updateParagraph(paragraph, timestamp, editor) {
         console.log("rc.updateParagraph")
         console.log(editor)
         moderatorSocket.emit("updateParagraph", paragraph, timestamp, editor);
+    }
+
+    updateSummary(type, content, timestamp) {
+        console.log("rc.updateSummary")
+        moderatorSocket.emit("updateSummary", type, content, timestamp);
     }
 
     //////// GETTERS ////////

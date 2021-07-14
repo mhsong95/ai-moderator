@@ -134,9 +134,9 @@ module.exports = function (io, socket) {
                 const noMatchDetail = sdk.NoMatchDetails.fromResult(e.result);
                 console.log(
                     "(recognized)  Reason: " +
-                        sdk.ResultReason[e.result.reason] +
-                        " | NoMatchReason: " +
-                        sdk.NoMatchReason[noMatchDetail.reason]
+                    sdk.ResultReason[e.result.reason] +
+                    " | NoMatchReason: " +
+                    sdk.NoMatchReason[noMatchDetail.reason]
                 );
             } else {
                 if (e.result.reason === sdk.ResultReason.RecognizedSpeech) {
@@ -226,6 +226,10 @@ module.exports = function (io, socket) {
 
     socket.on("updateParagraph", (paragraph, timestamp, editor) => {
         clerks.get(socket.room_id).updateParagraph(paragraph, timestamp, editor);
+    })
+
+    socket.on("updateSummary", (type, content, timestamp) => {
+        clerks.get(socket.room_id).updateSummary(type, content, timestamp);
     })
 
     // socket event listeners

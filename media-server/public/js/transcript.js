@@ -32,45 +32,35 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   }
 
   addEditBtn(paragraph, "paragraph", timestamp);
+  addEditBtn(abSummaryEl, "absum", timestamp);
+  addEditBtn(exSummaryEl, "exsum", timestamp);
 }
 
 function addEditBtn(area, type, timestamp) {
   let editBtn1 = document.createElement("span");
   editBtn1.className = "edit-btn";
   editBtn1.id = "edit-" + type + "-" + timestamp;
-  if (type == 'paragraph') {
-    editBtn1.onclick = function () { editParagraph(timestamp) };
-  }
+  editBtn1.onclick = function () { editContent(type, timestamp) };
   let pen1 = document.createElement("i");
   pen1.className = "fas fa-pen";
   editBtn1.append(pen1);
   area.append(editBtn1);
 }
 
-function onUpdateSummary(summaryArr, confArr, timestamp) {
-  console.log("updateSummary");
+function onUpdateSummary(type, content, timestamp) {
+  console.log("onUpdateSummary");
 
   let messageBox = document.getElementById(timestamp);
-
-  let abSummaryBox = messageBox.childNodes[2];
-  let exSummaryBox = messageBox.childNodes[3];
-
-  let abSummaryEl = abSummaryBox.childNodes[0];
-  abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
-
-  let exSummaryEl = exSummaryBox.childNodes[0];
-  exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
-
-  // If confidence === -1, the summary result is only the paragraph itself.
-  // Do not put confidence element as a sign of "this is not a summary"
-  if (confArr[0] !== -1) {
-    let confidenceElem = confidenceElement(confArr[0]);
-    abSummaryEl.append(confidenceElem);
+  let summaryEl = null;
+  if (type == "absum") {
+    summaryEl = messageBox.childNodes[2].childNodes[0];
   }
-  if (confArr[1] !== -1) {
-    let confidenceElem = confidenceElement(confArr[1]);
-    exSummaryEl.append(confidenceElem);
+  else {
+    summaryEl = messageBox.childNodes[3].childNodes[0];
   }
+
+  summaryEl.textContent = content;
+  addEditBtn(summaryEl, type, timestamp);
 }
 
 // Event listener on individual transcript arrival.
@@ -152,9 +142,13 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     }
   }
 
-  // Add edit button in order to allow user change contents
+  // Add edit button in order to allow user change contents (paragraph, absummary, exsummary)
   let paragraph = messageBox.childNodes[1];
   addEditBtn(paragraph, "paragraph", timestamp);
+
+  addEditBtn(abSummaryEl, "absum", timestamp);
+
+  addEditBtn(exSummaryEl, "exsum", timestamp);
 }
 
 function displayScriptWithSearch() {
@@ -217,60 +211,133 @@ function displayBoxesWithSearch(cond, boxes, fn, searchword) {
   }
 }
 
-function toEditableBg(p){
+function toEditableBg(p) {
   p.style.background = "none";
 }
 
-function toEditingBg(p){
+function toEditingBg(p) {
   p.style.background = "aliceblue";
 }
 
-function toEditableIcon(btn){
+function toEditableIcon(btn) {
   btn.style.opacity = "0.5";
   btn.childNodes[0].className = "fas fa-pen";
 }
 
-function toEditingIcon(btn){
+function toEditingIcon(btn) {
   btn.style.opacity = "0.8";
   btn.childNodes[0].className = "fas fa-check";
 }
 
-function editParagraph(timestamp) {
+function editContent(type, timestamp) {
   let messageBox = document.getElementById(timestamp);
-  let paragraph = messageBox.childNodes[1];
+  let oldtxt = null;
+  switch (type) {
+    case "paragraph":
+      let paragraph = messageBox.childNodes[1];
 
-  paragraph.contentEditable = "true";
+      paragraph.contentEditable = "true";
 
-  // change icon
-  console.log(paragraph);
-  console.log(paragraph.childNodes[1]);
+      // change icon
+      console.log(paragraph);
+      console.log(paragraph.childNodes[1]);
 
-  toEditingBg(paragraph)
-  toEditingIcon(paragraph.childNodes[1])
+      toEditingBg(paragraph)
+      toEditingIcon(paragraph.childNodes[1])
 
-  paragraph.childNodes[1].onclick = function () { finishEditParagraph(paragraph.textContent, timestamp); };
+      oldtxt = paragraph.textContent;
+
+      paragraph.childNodes[1].onclick = function () { finishEditContent("paragraph", oldtxt, timestamp); };
+
+      break;
+    case "absum":
+      let abSummary = messageBox.childNodes[2].childNodes[0];
+
+      abSummary.contentEditable = "true";
+
+      // change icon
+      console.log(abSummary);
+      console.log(abSummary.lastChild);
+
+      toEditingBg(abSummary)
+      toEditingIcon(abSummary.lastChild)
+
+      oldtxt = abSummary.textContent;
+
+      abSummary.lastChild.onclick = function () { finishEditContent("absum", oldtxt, timestamp); };
+      break;
+    case "exsum":
+      let exSummary = messageBox.childNodes[3].childNodes[0];
+
+      exSummary.contentEditable = "true";
+
+      // change icon
+      console.log(exSummary);
+      console.log(exSummary.lastChild);
+
+      toEditingBg(exSummary)
+      toEditingIcon(exSummary.lastChild)
+
+      oldtxt = exSummary.textContent;
+
+      exSummary.lastChild.onclick = function () { finishEditContent("exsum", oldtxt, timestamp); };
+      break;
+  }
 }
 
-function finishEditParagraph(oldtxt, timestamp) {
+function finishEditContent(type, oldtxt, timestamp) {
   let messageBox = document.getElementById(timestamp);
+  console.log(oldtxt)
 
-  let paragraph = messageBox.childNodes[1];
-  console.log(paragraph.textContent);
-  toEditableBg(paragraph);
-  paragraph.contentEditable = "false";
+  switch (type) {
+    case "paragraph":
+      let paragraph = messageBox.childNodes[1];
+      console.log(paragraph.textContent);
+      toEditableBg(paragraph);
+      paragraph.contentEditable = "false";
 
-  if (oldtxt != paragraph.textContent) {
-    // update paragraph and summary on all users
-    rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
-  }
-  else {
-    // change icon
-    console.log(paragraph);
-    console.log(paragraph.childNodes[1]);
+      if (oldtxt.valueOf() != paragraph.textContent.valueOf()) {
+        // update paragraph and summary on all users
+        rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
+      }
+      else {
+        // change icon
+        console.log(paragraph);
+        console.log(paragraph.childNodes[1]);
 
-    toEditableIcon(paragraph.childNodes[1])
+        toEditableIcon(paragraph.childNodes[1])
 
-    paragraph.childNodes[1].onclick = function () { editParagraph(timestamp); };
+        paragraph.childNodes[1].onclick = function () { editContent(type, timestamp); };
+      }
+      break;
+    case "absum":
+      let abSummary = messageBox.childNodes[2].childNodes[0];
+      toEditableBg(abSummary);
+      abSummary.contentEditable = "false";
+
+      if (oldtxt != abSummary.textContent) {
+        rc.updateSummary("absum", abSummary.textContent, timestamp)
+      }
+      else {
+        // change icon
+        toEditableIcon(abSummary.lastChild)
+        abSummary.lastChild.onclick = function () { editContent(type, timestamp); };
+      }
+      break;
+    case "exsum":
+      let exSummary = messageBox.childNodes[3].childNodes[0];
+      toEditableBg(exSummary);
+      exSummary.contentEditable = "false";
+
+      if (oldtxt != exSummary.textContent) {
+        rc.updateSummary("exsum", exSummary.textContent, timestamp)
+      }
+      else {
+        // change icon
+        toEditableIcon(exSummary.lastChild)
+        exSummary.lastChild.onclick = function () { editContent(type, timestamp); };
+      }
+      break;
   }
 }
 
