@@ -143,10 +143,17 @@ span.timetag {
   /* z-index: 1; */
 }
 
-.paragraph:hover .edit-btn{
+.paragraph:hover .edit-btn {
   display: block;
 }
 
+.ab-summary-box:hover .edit-btn {
+  display: block;
+}
+
+.ex-summary-box:hover .edit-btn {
+  display: block;
+}
 
 /* .fa-pen */
 

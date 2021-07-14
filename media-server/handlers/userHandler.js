@@ -6,58 +6,8 @@ const { roomList } = require("../lib/global");
 const { getMediasoupWorker } = require("../lib/Worker");
 const Room = require("../lib/Room");
 const Peer = require("../lib/Peer");
-const axios = require("axios");
-const config = require("../config");
 
 module.exports = function (io, socket) {
-  socket.on("changeParagraph", async ({ paragraph, timestamp, editor }) => {
-    console.log("userHandler:::::updateParagraph");
-    console.log(config.summaryHost);
-    axios
-      .post(
-        // TODO: include in config.js
-        config.summaryHost,
-        `userId=${editor}&content=${paragraph}`
-      )
-      .then((response) => {
-        let summary, summaryArr;
-        if (response.status === 200) {
-          summary = response.data;
-        }
-
-        // TODO: Get the real confidence value.
-        let confArr = [1, 1]; //Math.random();
-        // No summary: just emit the paragraph with an indication that
-        // it is not a summary (confidence === -1).
-        if (!summary) {
-          summaryArr = [paragraph, paragraph]
-          confArr = [-1, -1];
-        }
-        else {
-          console.log("SUMMARY::::::")
-          console.log(summary);
-          // Parse returned summary
-          summaryArr = summary.split("@@@@@AB@@@@@EX@@@@@");
-          if (summaryArr[0].length > paragraph.length) {
-            console.log(summaryArr[0].length)
-            console.log(paragraph.length)
-            summaryArr[0] = paragraph
-            confArr[0] = -1
-          }
-        }
-
-        socket.emit("updateParagraph", paragraph, timestamp);
-        socket.emit("updateSummary", summaryArr, confArr, timestamp);
-      })
-      .catch((e) => {
-        let summaryArr = [paragraph, paragraph]
-        let confArr = [-1, -1];
-
-        socket.emit("updateParagraph", paragraph, timestamp);
-        socket.emit("updateSummary", summaryArr, confArr, timestamp);
-      });
-  });
-
   socket.on("createRoom", async ({ room_id }, callback) => {
     if (roomList.has(room_id)) {
       callback("already exists");

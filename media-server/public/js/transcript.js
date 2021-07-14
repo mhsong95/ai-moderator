@@ -3,34 +3,21 @@
 // Includes UI control on transcription and summary data arrival.
 
 const messages = document.getElementById("messages");
-// const { roomList } = require("../../lib/global");
 
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
 
-rc.socket.on("updateParagraph", onUpdateParagraph);
-rc.socket.on("updateSummary", onUpdateSummary);
+moderatorSocket.on("updateParagraph", onUpdateParagraph);
+moderatorSocket.on("updateSummary", onUpdateSummary);
 
-function onUpdateParagraph(newParagraph, timestamp) {
-  console.log("updateParagraph");
-
+function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[1];
+  let abSummaryEl = messageBox.childNodes[2].childNodes[0];
+  let exSummaryEl = messageBox.childNodes[3].childNodes[0];
+
   paragraph.textContent = newParagraph;
-}
-
-function onUpdateSummary(summaryArr, confArr, timestamp) {
-  console.log("updateParagraph");
-
-  let messageBox = document.getElementById(timestamp);
-
-  let abSummaryBox = messageBox.childNodes[2];
-  let exSummaryBox = messageBox.childNodes[3];
-
-  let abSummaryEl = abSummaryBox.childNodes[0];
   abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
-
-  let exSummaryEl = exSummaryBox.childNodes[0];
   exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
 
   // If confidence === -1, the summary result is only the paragraph itself.
@@ -43,6 +30,37 @@ function onUpdateSummary(summaryArr, confArr, timestamp) {
     let confidenceElem = confidenceElement(confArr[1]);
     exSummaryEl.append(confidenceElem);
   }
+
+  addEditBtn(paragraph, "paragraph", timestamp);
+  addEditBtn(abSummaryEl, "absum", timestamp);
+  addEditBtn(exSummaryEl, "exsum", timestamp);
+}
+
+function addEditBtn(area, type, timestamp) {
+  let editBtn1 = document.createElement("span");
+  editBtn1.className = "edit-btn";
+  editBtn1.id = "edit-" + type + "-" + timestamp;
+  editBtn1.onclick = function () { editContent(type, timestamp) };
+  let pen1 = document.createElement("i");
+  pen1.className = "fas fa-pen";
+  editBtn1.append(pen1);
+  area.append(editBtn1);
+}
+
+function onUpdateSummary(type, content, timestamp) {
+  console.log("onUpdateSummary");
+
+  let messageBox = document.getElementById(timestamp);
+  let summaryEl = null;
+  if (type == "absum") {
+    summaryEl = messageBox.childNodes[2].childNodes[0];
+  }
+  else {
+    summaryEl = messageBox.childNodes[3].childNodes[0];
+  }
+
+  summaryEl.textContent = content;
+  addEditBtn(summaryEl, type, timestamp);
 }
 
 // Event listener on individual transcript arrival.
@@ -59,9 +77,6 @@ function onTranscript(transcript, name, timestamp) {
   // Append the new transcript to the old paragraph.
   let paragraph = messageBox.childNodes[1];
   paragraph.textContent += transcript + " ";
-
-  // Scroll down the messages area.
-  // messages.scrollTop = messages.scrollHeight;
 
   if (!transCheck && !abCheck && !exCheck) {
     displayNo(messageBox);
@@ -127,110 +142,146 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     }
   }
 
-  // Add edit button in order to allow user change contents
+  // Add edit button in order to allow user change contents (paragraph, absummary, exsummary)
   let paragraph = messageBox.childNodes[1];
-  let editBtn1 = document.createElement("span");
-  editBtn1.className = "edit-btn";
-  editBtn1.id = "edit-" + timestamp.toString();
-  editBtn1.onclick = function () { editParagraph(timestamp.toString()) };
-  let pen1 = document.createElement("i");
-  pen1.className = "fas fa-pen";
-  editBtn1.append(pen1);
-  paragraph.append(editBtn1);
+  addEditBtn(paragraph, "paragraph", timestamp);
 
-  // Scroll down the messages area.
-  // messages.scrollTop = messages.scrollHeight;
+  addEditBtn(abSummaryEl, "absum", timestamp);
+
+  addEditBtn(exSummaryEl, "exsum", timestamp);
 }
 
-function editParagraph(timestamp) {
-  console.log("Edit Paragraph");
-  // console.log(editbtn.id.split('edit-')[0]);/
+function toEditableBg(p) {
+  p.style.background = "none";
+}
+
+function toEditingBg(p) {
+  p.style.background = "aliceblue";
+}
+
+function toEditableIcon(btn) {
+  btn.style.opacity = "0.5";
+  btn.childNodes[0].className = "fas fa-pen";
+}
+
+function toEditingIcon(btn) {
+  btn.style.opacity = "0.8";
+  btn.childNodes[0].className = "fas fa-check";
+}
+
+function editContent(type, timestamp) {
   let messageBox = document.getElementById(timestamp);
-  if (!messageBox) {
-    console.log("ERROR:::::::::::::::::EDITING NO MSG BOX");
-    return;
+  let oldtxt = null;
+  switch (type) {
+    case "paragraph":
+      let paragraph = messageBox.childNodes[1];
+
+      paragraph.contentEditable = "true";
+
+      // change icon
+      console.log(paragraph);
+      console.log(paragraph.childNodes[1]);
+
+      toEditingBg(paragraph)
+      toEditingIcon(paragraph.childNodes[1])
+
+      oldtxt = paragraph.textContent;
+
+      paragraph.childNodes[1].onclick = function () { finishEditContent("paragraph", oldtxt, timestamp); };
+
+      break;
+    case "absum":
+      let abSummary = messageBox.childNodes[2].childNodes[0];
+
+      abSummary.contentEditable = "true";
+
+      // change icon
+      console.log(abSummary);
+      console.log(abSummary.lastChild);
+
+      toEditingBg(abSummary)
+      toEditingIcon(abSummary.lastChild)
+
+      oldtxt = abSummary.textContent;
+
+      abSummary.lastChild.onclick = function () { finishEditContent("absum", oldtxt, timestamp); };
+      break;
+    case "exsum":
+      let exSummary = messageBox.childNodes[3].childNodes[0];
+
+      exSummary.contentEditable = "true";
+
+      // change icon
+      console.log(exSummary);
+      console.log(exSummary.lastChild);
+
+      toEditingBg(exSummary)
+      toEditingIcon(exSummary.lastChild)
+
+      oldtxt = exSummary.textContent;
+
+      exSummary.lastChild.onclick = function () { finishEditContent("exsum", oldtxt, timestamp); };
+      break;
   }
-  let paragraph = messageBox.childNodes[1];
-  console.log(paragraph.textContent);
-  paragraph.contentEditable = "true";
-
-  // change icon
-  console.log(paragraph);
-  console.log(paragraph.childNodes[1]);
-
-  paragraph.childNodes[1].style.opacity = "0.8";
-  paragraph.childNodes[1].childNodes[0].className = "fas fa-check";
-
-  paragraph.childNodes[1].onclick = function () { finishEditParagraph(timestamp); };
 }
 
-function finishEditParagraph(timestamp) {
-  console.log("Edit Paragraph");
-  // console.log(editbtn.id.split('edit-')[0]);/
+function finishEditContent(type, oldtxt, timestamp) {
   let messageBox = document.getElementById(timestamp);
+  console.log(oldtxt)
 
-  let paragraph = messageBox.childNodes[1];
-  console.log(paragraph.textContent);
-  paragraph.contentEditable = "false";
+  switch (type) {
+    case "paragraph":
+      let paragraph = messageBox.childNodes[1];
+      console.log(paragraph.textContent);
+      toEditableBg(paragraph);
+      paragraph.contentEditable = "false";
 
-  // update paragraph and summary on all users
-  rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
+      if (oldtxt.valueOf() != paragraph.textContent.valueOf()) {
+        // update paragraph and summary on all users
+        rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
+      }
+      else {
+        // change icon
+        console.log(paragraph);
+        console.log(paragraph.childNodes[1]);
 
-  // change icon
-  console.log(paragraph);
-  console.log(paragraph.childNodes[1]);
+        toEditableIcon(paragraph.childNodes[1])
 
-  paragraph.childNodes[1].style.opacity = "0.5";
-  paragraph.childNodes[1].childNodes[0].className = "fas fa-pen";
+        paragraph.childNodes[1].onclick = function () { editContent(type, timestamp); };
+      }
+      break;
+    case "absum":
+      let abSummary = messageBox.childNodes[2].childNodes[0];
+      toEditableBg(abSummary);
+      abSummary.contentEditable = "false";
 
-  paragraph.childNodes[1].onclick = function () { editParagraph(timestamp); };
-}
+      if (oldtxt != abSummary.textContent) {
+        rc.updateSummary("absum", abSummary.textContent, timestamp)
+      }
+      else {
+        // change icon
+        toEditableIcon(abSummary.lastChild)
+        abSummary.lastChild.onclick = function () { editContent(type, timestamp); };
+      }
+      break;
+    case "exsum":
+      let exSummary = messageBox.childNodes[3].childNodes[0];
+      toEditableBg(exSummary);
+      exSummary.contentEditable = "false";
 
-function displayScript() {
-  let transCheck = document.getElementById("minutes-transcript").checked;
-  let abCheck = document.getElementById("minutes-ab").checked;
-  let exCheck = document.getElementById("minutes-ex").checked;
-
-  let messageBoxes = document.getElementsByClassName("message-box");
-
-  let paragraphs = document.getElementsByClassName("paragraph");
-  let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
-  let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
-  let keywordBoxes = document.getElementsByClassName("keyword-box")
-
-  if (!transCheck && !abCheck && !exCheck) {
-    // Hide message layout
-    displayBoxes(false, messageBoxes, displayNo);
-  }
-  else {
-    // Show message layout
-    displayBoxes(true, messageBoxes, displayYes);
-
-    // If transCheck==true, show paragraphs
-    displayBoxes(transCheck, paragraphs, displayYes);
-
-    if (transCheck) {
-      // If Abstractive Summary checked, reduce size of summary boxes and add left margin
-      // otherwise, hide exSummaryBoxes.
-      displayBoxes(abCheck, abSummaryBoxes, displaySm);
-
-      // If Extractive Summary checked, reduce size of summary boxes and add left margin
-      // otherwise, hide exSummaryBoxes.
-      displayBoxes(exCheck, exSummaryBoxes, displaySm);
-    }
-    else {
-      // If Abstractive Summary checked, larger the summary boxes and remove left margin
-      // otherwise, hide abSummaryBoxes.
-      displayBoxes(abCheck, abSummaryBoxes, displayBig);
-
-      // If Extractive Summary checked, larger the summary boxes and remove left margin
-      // otherwise, hide exSummaryBoxes.
-      displayBoxes(exCheck, exSummaryBoxes, displayBig);
-    }
+      if (oldtxt != exSummary.textContent) {
+        rc.updateSummary("exsum", exSummary.textContent, timestamp)
+      }
+      else {
+        // change icon
+        toEditableIcon(exSummary.lastChild)
+        exSummary.lastChild.onclick = function () { editContent(type, timestamp); };
+      }
+      break;
   }
 }
 
-function displayUnitOfBox(){
+function displayUnitOfBox() {
   let searchword = document.getElementById("search-word").value
 
   let transCheck = document.getElementById("minutes-transcript").checked;
@@ -242,7 +293,7 @@ function displayUnitOfBox(){
   let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
   let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
 
-  for (var i = 0; i < messageBoxes.length; i++){ // access each i-th index of boxes at the same time
+  for (var i = 0; i < messageBoxes.length; i++) { // access each i-th index of boxes at the same time
     let isfiltered = paragraphs[i].textContent.includes(searchword);
 
     let messageBox = messageBoxes[i];
@@ -256,7 +307,7 @@ function displayUnitOfBox(){
     else {
       displayBox(true && isfiltered, messageBox, displayYes);
       displayBox(transCheck && isfiltered, paragraph, displayYes);
-  
+
       if (transCheck) {
         displayBox(abCheck && isfiltered, abSummaryBox, displaySm);
         displayBox(exCheck && isfiltered, exSummaryBox, displaySm);
