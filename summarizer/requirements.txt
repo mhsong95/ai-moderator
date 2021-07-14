@@ -7,4 +7,5 @@ streamlit
 SentencePiece
 sentencepiece
 pytorch_lightning==0.7.5
-
+pororo
+krwordrank
