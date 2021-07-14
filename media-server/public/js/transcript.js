@@ -31,14 +31,20 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
     exSummaryEl.append(confidenceElem);
   }
 
+  addEditBtn(paragraph, "paragraph", timestamp);
+}
+
+function addEditBtn(area, type, timestamp) {
   let editBtn1 = document.createElement("span");
   editBtn1.className = "edit-btn";
-  editBtn1.id = "edit-" + timestamp;
-  editBtn1.onclick = function () { editParagraph(timestamp) };
+  editBtn1.id = "edit-" + type + "-" + timestamp;
+  if (type == 'paragraph') {
+    editBtn1.onclick = function () { editParagraph(timestamp) };
+  }
   let pen1 = document.createElement("i");
   pen1.className = "fas fa-pen";
   editBtn1.append(pen1);
-  paragraph.append(editBtn1);
+  area.append(editBtn1);
 }
 
 function onUpdateSummary(summaryArr, confArr, timestamp) {
@@ -148,14 +154,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
   // Add edit button in order to allow user change contents
   let paragraph = messageBox.childNodes[1];
-  let editBtn1 = document.createElement("span");
-  editBtn1.className = "edit-btn";
-  editBtn1.id = "edit-" + timestamp.toString();
-  editBtn1.onclick = function () { editParagraph(timestamp.toString()) };
-  let pen1 = document.createElement("i");
-  pen1.className = "fas fa-pen";
-  editBtn1.append(pen1);
-  paragraph.append(editBtn1);
+  addEditBtn(paragraph, "paragraph", timestamp);
 }
 
 function displayScriptWithSearch() {
@@ -218,6 +217,24 @@ function displayBoxesWithSearch(cond, boxes, fn, searchword) {
   }
 }
 
+function toEditableBg(p){
+  p.style.background = "none";
+}
+
+function toEditingBg(p){
+  p.style.background = "aliceblue";
+}
+
+function toEditableIcon(btn){
+  btn.style.opacity = "0.5";
+  btn.childNodes[0].className = "fas fa-pen";
+}
+
+function toEditingIcon(btn){
+  btn.style.opacity = "0.8";
+  btn.childNodes[0].className = "fas fa-check";
+}
+
 function editParagraph(timestamp) {
   let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[1];
@@ -228,30 +245,33 @@ function editParagraph(timestamp) {
   console.log(paragraph);
   console.log(paragraph.childNodes[1]);
 
-  paragraph.childNodes[1].style.opacity = "0.8";
-  paragraph.childNodes[1].childNodes[0].className = "fas fa-check";
+  toEditingBg(paragraph)
+  toEditingIcon(paragraph.childNodes[1])
 
-  paragraph.childNodes[1].onclick = function () { finishEditParagraph(timestamp); };
+  paragraph.childNodes[1].onclick = function () { finishEditParagraph(paragraph.textContent, timestamp); };
 }
 
-function finishEditParagraph(timestamp) {
+function finishEditParagraph(oldtxt, timestamp) {
   let messageBox = document.getElementById(timestamp);
 
   let paragraph = messageBox.childNodes[1];
   console.log(paragraph.textContent);
+  toEditableBg(paragraph);
   paragraph.contentEditable = "false";
 
-  // update paragraph and summary on all users
-  rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
+  if (oldtxt != paragraph.textContent) {
+    // update paragraph and summary on all users
+    rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
+  }
+  else {
+    // change icon
+    console.log(paragraph);
+    console.log(paragraph.childNodes[1]);
 
-  // change icon
-  console.log(paragraph);
-  console.log(paragraph.childNodes[1]);
+    toEditableIcon(paragraph.childNodes[1])
 
-  paragraph.childNodes[1].style.opacity = "0.5";
-  paragraph.childNodes[1].childNodes[0].className = "fas fa-pen";
-
-  paragraph.childNodes[1].onclick = function () { editParagraph(timestamp); };
+    paragraph.childNodes[1].onclick = function () { editParagraph(timestamp); };
+  }
 }
 
 function displayScript() {
