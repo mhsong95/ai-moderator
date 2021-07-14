@@ -171,7 +171,7 @@ module.exports = function (io) {
         return;
       }
 
-      let user_name = req.session.nameMap?.[room_id];
+      let user_name = req.session.nameMap[room_id];
       if (!user_name) {
         // If the user access is not normal, redirect to room join page.
         res.render("redirect", {

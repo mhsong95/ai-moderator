@@ -1,4 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from typing import Text
 from urllib.parse import parse_qs
 from IPython.display import display
 
@@ -81,7 +82,76 @@ def pororo_extractive_model(input_txt):
     return summary
 ################# Pororo ###########################################
 
+### Keyword extraction ###
+# TODO: Install krwordrank, khaiii
+from krwordrank.word import summarize_with_keywords
+import os
+from khaiii import KhaiiiApi
 
+khaiiiWord = KhaiiiApi()
+# textList = []
+# latestText = []
+# tNum = 0
+
+class TextClass:
+    def __init__(self, text):
+        self.keywords = []
+        self.text = text
+    def add_keyword(self, key):
+        self.keywords.append(key)
+
+def preprocessing(newText):
+    original_text = newText.text
+    sentences = original_text.replace("\n", "").replace('?', '.').replace('!', '.').split('. ')
+    processed_text = ''
+    for sentence in sentences:
+        word_analysis = khaiiiWord.analyze(sentence)
+        temp = []
+        for word in word_analysis:
+            for morph in word.morphs:
+                if morph.tag in ['NNP', 'NNG'] and len(morph.lex) > 1:
+                    temp.append(morph.lex)
+        temp = ' '.join(temp)
+        temp += '. '
+        processed_text += temp
+    return processed_text
+
+def update_latest_text(processedText, latestText):
+    if len(latestText) == 6:
+        latestText.pop(0)
+    latestText.append(processedText)
+    return latestText
+
+def keyword_extractor(newText):
+    processedText = preprocessing(newText)
+    sentences = processedText.split('. ')
+    try:
+        keywords = summarize_with_keywords(sentences, min_count=1, max_length=15)
+        for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:5]:
+            # TODO: Decide the bottom limit of r
+            if r > 1.0:
+                newText.add_keyword(word)
+        # textList.append(newText)
+        # latestText = update_latest_text(processedText, latestText)
+        return newText
+    except AttributeError:
+        print("Attribute Error in Keyword Extractor")
+
+def get_trending_keyword(latestText):
+    sentences = []
+    for text in latestText:
+        sentences += text.split('.')
+    sentences = list(filter(None, sentences))
+
+    trending_keywords = []
+    keywords = summarize_with_keywords(sentences, min_count=1, max_length=15)
+    i = 1
+    for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:10]:
+        trending_keywords.append(word)
+        i += 1
+    return trending_keywords
+    
+### Keyword extraction ###
 
 class echoHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -89,17 +159,27 @@ class echoHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('Content-Length'))
         post_body = self.rfile.read(content_len).decode('utf-8')
         fields = parse_qs(post_body)
-        #res = bert_summarizing_model(fields['content'][0], 1, 0); print(res)
-        # kobert_res = kobert_summarizing_model(fields['content'][0], 1, 0)
-        # kobart_res = kobart_summarizing_model(fields['content'][0])
+            
+        # Get summaries
         pororo_ab_res = pororo_abstractive_model(fields['content'][0])
         pororo_ex_res = pororo_extractive_model(fields['content'][0])
+
+        # Extract Keywords
+        newText = TextClass(fields['content'][0])
+        newText = keyword_extractor(newText)
+
         print('Pororo Abstractive:::')
         print(pororo_ab_res)
         print('Pororo Extractive:::')
         print(pororo_ex_res)
+        print('Keywords:::')
+        for keyword in newText.keywords:
+            print("#%s " % keyword, end="")
+        print()
 
         res = pororo_ab_res+'@@@@@AB@@@@@EX@@@@@'+pororo_ex_res
+        for keyword in newText.keywords:
+            res += '@@@@@AB@@@@@EX@@@@@' + keyword
 
         self.send_response(200)
         self.send_header('content-type', 'text/html')
@@ -107,7 +187,7 @@ class echoHandler(BaseHTTPRequestHandler):
         self.wfile.write(res.encode())
 
 def main():
-    PORT = 5050
+    PORT = 4040
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()

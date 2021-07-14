@@ -1,0 +1,12 @@
+{
+  "name": "summarizer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "summarizer": "python3 server.py"
+  },
+  "author": "",
+  "license": "ISC"
+}
