@@ -11,7 +11,19 @@ The video conferencing feature is built over [Mediasoup video conferencing](http
 ### Summary server
 
 1. Install requirements in `summarizer/requirements.txt` (change directory to `summarizer/` then run `pip3 install -r requirements.txt`. You may want to use `venv`). It takes minutes to complete.
-2. Run `npm run summarizer` in the project root. It also takes some time to start listening. It will listen for summary request from **Moderator server**.
+2. Install Hangul analyzer `khaiii`.
+* `$ git clone https://github.com/kakao/khaiii.git`
+* `$ cd khaiii`
+* `$ mkdir build`
+* `$ cd build`
+* `$ cmake ..` (This will takes minutes.)
+* `$ make all`
+* `$ make resource`
+* `$ ctest` (Check if khaiii works properly.)
+* `$ make package_python`
+* `$ cd package_python`
+* `$ pip install .` (Done.)
+3. Run `npm run summarizer` in the project root. It also takes some time to start listening. It will listen for summary request from **Moderator server**.
 
 ### Moderator server
 
