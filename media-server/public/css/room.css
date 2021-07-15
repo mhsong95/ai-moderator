@@ -13,6 +13,10 @@ nav {
   width: 65%;
   height: 100%;
   float: left;
+  padding-top: 8%;
+  padding-bottom: 8%;
+  padding-left: 8%;
+  padding-right: 8%;
 }
 
 #remote-media {
@@ -103,6 +107,9 @@ nav {
   height: 100%;
   float: right;
   display: inline;
+  padding-top: 8%;
+  padding-bottom: 8%;
+  padding-right: 8%;
   position: absolute;
   border-left: thin solid;
 }
@@ -114,7 +121,7 @@ nav {
   padding: 0.5em;
   overflow: hidden;
   overflow-y: scroll;
-  height: 90%;
+  height: 80%;
   border-bottom: thin solid;
 }
 
