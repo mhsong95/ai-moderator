@@ -149,6 +149,9 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   addEditBtn(abSummaryEl, "absum", timestamp);
 
   addEditBtn(exSummaryEl, "exsum", timestamp);
+
+  // Scroll down the messages area.
+  // messages.scrollTop = messages.scrollHeight;
 }
 
 function toEditableBg(p) {

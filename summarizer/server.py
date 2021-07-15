@@ -5,13 +5,11 @@ from IPython.display import display
 
 ################# BERT & BART ###########################################
 # INITIALIZE [BERT&BART] 
-'''
 from summarizer import Summarizer
 bert_model = Summarizer()
 
 from transformers import pipeline
 bart_summarizer = pipeline("summarization")
-
 
 # BERT
 def bert_summarizing_model(input_txt, sent, ratio):
@@ -22,7 +20,7 @@ def bert_summarizing_model(input_txt, sent, ratio):
 
     full = ''.join(sum)
     return full
-'''
+
 ################# BERT & BART ###########################################
 
 
@@ -56,7 +54,6 @@ def kobert_summarizing_model(input_txt):
 
 def kobart_summarizing_model(input_txt):
     text = input_txt.replace('\n', '')
-
     input_ids = kobart_tokenizer.encode(text)
     input_ids = torch.tensor(input_ids)
     input_ids = input_ids.unsqueeze(0)
@@ -70,6 +67,7 @@ def kobart_summarizing_model(input_txt):
 from pororo import Pororo
 summ_abstractive = Pororo(task="summarization", model="abstractive", lang="ko")
 summ_extractive = Pororo(task="summarization", model="extractive", lang="ko")
+
 def pororo_abstractive_model(input_txt):
     summary = summ_abstractive(input_txt)
     if len(summary) > len(input_txt):
@@ -89,9 +87,6 @@ import os
 from khaiii import KhaiiiApi
 
 khaiiiWord = KhaiiiApi()
-# textList = []
-# latestText = []
-# tNum = 0
 
 class TextClass:
     def __init__(self, text):
@@ -100,9 +95,8 @@ class TextClass:
     def add_keyword(self, key):
         self.keywords.append(key)
 
-def preprocessing(newText):
-    original_text = newText.text
-    sentences = original_text.replace("\n", "").replace('?', '.').replace('!', '.').split('. ')
+def preprocessing(text):
+    sentences = text.replace("\n", "").replace('?', '.').replace('!', '.').split('. ')
     processed_text = ''
     for sentence in sentences:
         word_analysis = khaiiiWord.analyze(sentence)
@@ -116,40 +110,66 @@ def preprocessing(newText):
         processed_text += temp
     return processed_text
 
-def update_latest_text(processedText, latestText):
-    if len(latestText) == 6:
-        latestText.pop(0)
-    latestText.append(processedText)
-    return latestText
 
-def keyword_extractor(newText):
-    processedText = preprocessing(newText)
-    sentences = processedText.split('. ')
+def extract_top5_keywords(text):
+    top5_keywords = []
+    processed_text = preprocessing(text)
+    sentences = processed_text.split('. ')
     try:
         keywords = summarize_with_keywords(sentences, min_count=1, max_length=15)
         for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:5]:
-            # TODO: Decide the bottom limit of r
-            if r > 1.0:
-                newText.add_keyword(word)
-        # textList.append(newText)
-        # latestText = update_latest_text(processedText, latestText)
-        return newText
-    except AttributeError:
-        print("Attribute Error in Keyword Extractor")
+            top5_keywords.append(word)
+        return top5_keywords
+    except ValueError:
+        print("ValueError: No keywords were extracted.")
 
-def get_trending_keyword(latestText):
-    sentences = []
-    for text in latestText:
-        sentences += text.split('.')
-    sentences = list(filter(None, sentences))
+# Extracts keywords by comparing original text and summaries
+def combined_keyword_extractor(text, po_abs, po_ext, ko_abs, ko_ext):
+    res_keywords = []
+    keyword_list = {}
+    klist = {}
+    klist['original_key'] = extract_top5_keywords(text)
+    klist['po_abs_key'] = extract_top5_keywords(po_abs)
+    klist['po_ext_key'] = extract_top5_keywords(po_ext)
+    klist['ko_abs_key'] = extract_top5_keywords(ko_abs)
+    klist['ko_ext_key'] = extract_top5_keywords(ko_ext)
 
-    trending_keywords = []
-    keywords = summarize_with_keywords(sentences, min_count=1, max_length=15)
-    i = 1
-    for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:10]:
-        trending_keywords.append(word)
-        i += 1
-    return trending_keywords
+    #### weights ###
+    # abs (PORORO, KoBART): 2.5 / 2.3 / 2.1 / 1.9 / 1.7
+    # ext (PORORO, KoBERT): 2   / 1.8 / 1.6 / 1.4 / 1.2
+    # original            : 1   / 0.8 / 0.6 / 0.4 / 0.2
+    for key in klist:
+        if key in ['po_abs_key', 'ko_abs_key']:
+            w = 2.5
+        elif key in ['po_ext_key', 'ko_ext_key']:
+            w = 2
+        else:
+            w = 1
+        for keyword in klist[key]:
+            if keyword in keyword_list:
+                keyword_list[keyword] += w
+            else:
+                keyword_list[keyword] = w
+            w -= 0.2
+    
+    # Extract Top 5 keywords with large weights
+    for keyword, w in sorted(keyword_list.items(), key=lambda x: x[1], reverse=True)[:5]:
+        res_keywords.append(keyword)
+    return res_keywords
+
+# def get_trending_keyword(latestText):
+#     sentences = []
+#     for text in latestText:
+#         sentences += text.split('.')
+#     sentences = list(filter(None, sentences))
+
+#     trending_keywords = []
+#     keywords = summarize_with_keywords(sentences, min_count=1, max_length=15)
+#     i = 1
+#     for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:10]:
+#         trending_keywords.append(word)
+#         i += 1
+#     return trending_keywords
     
 ### Keyword extraction ###
 
@@ -164,25 +184,29 @@ class echoHandler(BaseHTTPRequestHandler):
         # Get summaries
         pororo_ab_res = pororo_abstractive_model(text)
         pororo_ex_res = pororo_extractive_model(text)
-
-        kobart_ab_res = kobert_summarizing_model(text)
+        kobart_ab_res = kobart_summarizing_model(text)
         kobert_ex_res = kobert_summarizing_model(text)
 
-        # Extract Keywords
-        newText = TextClass(text)
-        newText = keyword_extractor(newText)
+        # Extract combined keywords
+        keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, 
+                                                    kobart_ab_res, kobert_ex_res)
 
         print('Pororo Abstractive:::')
         print(pororo_ab_res)
         print('Pororo Extractive:::')
         print(pororo_ex_res)
+        print('Kobert:::')
+        print(kobart_ab_res)
+        print('Kobart:::')
+        print(kobert_ex_res)
+
         print('Keywords:::')
-        for keyword in newText.keywords:
+        for keyword in keywordList:
             print("#%s " % keyword, end="")
         print()
 
         res = pororo_ab_res+'@@@@@AB@@@@@EX@@@@@'+pororo_ex_res
-        for keyword in newText.keywords:
+        for keyword in keywordList:
             res += '@@@@@AB@@@@@EX@@@@@' + keyword
 
         self.send_response(200)

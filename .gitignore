@@ -121,3 +121,4 @@ __init__.pyc
 
 #json / lock for KoBERT
 summarizer/KoBertSum/temp/
+summarizer/KoBertSum/ext/
