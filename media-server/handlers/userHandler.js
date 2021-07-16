@@ -6,6 +6,7 @@ const { roomList } = require("../lib/global");
 const { getMediasoupWorker } = require("../lib/Worker");
 const Room = require("../lib/Room");
 const Peer = require("../lib/Peer");
+var fs = require('fs');
 
 module.exports = function (io, socket) {
   socket.on("createRoom", async ({ room_id }, callback) => {
@@ -19,6 +20,21 @@ module.exports = function (io, socket) {
     }
   });
 
+  socket.on("saveLog", ({user_name, userLog}) => {
+    console.log(socket.room_id)
+    console.log(socket.id)
+    console.log(user_name);
+    console.log(userLog)
+
+    for (var timestamp in userLog) {
+      // Construct new log file for user
+      fs.appendFile('logs/' + socket.room_id + '_' + user_name + '.txt', userLog[timestamp], function (err) {
+        if (err) throw err;
+        console.log('Log is added successfully.');
+      });
+    }
+  });
+
   socket.on("join", ({ room_id, name }, cb) => {
     console.log('---user joined--- "' + room_id + '": ' + name);
     if (!roomList.has(room_id)) {
@@ -26,6 +42,12 @@ module.exports = function (io, socket) {
         error: "room does not exist",
       });
     }
+
+    // Construct new log file for user
+    fs.appendFile('logs/' + room_id + '_' + name + '.txt', '(' + Date.now() + ') User ' + name + ' joined.\n', function (err) {
+      if (err) throw err;
+      console.log('File is created successfully.');
+    });
 
     let room = roomList.get(room_id);
     if (room.roomExpireTimeout) {

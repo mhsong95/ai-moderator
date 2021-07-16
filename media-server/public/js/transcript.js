@@ -281,6 +281,10 @@ function finishEditContent(type, oldtxt, timestamp) {
   }
 }
 
+function addLog(timestamp, text){
+  rc.addUserLog(user_name, timestamp, text);
+}
+
 function displayUnitOfBox() {
   let searchword = document.getElementById("search-word").value
 
@@ -292,6 +296,8 @@ function displayUnitOfBox() {
   let paragraphs = document.getElementsByClassName("paragraph");
   let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
   let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
+
+  addLog(Date.now(), "Click displayButton\n");
 
   for (var i = 0; i < messageBoxes.length; i++) { // access each i-th index of boxes at the same time
     let isfiltered = paragraphs[i].textContent.includes(searchword);

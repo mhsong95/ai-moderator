@@ -37,6 +37,8 @@ class RoomClient {
         this.consumers = new Map()
         this.producers = new Map()
 
+        this.userLog = {}
+
         /**
          * map that contains a mediatype as key and producer_id as value
          */
@@ -72,7 +74,6 @@ class RoomClient {
     }
 
     async join(name, room_id) {
-
         this.socket.request('join', {
             name,
             room_id
@@ -737,6 +738,18 @@ class RoomClient {
     updateSummary(type, content, timestamp) {
         console.log("rc.updateSummary")
         moderatorSocket.emit("updateSummary", type, content, timestamp);
+    }
+
+    addUserLog(user_name, timestamp, text) {
+        let userLog = this.userLog;
+        console.log(this.name);
+        console.log(user_name);
+        userLog[timestamp] = '(' + timestamp + ') ' + text;
+        console.log(Object.keys(userLog).length);
+        if (Object.keys(userLog).length > 10){
+            this.socket.request('saveLog', {user_name, userLog});
+            this.userLog = {}
+        }
     }
 
     //////// GETTERS ////////
