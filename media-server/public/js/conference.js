@@ -128,6 +128,8 @@ function copyJoinLink() {
   document.execCommand("copy");
   document.body.removeChild(textarea);
 
+  rc.addUserLog(Date.now(), "Invite button clicked!\n");
+
   alert("Link copied to clipboard");
 }
 

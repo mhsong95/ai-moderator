@@ -76,7 +76,8 @@ class RoomClient {
     async join(name, room_id) {
         this.socket.request('join', {
             name,
-            room_id
+            room_id,
+            room_name
         }).then(async function (e) {
             console.log(e)
             const data = await this.socket.request('getRouterRtpCapabilities');
@@ -740,14 +741,13 @@ class RoomClient {
         moderatorSocket.emit("updateSummary", type, content, timestamp);
     }
 
-    addUserLog(user_name, timestamp, text) {
+    addUserLog(timestamp, text) {
         let userLog = this.userLog;
-        console.log(this.name);
-        console.log(user_name);
+        let user_name = this.name;
         userLog[timestamp] = '(' + timestamp + ') ' + text;
         console.log(Object.keys(userLog).length);
-        if (Object.keys(userLog).length > 10){
-            this.socket.request('saveLog', {user_name, userLog});
+        if (Object.keys(userLog).length > 0) {
+            this.socket.request('saveLog', { room_name, user_name, userLog });
             this.userLog = {}
         }
     }
