@@ -152,6 +152,8 @@ module.exports = function (io, socket) {
         // Event handler for speech stopped events.
         recognizer.speechEndDetected = (s, e) => {
             console.log("\n  Speech End Detected!!");
+            audioInput = [];
+            lastAudioInput = [];
         };
 
         // Event handler for speech started events.
@@ -168,11 +170,15 @@ module.exports = function (io, socket) {
                 console.log(`"CANCELED: ErrorDetails=${e.errorDetails}`);
                 console.log("CANCELED: Did you update the subscription info?");
             }
+            audioInput = [];
+            lastAudioInput = [];
         };
 
         // Event handler for session stopped events.
         recognizer.sessionStopped = (s, e) => {
             console.log("\n    Session stopped event.");
+            audioInput = [];
+            lastAudioInput = [];
         };
 
         // Starts speech recognition, until stopContinuousRecognitionAsync() is called.

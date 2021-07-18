@@ -37,6 +37,8 @@ class RoomClient {
         this.consumers = new Map()
         this.producers = new Map()
 
+        this.userLog = {}
+
         /**
          * map that contains a mediatype as key and producer_id as value
          */
@@ -72,10 +74,10 @@ class RoomClient {
     }
 
     async join(name, room_id) {
-
         this.socket.request('join', {
             name,
-            room_id
+            room_id,
+            room_name
         }).then(async function (e) {
             console.log(e)
             const data = await this.socket.request('getRouterRtpCapabilities');
@@ -699,9 +701,11 @@ class RoomClient {
 
                 if (mediaContainer.id === this.socket.id) {
                     this.pauseProducer(mediaType.audio);
+                    this.addUserLog(Date.now(), 'Mute my audio\n');
                 } else {
                     if (audioElem) {
                         audioElem.muted = true;
+                        this.addUserLog(Date.now(), "Mute other's audio: "+mediaContainer.id+"\n");
                     }
                 }
 
@@ -712,9 +716,11 @@ class RoomClient {
 
                 if (mediaContainer.id === this.socket.id) {
                     this.resumeProducer(mediaType.audio);
+                    this.addUserLog(Date.now(), 'Unmute my audio\n');
                 } else {
                     if (audioElem) {
                         audioElem.muted = false;
+                        this.addUserLog(Date.now(), "Unmute other's audio: "+mediaContainer.id+"\n");
                     }
                 }
 
@@ -737,6 +743,17 @@ class RoomClient {
     updateSummary(type, content, timestamp) {
         console.log("rc.updateSummary")
         moderatorSocket.emit("updateSummary", type, content, timestamp);
+    }
+
+    addUserLog(timestamp, text) {
+        let userLog = this.userLog;
+        let user_name = this.name;
+        userLog[timestamp] = '(' + timestamp + ') ' + text;
+        console.log(Object.keys(userLog).length);
+        if (Object.keys(userLog).length > 0) {
+            this.socket.request('saveLog', { room_name, user_name, userLog });
+            this.userLog = {}
+        }
     }
 
     //////// GETTERS ////////

@@ -6,6 +6,7 @@ const { roomList } = require("../lib/global");
 const { getMediasoupWorker } = require("../lib/Worker");
 const Room = require("../lib/Room");
 const Peer = require("../lib/Peer");
+var fs = require('fs');
 
 module.exports = function (io, socket) {
   socket.on("createRoom", async ({ room_id }, callback) => {
@@ -19,13 +20,34 @@ module.exports = function (io, socket) {
     }
   });
 
-  socket.on("join", ({ room_id, name }, cb) => {
+  socket.on("saveLog", ({ room_name, user_name, userLog }) => {
+    for (var timestamp in userLog) {
+      // Construct new log file for user
+      fs.appendFile('logs/' + room_name + '_' + user_name + '_' + socket.room_id + '.txt', userLog[timestamp], function (err) {
+        if (err) throw err;
+        console.log('Log is added successfully.');
+      });
+    }
+  });
+
+  socket.on("join", ({ room_id, room_name, name }, cb) => {
     console.log('---user joined--- "' + room_id + '": ' + name);
     if (!roomList.has(room_id)) {
       return cb({
         error: "room does not exist",
       });
     }
+
+    // Construct new log file for user
+    let msg = '(' + Date.now() + ') User ' + name + ' joined.\n';
+    msg = msg + '                [roomID] ' + room_id + '\n';
+    msg = msg + '                [roomName] ' + room_name + '\n';
+    msg = msg + '                [userName] ' + name + '\n';
+    msg = msg + '                [socketID] ' + socket.id + '\n';
+    fs.appendFile('logs/' + room_name + '_' + name + '_' + room_id + '.txt', msg, function (err) {
+      if (err) throw err;
+      console.log('File is created successfully.');
+    });
 
     let room = roomList.get(room_id);
     if (room.roomExpireTimeout) {
@@ -144,15 +166,20 @@ module.exports = function (io, socket) {
   });
 
   socket.on("disconnect", () => {
+    let room = roomList.get(socket.room_id);
     console.log(
-      `---disconnect--- name: ${roomList.get(socket.room_id) &&
-      roomList.get(socket.room_id).getPeers().get(socket.id).name
+      `---disconnect--- name: ${room &&
+      room.getPeers().get(socket.id).name
       }`
     );
     if (!socket.room_id) return;
     if (!roomList.has(socket.room_id)) return;
 
-    let room = roomList.get(socket.room_id);
+    let logfile = 'logs/' + room.name + '_' + room.getPeers().get(socket.id).name + '_' + socket.room_id + '.txt';
+    fs.appendFile(logfile, '(' + Date.now() + ') Exit\n', function (err) {
+      if (err) throw err;
+      console.log('Log is added successfully.');
+    });
     room.removePeer(socket.id);
 
     if (room.getPeers().size === 0) {
