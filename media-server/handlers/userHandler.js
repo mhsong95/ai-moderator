@@ -39,7 +39,12 @@ module.exports = function (io, socket) {
     }
 
     // Construct new log file for user
-    fs.appendFile('logs/' + room_name + '_' + name + '_' + room_id + '.txt', '(' + Date.now() + ') User ' + name + ' joined.\n', function (err) {
+    let msg = '(' + Date.now() + ') User ' + name + ' joined.\n';
+    msg = msg + '                [roomID] ' + room_id + '\n';
+    msg = msg + '                [roomName] ' + room_name + '\n';
+    msg = msg + '                [userName] ' + name + '\n';
+    msg = msg + '                [socketID] ' + socket.id + '\n';
+    fs.appendFile('logs/' + room_name + '_' + name + '_' + room_id + '.txt', msg, function (err) {
       if (err) throw err;
       console.log('File is created successfully.');
     });

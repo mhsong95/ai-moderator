@@ -701,9 +701,11 @@ class RoomClient {
 
                 if (mediaContainer.id === this.socket.id) {
                     this.pauseProducer(mediaType.audio);
+                    this.addUserLog(Date.now(), 'Mute my audio\n');
                 } else {
                     if (audioElem) {
                         audioElem.muted = true;
+                        this.addUserLog(Date.now(), "Mute other's audio: "+mediaContainer.id+"\n");
                     }
                 }
 
@@ -714,9 +716,11 @@ class RoomClient {
 
                 if (mediaContainer.id === this.socket.id) {
                     this.resumeProducer(mediaType.audio);
+                    this.addUserLog(Date.now(), 'Unmute my audio\n');
                 } else {
                     if (audioElem) {
                         audioElem.muted = false;
+                        this.addUserLog(Date.now(), "Unmute other's audio: "+mediaContainer.id+"\n");
                     }
                 }
 

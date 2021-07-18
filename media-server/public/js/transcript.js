@@ -20,6 +20,11 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
   exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
 
+  rc.addUserLog(Date.now(), 'New paragraph contents: ' + timestamp + '\n'
+    + '                [Paragraph] ' + newParagraph + '\n'
+    + '                [AbSummary] ' + summaryArr[0] + '\n'
+    + '                [ExSumamry] ' + summaryArr[1] + '\n');
+
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
   if (confArr[0] !== -1) {
@@ -40,7 +45,7 @@ function addEditBtn(area, type, timestamp) {
   let editBtn1 = document.createElement("span");
   editBtn1.className = "edit-btn";
   editBtn1.id = "edit-" + type + "-" + timestamp;
-  editBtn1.onclick = function () { editContent(type, timestamp) };
+  editBtn1.onclick = function () { editContent(type, timestamp); rc.addUserLog(Date.now(), 'Start edit message: ' + type + '-' + timestamp + '\n'); };
   let pen1 = document.createElement("i");
   pen1.className = "fas fa-pen";
   editBtn1.append(pen1);
@@ -52,14 +57,18 @@ function onUpdateSummary(type, content, timestamp) {
 
   let messageBox = document.getElementById(timestamp);
   let summaryEl = null;
+  let msg = 'New summary contents: ' + timestamp + '\n';
   if (type == "absum") {
     summaryEl = messageBox.childNodes[2].childNodes[0];
+    msg = msg + '                [AbSummary] ' + summaryArr[0] + '\n';
   }
   else {
     summaryEl = messageBox.childNodes[3].childNodes[0];
+    msg = msg + '                [ExSumamry] ' + summaryArr[1] + '\n';
   }
 
   summaryEl.textContent = content;
+  rc.addUserLog(Date.now(), msg);
   addEditBtn(summaryEl, type, timestamp);
 }
 
@@ -239,6 +248,7 @@ function finishEditContent(type, oldtxt, timestamp) {
       if (oldtxt.valueOf() != paragraph.textContent.valueOf()) {
         // update paragraph and summary on all users
         rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
+        rc.addUserLog(Date.now(), 'Finish edit message by '+messageBox.childNodes[0].childNodes[0].textContent+': ' + type + '-' + timestamp + '\n');
       }
       else {
         // change icon
@@ -248,34 +258,29 @@ function finishEditContent(type, oldtxt, timestamp) {
         toEditableIcon(paragraph.childNodes[1])
 
         paragraph.childNodes[1].onclick = function () { editContent(type, timestamp); };
+        rc.addUserLog(Date.now(), 'Cancel edit message: ' + type + '-' + timestamp + '\n');
       }
       break;
-    case "absum":
-      let abSummary = messageBox.childNodes[2].childNodes[0];
-      toEditableBg(abSummary);
-      abSummary.contentEditable = "false";
-
-      if (oldtxt != abSummary.textContent) {
-        rc.updateSummary("absum", abSummary.textContent, timestamp)
+    default:
+      let summary = null;
+      if (type == "absum") {
+        summary = messageBox.childNodes[2].childNodes[0];
       }
       else {
-        // change icon
-        toEditableIcon(abSummary.lastChild)
-        abSummary.lastChild.onclick = function () { editContent(type, timestamp); };
+        summary = messageBox.childNodes[3].childNodes[0];
       }
-      break;
-    case "exsum":
-      let exSummary = messageBox.childNodes[3].childNodes[0];
-      toEditableBg(exSummary);
-      exSummary.contentEditable = "false";
 
-      if (oldtxt != exSummary.textContent) {
-        rc.updateSummary("exsum", exSummary.textContent, timestamp)
+      toEditableBg(summary);
+      summary.contentEditable = "false";
+
+      if (oldtxt != summary.textContent) {
+        rc.updateSummary("absum", summary.textContent, timestamp)
+        rc.addUserLog(Date.now(), 'Finish edit message: ' + type + '-' + timestamp + '\n');
       }
       else {
-        // change icon
-        toEditableIcon(exSummary.lastChild)
-        exSummary.lastChild.onclick = function () { editContent(type, timestamp); };
+        toEditableIcon(summary.lastChild)
+        summary.lastChild.onclick = function () { editContent(type, timestamp); };
+        rc.addUserLog(Date.now(), 'Cancel edit message: ' + type + '-' + timestamp + '\n');
       }
       break;
   }
