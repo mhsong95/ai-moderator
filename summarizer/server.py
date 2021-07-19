@@ -4,23 +4,22 @@ from urllib.parse import parse_qs
 from IPython.display import display
 
 ################# BERT & BART ###########################################
-# INITIALIZE [BERT&BART] 
-from summarizer import Summarizer
-bert_model = Summarizer()
+# # INITIALIZE [BERT&BART] 
+# from summarizer import Summarizer
+# bert_model = Summarizer()
 
-from transformers import pipeline
-bart_summarizer = pipeline("summarization")
+# from transformers import pipeline
+# bart_summarizer = pipeline("summarization")
 
-# BERT
-def bert_summarizing_model(input_txt, sent, ratio):
-    if sent != 0:
-        sum = bert_model(input_txt, num_sentences = sent)
-    elif ratio != 0:
-        sum = bert_model(input_txt, ratio = ratio)
+# # BERT
+# def bert_summarizing_model(input_txt, sent, ratio):
+#     if sent != 0:
+#         sum = bert_model(input_txt, num_sentences = sent)
+#     elif ratio != 0:
+#         sum = bert_model(input_txt, ratio = ratio)
 
-    full = ''.join(sum)
-    return full
-
+#     full = ''.join(sum)
+#     return full
 ################# BERT & BART ###########################################
 
 
@@ -59,7 +58,13 @@ def kobart_summarizing_model(input_txt):
     input_ids = input_ids.unsqueeze(0)
     summary = kobart_model.generate(input_ids, eos_token_id=1, max_length=64, num_beams=5, early_stopping=True)
     summary = kobart_tokenizer.decode(summary[0], skip_special_tokens=True)
-    
+
+    print("SUMMARY", summary)
+
+    if len(summary) > len(input_txt):
+        print("INVALID:::", input_txt)
+        return ""
+
     return summary
 ################# Ko-BERT & Ko-BART ###########################################
 
@@ -71,8 +76,8 @@ summ_extractive = Pororo(task="summarization", model="extractive", lang="ko")
 def pororo_abstractive_model(input_txt):
     summary = summ_abstractive(input_txt)
     if len(summary) > len(input_txt):
-        print("INVALID:::")
-        print(input_txt)
+        print("INVALID:::", input_txt)
+        return ""
     return summary
 
 def pororo_extractive_model(input_txt):
@@ -104,6 +109,10 @@ def preprocessing(text):
     return processed_text
 
 def extract_top5_keywords(text):
+    if text == "":
+        print("RETURN EMPTY KEYWORD LIST", text)
+        return []
+
     top5_keywords = []
     processed_text = preprocessing(text)
     sentences = processed_text.split('. ')
@@ -111,9 +120,11 @@ def extract_top5_keywords(text):
         keywords = summarize_with_keywords(sentences, min_count=1, max_length=15)
         for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:5]:
             top5_keywords.append(word)
+        print("KEYWORDS", top5_keywords)
         return top5_keywords
     except ValueError:
         print("ValueError: No keywords were extracted.")
+        return []
 
 def combined_keyword_extractor(text, po_abs, po_ext, ko_abs, ko_ext):
     res_keywords = []
@@ -167,6 +178,110 @@ def get_trending_keyword(new_keywords):
     
 ### Keyword extraction ###
 
+
+################# GET Confidence Sore ###########################################
+from rouge import Rouge 
+from numpy import mean
+
+## ROUGE
+rouge = Rouge()
+def get_rouge_score(summary1, summary2):
+    # return average of (Rouge-1, 2, L 's F1-score)
+    score_keys = ['rouge-1', 'rouge-2', 'rouge-l']
+    rouge_score = rouge.get_scores(summary1, summary2)
+    F1_rouge = [[score[key]['f'] for key in score_keys] for score in rouge_score]
+    return np.mean(F1_rouge)
+
+## GOOGLE ENCODER
+import tensorflow as tf
+import tensorflow_hub as hub
+import numpy as np
+from absl import logging
+
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+
+import sentencepiece as spm
+import matplotlib.pyplot as plt
+import pandas as pd
+import re
+import seaborn as sns
+
+hub_module = hub.Module("https://tfhub.dev/google/universal-sentence-encoder-lite/2")
+input_placeholder = tf.sparse_placeholder(tf.int64, shape=[None, None])
+encodings = hub_module(
+    inputs=dict(
+        values=input_placeholder.values,
+        indices=input_placeholder.indices,
+        dense_shape=input_placeholder.dense_shape))
+
+with tf.Session() as sess:
+  spm_path = sess.run(hub_module(signature="spm_path"))
+
+sp = spm.SentencePieceProcessor()
+with tf.io.gfile.GFile(spm_path, mode="rb") as f:
+  sp.LoadFromSerializedProto(f.read())
+
+def process_to_IDs_in_sparse_format(sp, sentences):
+  ids = [sp.EncodeAsIds(x) for x in sentences]
+  max_len = max(len(x) for x in ids)
+  dense_shape=(len(ids), max_len)
+  values=[item for sublist in ids for item in sublist]
+  indices=[[row,col] for row in range(len(ids)) for col in range(len(ids[row]))]
+  return (values, indices, dense_shape)
+
+def get_google_universal_score(summary1, summary2):
+    messages = [summary1, summary2]
+    with tf.Session() as session:
+        session.run(tf.global_variables_initializer())
+        session.run(tf.tables_initializer())
+        values, indices, dense_shape = process_to_IDs_in_sparse_format(sp,messages)
+
+        message_embeddings = session.run(
+            encodings,
+            feed_dict={input_placeholder.values: values,
+                        input_placeholder.indices: indices,
+                        input_placeholder.dense_shape: dense_shape})
+        corr = np.inner(message_embeddings, message_embeddings)
+    return corr[0][1]
+
+################# CONFIDENCE SCORE
+def get_confidence_score(summary, compare_summary, keywordList):
+    if summary == "" and compare_summary == "":
+        return 0
+
+    score_type_num = 2
+    if len(keywordList) > 0 :
+        keyword_score = len(list(filter(lambda x : x in summary, keywordList))) / len(keywordList) 
+        score_type_num += 1
+    else:
+        keyword_score = 0
+
+    if compare_summary == "":
+        return keyword_score
+
+    rouge_score = get_rouge_score(summary, compare_summary)
+    google_score = get_google_universal_score(summary, compare_summary)
+
+
+    return (rouge_score + google_score + keyword_score)/score_type_num 
+
+################# GET Confidence Sore ###########################################
+
+def select_rep_summary(abs_summary1, abs_summary2, ext_summary1, ext_summary2):
+    # SELECT Representation summary for each extractive, abstractive summmary
+
+    abs_summary, abs_compare_summary = abs_summary1, abs_summary2
+    ext_summary, ext_compare_summary = ext_summary1, ext_summary2
+
+    if abs_summary == "" and abs_compare_summary != "":
+        abs_summary, abs_compare_summary  = abs_compare_summary, abs_summary
+    if ext_summary == "" and ext_compare_summary != "":
+        ext_summary, ext_compare_summary  = ext_compare_summary, ext_summary
+
+    return abs_summary, abs_compare_summary, ext_summary, ext_compare_summary 
+
+
 class echoHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         print(self.client_address)
@@ -182,36 +297,42 @@ class echoHandler(BaseHTTPRequestHandler):
         kobert_ex_res = kobert_summarizing_model(text)
 
         # Extract combined keywords
-        keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, 
-                                                    kobart_ab_res, kobert_ex_res)
+        keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
         # Extract Top 10 trending keywords
         top10_trending = get_trending_keyword(keywordList)
+
+        # Calculate confidence score
+        abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
+        ab_confidence_score = get_confidence_score(abs_summary, abs_compare_summary, keywordList)
+        ex_confidence_score = get_confidence_score(ext_summary, ext_compare_summary, keywordList)
+        print("CONFIDENCE_SCORE", ab_confidence_score, ex_confidence_score)
+
+        abs_summary = abs_summary if abs_summary!= "" else text
+        ext_summary = ext_summary if ext_summary!= "" else text
 
         # Concatenate summaries, keywords, trending keywords
         keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
         trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
-        res = '@@@@@AB@@@@@EX@@@@@'.join([pororo_ab_res, pororo_ex_res, keywordString, trendingString])
-
-        self.send_response(200)
-        self.send_header('content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(res.encode())
+        res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
+        res += "@@@@@CF@@@@@" + str(ab_confidence_score) + "@@@@@CF@@@@@" + str(ex_confidence_score)
 
         # Print results
-        print('Pororo Abstractive:::\n%s' % pororo_ab_res)
-        print('Pororo Extractive:::\n%s' % pororo_ex_res)
-        print('Kobert:::\n%s' % kobart_ab_res)
-        print('Kobart:::\n%s' % kobert_ex_res)
+        print('Abstractive:::\n%s' % abs_summary)
+        print('Extractive:::\n%s' % ext_summary)
         print('Keywords:::')
         for keyword in keywordList:
             print("#%s " % keyword, end="")
-        print()
-        print('Trending Keywords:::')
+        print('\nTrending Keywords:::')
         n = 1
         for keyword in top10_trending:
             print("%d. %s " % (n, keyword), end="")
             n += 1
         print()
+
+        self.send_response(200)
+        self.send_header('content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(res.encode())
 
 def main():
     # PORT = 4040
@@ -219,7 +340,6 @@ def main():
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()
-
 
 if __name__ == '__main__':
     main()

@@ -337,6 +337,10 @@ class RoomClient {
                     videoGoogleStartBitrate: 1000
                 };
             }
+            console.log("produceTransport="+this.producerTransport+", closed()="+this.producerTransport._closed);
+            if (this.producerTransport._closed){
+                await this.initTransports(this.device)
+            }
             let producer = await this.producerTransport.produce(params)
 
             console.log('producer', producer)
