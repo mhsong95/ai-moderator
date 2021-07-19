@@ -181,7 +181,7 @@ def get_trending_keyword(new_keywords):
 
 ################# GET Confidence Sore ###########################################
 from rouge import Rouge 
-from numpy import mean
+from numpy import inner, mean
 
 ## ROUGE
 rouge = Rouge()
@@ -190,7 +190,7 @@ def get_rouge_score(summary1, summary2):
     score_keys = ['rouge-1', 'rouge-2', 'rouge-l']
     rouge_score = rouge.get_scores(summary1, summary2)
     F1_rouge = [[score[key]['f'] for key in score_keys] for score in rouge_score]
-    return np.mean(F1_rouge)
+    return mean(F1_rouge)
 
 ## GOOGLE ENCODER
 import tensorflow as tf
@@ -242,29 +242,46 @@ def get_google_universal_score(summary1, summary2):
             feed_dict={input_placeholder.values: values,
                         input_placeholder.indices: indices,
                         input_placeholder.dense_shape: dense_shape})
-        corr = np.inner(message_embeddings, message_embeddings)
+        # corr = np.inner(message_embeddings, message_embeddings)
+        corr = inner(message_embeddings, message_embeddings)
     return corr[0][1]
 
+## SCORE BY KEYWORD EXTRACTION
+def get_keyword_score(summary, keywordList):
+
+    if len(keywordList) == 0:
+        return False, 0
+    
+    return True, len(list(filter(lambda x : x in summary, keywordList))) / len(keywordList) 
+
+
 ################# CONFIDENCE SCORE
-def get_confidence_score(summary, compare_summary, keywordList):
+def get_confidence_score_between_two(summary, compare_summary, keywordList):
     if summary == "" and compare_summary == "":
         return 0
 
-    score_type_num = 2
-    if len(keywordList) > 0 :
-        keyword_score = len(list(filter(lambda x : x in summary, keywordList))) / len(keywordList) 
-        score_type_num += 1
-    else:
-        keyword_score = 0
-
+    score_type_num_add, keyword_score = get_keyword_score(summary, keywordList)
+    
     if compare_summary == "":
         return keyword_score
+
+    score_list = [keyword_score] if score_type_num_add else []
 
     rouge_score = get_rouge_score(summary, compare_summary)
     google_score = get_google_universal_score(summary, compare_summary)
 
+    score_list.extend([rouge_score, google_score])
+    return mean(score_list)
 
-    return (rouge_score + google_score + keyword_score)/score_type_num 
+def get_confidence_score(summary, compare_summarylist, keywordList):
+
+    confidence_scores = []
+    for compare_summary in compare_summarylist:
+        confidence_score = get_confidence_score_between_two(summary, compare_summary, keywordList)
+        confidence_scores.append(confidence_score)
+    
+    return mean(confidence_scores)
+
 
 ################# GET Confidence Sore ###########################################
 
@@ -303,8 +320,8 @@ class echoHandler(BaseHTTPRequestHandler):
 
         # Calculate confidence score
         abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
-        ab_confidence_score = get_confidence_score(abs_summary, abs_compare_summary, keywordList)
-        ex_confidence_score = get_confidence_score(ext_summary, ext_compare_summary, keywordList)
+        ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList)
+        ex_confidence_score = get_confidence_score(ext_summary, [ext_compare_summary, abs_summary, abs_compare_summary], keywordList) if ext_summary != abs_summary else ab_confidence_score 
         print("CONFIDENCE_SCORE", ab_confidence_score, ex_confidence_score)
 
         abs_summary = abs_summary if abs_summary!= "" else text
