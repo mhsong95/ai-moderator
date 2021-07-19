@@ -335,8 +335,8 @@ class echoHandler(BaseHTTPRequestHandler):
         self.wfile.write(res.encode())
 
 def main():
-    # PORT = 4040
-    PORT = 3030
+    PORT = 5555
+    # PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()
