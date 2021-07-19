@@ -88,13 +88,6 @@ from khaiii import KhaiiiApi
 
 khaiiiWord = KhaiiiApi()
 
-class TextClass:
-    def __init__(self, text):
-        self.keywords = []
-        self.text = text
-    def add_keyword(self, key):
-        self.keywords.append(key)
-
 def preprocessing(text):
     sentences = text.replace("\n", "").replace('?', '.').replace('!', '.').split('. ')
     processed_text = ''
@@ -110,7 +103,6 @@ def preprocessing(text):
         processed_text += temp
     return processed_text
 
-
 def extract_top5_keywords(text):
     top5_keywords = []
     processed_text = preprocessing(text)
@@ -123,7 +115,6 @@ def extract_top5_keywords(text):
     except ValueError:
         print("ValueError: No keywords were extracted.")
 
-# Extracts keywords by comparing original text and summaries
 def combined_keyword_extractor(text, po_abs, po_ext, ko_abs, ko_ext):
     res_keywords = []
     keyword_list = {}
@@ -134,7 +125,7 @@ def combined_keyword_extractor(text, po_abs, po_ext, ko_abs, ko_ext):
     klist['ko_abs_key'] = extract_top5_keywords(ko_abs)
     klist['ko_ext_key'] = extract_top5_keywords(ko_ext)
 
-    #### weights ###
+    #### Weights (Total: 10) ###
     # abs (PORORO, KoBART): 2.5 / 2.3 / 2.1 / 1.9 / 1.7
     # ext (PORORO, KoBERT): 2   / 1.8 / 1.6 / 1.4 / 1.2
     # original            : 1   / 0.8 / 0.6 / 0.4 / 0.2
@@ -157,19 +148,22 @@ def combined_keyword_extractor(text, po_abs, po_ext, ko_abs, ko_ext):
         res_keywords.append(keyword)
     return res_keywords
 
-# def get_trending_keyword(latestText):
-#     sentences = []
-#     for text in latestText:
-#         sentences += text.split('.')
-#     sentences = list(filter(None, sentences))
-
-#     trending_keywords = []
-#     keywords = summarize_with_keywords(sentences, min_count=1, max_length=15)
-#     i = 1
-#     for word, r in sorted(keywords.items(), key=lambda x:x[1], reverse=True)[:10]:
-#         trending_keywords.append(word)
-#         i += 1
-#     return trending_keywords
+keyword_trends = {}
+def get_trending_keyword(new_keywords):
+    top10_trending = []
+    for key in keyword_trends:
+        keyword_trends[key] *= 0.8
+    i = 5
+    for keyword in new_keywords:
+        if keyword in keyword_trends:
+            keyword_trends[keyword] += i
+        else:
+            keyword_trends[keyword] = i
+        i -= 1
+    
+    for word, score in sorted(keyword_trends.items(), key=lambda x:x[1], reverse=True)[:10]:
+        top10_trending.append(word)
+    return top10_trending
     
 ### Keyword extraction ###
 
@@ -190,32 +184,38 @@ class echoHandler(BaseHTTPRequestHandler):
         # Extract combined keywords
         keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, 
                                                     kobart_ab_res, kobert_ex_res)
+        # Extract Top 10 trending keywords
+        top10_trending = get_trending_keyword(keywordList)
 
-        print('Pororo Abstractive:::')
-        print(pororo_ab_res)
-        print('Pororo Extractive:::')
-        print(pororo_ex_res)
-        print('Kobert:::')
-        print(kobart_ab_res)
-        print('Kobart:::')
-        print(kobert_ex_res)
-
-        print('Keywords:::')
-        for keyword in keywordList:
-            print("#%s " % keyword, end="")
-        print()
-
-        res = pororo_ab_res+'@@@@@AB@@@@@EX@@@@@'+pororo_ex_res
-        for keyword in keywordList:
-            res += '@@@@@AB@@@@@EX@@@@@' + keyword
+        # Concatenate summaries, keywords, trending keywords
+        keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
+        trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
+        res = '@@@@@AB@@@@@EX@@@@@'.join([pororo_ab_res, pororo_ex_res, keywordString, trendingString])
 
         self.send_response(200)
         self.send_header('content-type', 'text/html')
         self.end_headers()
         self.wfile.write(res.encode())
 
+        # Print results
+        print('Pororo Abstractive:::\n%s' % pororo_ab_res)
+        print('Pororo Extractive:::\n%s' % pororo_ex_res)
+        print('Kobert:::\n%s' % kobart_ab_res)
+        print('Kobart:::\n%s' % kobert_ex_res)
+        print('Keywords:::')
+        for keyword in keywordList:
+            print("#%s " % keyword, end="")
+        print()
+        print('Trending Keywords:::')
+        n = 1
+        for keyword in top10_trending:
+            print("%d. %s " % (n, keyword), end="")
+            n += 1
+        print()
+
 def main():
-    PORT = 5050
+    # PORT = 4040
+    PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()

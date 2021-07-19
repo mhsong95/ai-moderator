@@ -3,6 +3,17 @@
 // Includes UI control on transcription and summary data arrival.
 
 const messages = document.getElementById("messages");
+const keywordsList = document.getElementById("keywords-list")
+const trending_1 = document.getElementById("trending-1")
+const trending_2 = document.getElementById("trending-2")
+const trending_3 = document.getElementById("trending-3")
+const trending_4 = document.getElementById("trending-4")
+const trending_5 = document.getElementById("trending-5")
+const trending_6 = document.getElementById("trending-6")
+const trending_7 = document.getElementById("trending-7")
+const trending_8 = document.getElementById("trending-8")
+const trending_9 = document.getElementById("trending-9")
+const trending_10 = document.getElementById("trending-10")
 
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
@@ -108,12 +119,25 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
 
   let keywordEl = keywordBox.childNodes[0];
-  keywordList = "";
-  for (keyword of summaryArr.slice(2)){
-    keywordList += "#" + keyword + " ";
+  var keywordRes = ""
+  var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
+  for (keyword of keywordList){
+    keywordRes += "#" + keyword + " "
   }
-  keywordEl.textContent = "[Keywords]\n" + keywordList;
+  keywordEl.textContent = "[Keywords]\n" + keywordRes;
 
+  // Add buttons for trending keywords
+  var trendingList = summaryArr[3].split("@@@@@CD@@@@@AX@@@@@");
+  trending_1.textContent = "#" + trendingList[0];
+  trending_2.textContent = "#" + trendingList[1];
+  trending_3.textContent = "#" + trendingList[2];
+  trending_4.textContent = "#" + trendingList[3];
+  trending_5.textContent = "#" + trendingList[4];
+  trending_6.textContent = "#" + trendingList[5];
+  trending_7.textContent = "#" + trendingList[6];
+  trending_8.textContent = "#" + trendingList[7];
+  trending_9.textContent = "#" + trendingList[8];
+  trending_10.textContent = "#" + trendingList[9];
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
@@ -151,7 +175,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   addEditBtn(exSummaryEl, "exsum", timestamp);
 
   // Scroll down the messages area.
-  // messages.scrollTop = messages.scrollHeight;
+  messages.scrollTop = messages.scrollHeight;
 }
 
 function toEditableBg(p) {
@@ -438,6 +462,22 @@ function createMessageBox(name, timestamp) {
 
   return messageBox;
 }
+
+// Create a button for trending keywords
+// function addTrendingWord(word){
+//   let wordBtn = document.createElement("button");
+//   wordBtn.innerHTML(word)
+//   wordBtn.style.fontsize = "smaller"
+//   wordBtn.style.marginLeft = "1em"
+//   wordBtn.setAttribute("id", timestamp.toString());
+//   wordBtn.className = "keyword-btn";
+//   keywordsList.appendChild(wordBtn);
+//   // document.body.appendChild(wordBtn)
+
+//   return wordBtn;
+// }
+
+
 
 // Gets an existing message box that matches given timestamp.
 function getMessageBox(timestamp) {

@@ -121,6 +121,7 @@ module.exports = class Clerk {
           console.log(summary);
           // Parse returned summary
           summaryArr = summary.split("@@@@@AB@@@@@EX@@@@@");
+          // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
           if (summaryArr[0].length > paragraph.length) {
             console.log(summaryArr[0].length)
             console.log(paragraph.length)
