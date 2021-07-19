@@ -3,6 +3,7 @@
 // Clerk also interacts with the summary server.
 
 const axios = require("axios");
+const { ConsoleLoggingListener } = require("microsoft-cognitiveservices-speech-sdk/distrib/lib/src/common.browser/Exports");
 const config = require("./config");
 
 // Maximum length of silence not to switch a paragraph.
@@ -117,16 +118,17 @@ module.exports = class Clerk {
           confArr = [-1, -1];
         }
         else {
-          console.log("SUMMARY::::::")
+          console.log("SUMMARY::::::");
           console.log(summary);
+
           // Parse returned summary
-          summaryArr = summary.split("@@@@@AB@@@@@EX@@@@@");
-          if (summaryArr[0].length > paragraph.length) {
-            console.log(summaryArr[0].length)
-            console.log(paragraph.length)
-            summaryArr[0] = paragraph
-            confArr[0] = -1
-          }
+          let summary_text = summary.split("@@@@@CF@@@@@")[0];
+          const newLocal =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
+          const newLocal_1 =  parseFloat(summary.split("@@@@@CF@@@@@")[2]);
+          confArr = [newLocal, newLocal_1];
+
+          // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
+          summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
         }
 
         this.io.sockets
@@ -167,14 +169,14 @@ module.exports = class Clerk {
         else {
           console.log("SUMMARY::::::")
           console.log(summary);
+
           // Parse returned summary
-          summaryArr = summary.split("@@@@@AB@@@@@EX@@@@@");
-          if (summaryArr[0].length > paragraph.length) {
-            console.log(summaryArr[0].length)
-            console.log(paragraph.length)
-            summaryArr[0] = paragraph
-            confArr[0] = -1
-          }
+          summary_text = summary.split("@@@@@CF@@@@@")[0];
+          const newLocal =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
+          const newLocal_1 =  parseFloat(summary.split("@@@@@CF@@@@@")[2]);
+          confArr = [newLocal, newLocal_1];
+
+          summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
         }
 
         this.io.sockets
@@ -182,6 +184,8 @@ module.exports = class Clerk {
           .emit("updateParagraph", paragraph, summaryArr, confArr, timestamp);
       })
       .catch((e) => {
+        console.log("CATCH - updateParagraph");
+
         let summaryArr = [paragraph, paragraph]
         let confArr = [-1, -1];
 

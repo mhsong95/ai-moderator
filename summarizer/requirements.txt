@@ -9,3 +9,7 @@ sentencepiece
 pytorch_lightning==0.7.5
 pororo
 krwordrank
+
+## CONFIDENCE SCORE
+tensorflow_hub>=0.6.0
+rouge
