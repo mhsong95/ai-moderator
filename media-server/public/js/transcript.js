@@ -313,6 +313,59 @@ function finishEditContent(type, oldtxt, timestamp) {
   }
 }
 
+////////// Display boxes with trending keywords ////////////
+function displayTrendingBox1() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-1").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox2() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-2").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox3() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-3").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox4() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-4").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox5() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-5").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox6() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-6").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox7() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-7").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox8() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-8").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox9() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-9").textContent.slice(1)
+  displayUnitOfBox()
+}
+function displayTrendingBox10() {
+  let searchword = document.getElementById("search-word")
+  searchword.value = document.getElementById("trending-10").textContent.slice(1)
+  displayUnitOfBox()
+}
+////////// Display boxes with trending keywords ////////////
+
 function displayUnitOfBox() {
   let searchword = document.getElementById("search-word").value
 
