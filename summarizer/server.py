@@ -26,6 +26,8 @@ from IPython.display import display
 ################# Ko-BERT & Ko-BART ###########################################
 # INITIALIZE [Ko-BERT & Ko-BART] 
 import sys
+
+from khaiii.khaiii import KhaiiiExcept
 pwd = sys.path[0]
 kobert_path = pwd.split("ai-moderator")[0]+"ai-moderator/summarizer/KoBertSum"
 kobart_path = pwd.split("ai-moderator")[0]+"ai-moderator/summarizer/KoBART-summarization"
@@ -86,7 +88,6 @@ def pororo_extractive_model(input_txt):
 ################# Pororo ###########################################
 
 ### Keyword extraction ###
-# TODO: Install krwordrank, khaiii
 from krwordrank.word import summarize_with_keywords
 import os
 from khaiii import KhaiiiApi
@@ -94,25 +95,30 @@ from khaiii import KhaiiiApi
 khaiiiWord = KhaiiiApi()
 
 def preprocessing(text):
-    sentences = text.replace("\n", "").replace('?', '.').replace('!', '.').split('. ')
+    sentences = text.replace("\n", " ").replace('?', '.').replace('!', '.').split('.')
+    sentences = [x.strip() for x in sentences]
+    sentences = list(filter(None, sentences))
     processed_text = ''
-    for sentence in sentences:
-        word_analysis = khaiiiWord.analyze(sentence)
-        temp = []
-        for word in word_analysis:
-            for morph in word.morphs:
-                if morph.tag in ['NNP', 'NNG'] and len(morph.lex) > 1:
-                    temp.append(morph.lex)
-        temp = ' '.join(temp)
-        temp += '. '
-        processed_text += temp
-    return processed_text
+    try:
+        for sentence in sentences:
+            word_analysis = khaiiiWord.analyze(sentence)
+            temp = []
+            for word in word_analysis:
+                for morph in word.morphs:
+                    if morph.tag in ['NNP', 'NNG', 'SL', 'ZN'] and len(morph.lex) > 1:
+                        temp.append(morph.lex)
+            temp = ' '.join(temp)
+            temp += '. '
+            processed_text += temp
+        return processed_text
+    except KhaiiiExcept:
+        print("형태소 분석에 실패했습니다.")
+        return ""
 
 def extract_top5_keywords(text):
     if text == "":
         print("RETURN EMPTY KEYWORD LIST", text)
         return []
-
     top5_keywords = []
     processed_text = preprocessing(text)
     sentences = processed_text.split('. ')
@@ -335,8 +341,8 @@ class echoHandler(BaseHTTPRequestHandler):
         self.wfile.write(res.encode())
 
 def main():
-    PORT = 4343
-    # PORT = 3030
+    # PORT = 4343
+    PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()
