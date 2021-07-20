@@ -140,25 +140,28 @@
         <div style="margin-top: 1em; ">
           <input type="text" id="search-word" placeholder="SEARCH"
             onkeydown="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Search\n');">
-          <button type="button" onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Search Button\n');" width="30px"
-            s style="padding: 0px; margin: 0px; border: none;"><img src="/img/search.png" width="30px"
-              style="padding: 0px; margin: 0px;"></button>
+          <button type="button" onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Search Button\n');" width="50px" style="padding: 3.5px; background-color:yellowgreen; margin: 2px; border: none; border-radius: 5px;">
+            <!--<img src="/img/search.png" width="30px" style="padding: 0px; margin: 0px;">-->
+            <i class="fas fa-search" width="30px", style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
+          </button>
+          <button type="button" onclick="showAllBoxes(); rc.addUserLog(Date.now(), 'ShowAll Button\n');" width="30px" style="padding: 3px; background-color:palevioletred; margin: 2px; border: none; border-radius: 5px;">
+            <i class="fas fa-backspace" width="30px", style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
+          </button>
         </div>
 
         <!--Add buttons for trending keyword-->
         <div id="keywords-list" style="margin-top: 1em; ">
-          <button type="button" id="trending-1" onclick="displayTrendingBox1();" width="30px"s style="padding: 3px; margin: 0px;" >#1</button>
-          <button type="button" id="trending-2" onclick="displayTrendingBox2();" width="30px"s style="padding: 3px; margin: 0px;" >#2</button>
-          <button type="button" id="trending-3" onclick="displayTrendingBox3();" width="30px"s style="padding: 3px; margin: 0px;" >#3</button>
-          <button type="button" id="trending-4" onclick="displayTrendingBox4();" width="30px"s style="padding: 3px; margin: 0px;" >#4</button>
-          <button type="button" id="trending-5" onclick="displayTrendingBox5();" width="30px"s style="padding: 3px; margin: 0px;" >#5</button>
-          <button type="button" id="trending-6" onclick="displayTrendingBox6();" width="30px"s style="padding: 3px; margin: 0px;" >#6</button>
-          <button type="button" id="trending-7" onclick="displayTrendingBox7();" width="30px"s style="padding: 3px; margin: 0px;" >#7</button>
-          <button type="button" id="trending-8" onclick="displayTrendingBox8();" width="30px"s style="padding: 3px; margin: 0px;" >#8</button>
-          <button type="button" id="trending-9" onclick="displayTrendingBox9();" width="30px"s style="padding: 3px; margin: 0px;" >#9</button>
-          <button type="button" id="trending-10" onclick="displayTrendingBox10();" width="30px"s style="padding: 3px; margin: 0px;" >#10</button>
+          <button type="button" id="trending-1" onclick="displayTrendingBox1();" style="padding: 3px; margin: 0px;" >#1</button>
+          <button type="button" id="trending-2" onclick="displayTrendingBox2();" style="padding: 3px; margin: 0px;" >#2</button>
+          <button type="button" id="trending-3" onclick="displayTrendingBox3();" style="padding: 3px; margin: 0px;" >#3</button>
+          <button type="button" id="trending-4" onclick="displayTrendingBox4();" style="padding: 3px; margin: 0px;" >#4</button>
+          <button type="button" id="trending-5" onclick="displayTrendingBox5();" style="padding: 3px; margin: 0px;" >#5</button>
+          <button type="button" id="trending-6" onclick="displayTrendingBox6();" style="padding: 3px; margin: 0px;" >#6</button>
+          <button type="button" id="trending-7" onclick="displayTrendingBox7();" style="padding: 3px; margin: 0px;" >#7</button>
+          <button type="button" id="trending-8" onclick="displayTrendingBox8();" style="padding: 3px; margin: 0px;" >#8</button>
+          <button type="button" id="trending-9" onclick="displayTrendingBox9();" style="padding: 3px; margin: 0px;" >#9</button>
+          <button type="button" id="trending-10" onclick="displayTrendingBox10();" style="padding: 3px; margin: 0px;" >#10</button>
         </div>
-
 
       </div>
       <div id="messages"></div>

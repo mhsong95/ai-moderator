@@ -315,54 +315,54 @@ function finishEditContent(type, oldtxt, timestamp) {
 
 ////////// Display boxes with trending keywords ////////////
 function displayTrendingBox1() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-1").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-1").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox2() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-2").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-2").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox3() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-3").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-3").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox4() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-4").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-4").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox5() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-5").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-5").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox6() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-6").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-6").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox7() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-7").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-7").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox8() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-8").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-8").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox9() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-9").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-9").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox10() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-10").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-10").textContent.slice(1);
+  displayUnitOfBox();
 }
 ////////// Display boxes with trending keywords ////////////
 
@@ -405,9 +405,15 @@ function displayUnitOfBox() {
   }
 }
 
-
 //////////////////////////////////////////////
 /************* Helper functions *************/
+
+// Delete text in search box & Display all boxes
+function showAllBoxes() {
+  let searchWord = document.getElementById("search-word");
+  searchWord.value = "";
+  displayUnitOfBox();
+}
 
 // Change given box's css style to bigger text
 function displayBig(box) {
@@ -495,7 +501,7 @@ function createMessageBox(name, timestamp) {
 
   // messageBox.childNodes[4]: includes the keywords
   let keywordBox = document.createElement("div");
-  let keywords = document.createElement("p")
+  let keywords = document.createElement("p");
 
   abSummaryBox.className = "ab-summary-box";
   abSummaryBox.style.fontSize = "smaller";
@@ -520,21 +526,6 @@ function createMessageBox(name, timestamp) {
 
   return messageBox;
 }
-
-// Create a button for trending keywords
-// function addTrendingWord(word){
-//   let wordBtn = document.createElement("button");
-//   wordBtn.innerHTML(word)
-//   wordBtn.style.fontsize = "smaller"
-//   wordBtn.style.marginLeft = "1em"
-//   wordBtn.setAttribute("id", timestamp.toString());
-//   wordBtn.className = "keyword-btn";
-//   keywordsList.appendChild(wordBtn);
-//   // document.body.appendChild(wordBtn)
-
-//   return wordBtn;
-// }
-
 
 
 // Gets an existing message box that matches given timestamp.
