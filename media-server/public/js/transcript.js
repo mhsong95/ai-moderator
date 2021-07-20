@@ -137,16 +137,18 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
   // Add buttons for trending keywords
   var trendingList = summaryArr[3].split("@@@@@CD@@@@@AX@@@@@");
-  trending_1.textContent = "#" + trendingList[0];
-  trending_2.textContent = "#" + trendingList[1];
-  trending_3.textContent = "#" + trendingList[2];
-  trending_4.textContent = "#" + trendingList[3];
-  trending_5.textContent = "#" + trendingList[4];
-  trending_6.textContent = "#" + trendingList[5];
-  trending_7.textContent = "#" + trendingList[6];
-  trending_8.textContent = "#" + trendingList[7];
-  trending_9.textContent = "#" + trendingList[8];
-  trending_10.textContent = "#" + trendingList[9];
+  var trendingBtns = [trending_1, trending_2, trending_3, trending_4, trending_5, trending_6, trending_7, trending_8, trending_9, trending_10];
+  let i = 0;
+  for (trendBtn of trendingBtns){
+    if (trendingList[i]){
+      trendBtn.textContent = "#" + trendingList[i];
+      trendBtn.style.display = "inline-block";
+    }
+    else {
+      trendBtn.style.display = "none";
+    }
+    i++;
+  }
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"

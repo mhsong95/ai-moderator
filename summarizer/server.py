@@ -179,7 +179,9 @@ def get_trending_keyword(new_keywords):
         i -= 1
     
     for word, score in sorted(keyword_trends.items(), key=lambda x:x[1], reverse=True)[:10]:
-        top10_trending.append(word)
+        # Set the lower bound for trending keywords
+        if score > 3:
+            top10_trending.append(word)
     return top10_trending
     
 ### Keyword extraction ###
@@ -341,8 +343,8 @@ class echoHandler(BaseHTTPRequestHandler):
         self.wfile.write(res.encode())
 
 def main():
-    # PORT = 4343
-    PORT = 3030
+    PORT = 4343
+    # PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()
