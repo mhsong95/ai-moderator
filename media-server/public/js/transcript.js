@@ -388,6 +388,8 @@ function displayUnitOfBox() {
     let abSummaryBox = abSummaryBoxes[i];
     let exSummaryBox = exSummaryBoxes[i];
 
+    // let new_paragraph = highlightWord(searchword, paragraph);
+
     if (!transCheck && !abCheck && !exCheck) {
       displayBox(false && isfiltered, messageBox, displayNo);
     }
@@ -409,6 +411,20 @@ function displayUnitOfBox() {
 
 //////////////////////////////////////////////
 /************* Helper functions *************/
+
+// Highlight search word
+// function highlightWord(word, paragraph){
+  
+//   let re = new RegExp(word, "g");
+//   if (word == ""){
+//     return paragraph
+//   }
+//   else {
+//     let text = paragraph.innerHTML;
+//     paragraph.innerHTML = text.replace(re, `<span style='background: yellow'>${word}</span>`);
+//     return paragraph
+//   }
+// }
 
 // Delete text in search box & Display all boxes
 function showAllBoxes() {
