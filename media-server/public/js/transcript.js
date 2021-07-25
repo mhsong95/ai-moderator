@@ -22,19 +22,16 @@ moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
-  let messageBox = document.getElementById(timestamp);
-  let paragraph = messageBox.childNodes[1];
-  let abSummaryEl = messageBox.childNodes[2].childNodes[0];
-  let exSummaryEl = messageBox.childNodes[3].childNodes[0];
+  let messageBox = documentf.getElementById(timestamp);
+  let paragraph = messageBox.childNodes[4];
+  let abSummaryEl = messageBox.childNodes[1].childNodes[0];
 
   paragraph.textContent = newParagraph;
-  abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
-  exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
+  abSummaryEl.textContent = "[Summary]\n" + summaryArr[0];
 
   rc.addUserLog(Date.now(), 'New paragraph contents: ' + timestamp + '\n'
     + '                [Paragraph] ' + newParagraph + '\n'
-    + '                [AbSummary] ' + summaryArr[0] + '\n'
-    + '                [ExSumamry] ' + summaryArr[1] + '\n');
+    + '                [AbSummary] ' + summaryArr[0] + '\n');
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
@@ -42,14 +39,9 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
     let confidenceElem = confidenceElement(confArr[0]);
     abSummaryEl.append(confidenceElem);
   }
-  if (confArr[1] !== -1) {
-    let confidenceElem = confidenceElement(confArr[1]);
-    exSummaryEl.append(confidenceElem);
-  }
 
   addEditBtn(paragraph, "paragraph", timestamp);
   addEditBtn(abSummaryEl, "absum", timestamp);
-  addEditBtn(exSummaryEl, "exsum", timestamp);
 }
 
 function addEditBtn(area, type, timestamp) {
@@ -65,19 +57,13 @@ function addEditBtn(area, type, timestamp) {
 
 function onUpdateSummary(type, content, timestamp) {
   console.log("onUpdateSummary");
-
   let messageBox = document.getElementById(timestamp);
   let summaryEl = null;
   let msg = 'New summary contents: ' + timestamp + '\n';
   if (type == "absum") {
-    summaryEl = messageBox.childNodes[2].childNodes[0];
+    summaryEl = messageBox.childNodes[1].childNodes[0];
     msg = msg + '                [AbSummary] ' + summaryArr[0] + '\n';
   }
-  else {
-    summaryEl = messageBox.childNodes[3].childNodes[0];
-    msg = msg + '                [ExSumamry] ' + summaryArr[1] + '\n';
-  }
-
   summaryEl.textContent = content;
   rc.addUserLog(Date.now(), msg);
   addEditBtn(summaryEl, type, timestamp);
@@ -85,68 +71,59 @@ function onUpdateSummary(type, content, timestamp) {
 
 // Event listener on individual transcript arrival.
 function onTranscript(transcript, name, timestamp) {
-  let transCheck = document.getElementById("minutes-transcript").checked;
-  let abCheck = document.getElementById("minutes-ab").checked;
-  let exCheck = document.getElementById("minutes-ex").checked;
-
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
-
   // Append the new transcript to the old paragraph.
-  let paragraph = messageBox.childNodes[1];
+  let paragraph = messageBox.childNodes[4];
   paragraph.textContent += transcript + " ";
 
-  if (!transCheck && !abCheck && !exCheck) {
-    displayNo(messageBox);
-  }
-  else if (!transCheck) {
-    displayNo(paragraph);
-  }
+  let abSummaryBox = messageBox.childNodes[1];
+  let abSummaryEl = abSummaryBox.childNodes[0];
+  abSummaryEl.textContent = "Summarizing...";
 }
 
 // Event listener on summary arrival.
 function onSummary(summaryArr, confArr, name, timestamp) {
-  let transCheck = document.getElementById("minutes-transcript").checked;
-  let abCheck = document.getElementById("minutes-ab").checked;
-  let exCheck = document.getElementById("minutes-ex").checked;
 
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
 
-  let abSummaryBox = messageBox.childNodes[2];
-  let exSummaryBox = messageBox.childNodes[3];
-  let keywordBox = messageBox.childNodes[4];
+  let seeFullText = messageBox.childNodes[3];
+  seeFullText.style.display = "";
+  let paragraph = messageBox.childNodes[4];
+  paragraph.style.display = "none";
 
+  let abSummaryBox = messageBox.childNodes[1];
+  let keywordBox = messageBox.childNodes[2];
   let abSummaryEl = abSummaryBox.childNodes[0];
-  abSummaryEl.textContent = "[Abstractive]\n" + summaryArr[0];
-
-  let exSummaryEl = exSummaryBox.childNodes[0];
-  exSummaryEl.textContent = "[Extractive]\n" + summaryArr[1];
+  abSummaryEl.textContent = "[Summary]\n" + summaryArr[0];
 
   let keywordEl = keywordBox.childNodes[0];
-  var keywordRes = ""
+  var keywordRes = "";
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   for (keyword of keywordList){
-    keywordRes += "#" + keyword + " "
+    keywordRes += "#" + keyword + " ";
   }
-  keywordEl.textContent = "[Keywords]\n" + keywordRes;
+  keywordEl.textContent = keywordRes;
 
   // Add buttons for trending keywords
   var trendingList = summaryArr[3].split("@@@@@CD@@@@@AX@@@@@");
-  trending_1.textContent = "#" + trendingList[0];
-  trending_2.textContent = "#" + trendingList[1];
-  trending_3.textContent = "#" + trendingList[2];
-  trending_4.textContent = "#" + trendingList[3];
-  trending_5.textContent = "#" + trendingList[4];
-  trending_6.textContent = "#" + trendingList[5];
-  trending_7.textContent = "#" + trendingList[6];
-  trending_8.textContent = "#" + trendingList[7];
-  trending_9.textContent = "#" + trendingList[8];
-  trending_10.textContent = "#" + trendingList[9];
+  var trendingBtns = [trending_1, trending_2, trending_3, trending_4, trending_5, trending_6, trending_7, trending_8, trending_9, trending_10];
+  let i = 0;
+  for (trendBtn of trendingBtns){
+    if (trendingList[i]){
+      trendBtn.textContent = "#" + trendingList[i];
+      trendBtn.style.display = "inline-block";
+    }
+    else {
+      trendBtn.style.display = "none";
+    }
+    i++;
+  }
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
@@ -154,34 +131,11 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     let confidenceElem = confidenceElement(confArr[0]);
     abSummaryEl.append(confidenceElem);
   }
-  if (confArr[1] !== -1) {
-    let confidenceElem = confidenceElement(confArr[1]);
-    exSummaryEl.append(confidenceElem);
-  }
-
-  if (!transCheck && !abCheck && !exCheck) {
-    displayNo(messageBox);
-  }
-  else if (!transCheck) {
-    displayBox(abCheck, abSummaryBox, displayBig);
-    displayBox(exCheck, exSummaryBox, displayBig);
-  }
-  else {
-    if (!abCheck) {
-      displayNo(abSummaryBox);
-    }
-    if (!exCheck) {
-      displayNo(exSummaryBox);
-    }
-  }
 
   // Add edit button in order to allow user change contents (paragraph, absummary, exsummary)
-  let paragraph = messageBox.childNodes[1];
+  // let paragraph = messageBox.childNodes[3].childNodes[0];
   addEditBtn(paragraph, "paragraph", timestamp);
-
   addEditBtn(abSummaryEl, "absum", timestamp);
-
-  addEditBtn(exSummaryEl, "exsum", timestamp);
 
   // Scroll down the messages area.
   messages.scrollTop = messages.scrollHeight;
@@ -210,8 +164,7 @@ function editContent(type, timestamp) {
   let oldtxt = null;
   switch (type) {
     case "paragraph":
-      let paragraph = messageBox.childNodes[1];
-
+      let paragraph = messageBox.childNodes[4];
       paragraph.contentEditable = "true";
 
       // change icon
@@ -227,8 +180,7 @@ function editContent(type, timestamp) {
 
       break;
     case "absum":
-      let abSummary = messageBox.childNodes[2].childNodes[0];
-
+      let abSummary = messageBox.childNodes[1].childNodes[0];
       abSummary.contentEditable = "true";
 
       // change icon
@@ -242,22 +194,6 @@ function editContent(type, timestamp) {
 
       abSummary.lastChild.onclick = function () { finishEditContent("absum", oldtxt, timestamp); };
       break;
-    case "exsum":
-      let exSummary = messageBox.childNodes[3].childNodes[0];
-
-      exSummary.contentEditable = "true";
-
-      // change icon
-      console.log(exSummary);
-      console.log(exSummary.lastChild);
-
-      toEditingBg(exSummary)
-      toEditingIcon(exSummary.lastChild)
-
-      oldtxt = exSummary.textContent;
-
-      exSummary.lastChild.onclick = function () { finishEditContent("exsum", oldtxt, timestamp); };
-      break;
   }
 }
 
@@ -267,7 +203,7 @@ function finishEditContent(type, oldtxt, timestamp) {
 
   switch (type) {
     case "paragraph":
-      let paragraph = messageBox.childNodes[1];
+      let paragraph = messageBox.childNodes[4];
       console.log(paragraph.textContent);
       toEditableBg(paragraph);
       paragraph.contentEditable = "false";
@@ -275,28 +211,25 @@ function finishEditContent(type, oldtxt, timestamp) {
       if (oldtxt.valueOf() != paragraph.textContent.valueOf()) {
         // update paragraph and summary on all users
         rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
+        paragraph.style.backgroundColor = "#f2f2f2";
         rc.addUserLog(Date.now(), 'Finish edit message by '+messageBox.childNodes[0].childNodes[0].textContent+': ' + type + '-' + timestamp + '\n');
       }
       else {
         // change icon
         console.log(paragraph);
         console.log(paragraph.childNodes[1]);
-
         toEditableIcon(paragraph.childNodes[1])
 
         paragraph.childNodes[1].onclick = function () { editContent(type, timestamp); };
+        paragraph.style.backgroundColor = "#f2f2f2";
         rc.addUserLog(Date.now(), 'Cancel edit message: ' + type + '-' + timestamp + '\n');
       }
       break;
     default:
       let summary = null;
       if (type == "absum") {
-        summary = messageBox.childNodes[2].childNodes[0];
+        summary = messageBox.childNodes[1].childNodes[0];
       }
-      else {
-        summary = messageBox.childNodes[3].childNodes[0];
-      }
-
       toEditableBg(summary);
       summary.contentEditable = "false";
 
@@ -315,99 +248,85 @@ function finishEditContent(type, oldtxt, timestamp) {
 
 ////////// Display boxes with trending keywords ////////////
 function displayTrendingBox1() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-1").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-1").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox2() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-2").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-2").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox3() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-3").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-3").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox4() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-4").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-4").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox5() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-5").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-5").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox6() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-6").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-6").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox7() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-7").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-7").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox8() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-8").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-8").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox9() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-9").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-9").textContent.slice(1);
+  displayUnitOfBox();
 }
 function displayTrendingBox10() {
-  let searchword = document.getElementById("search-word")
-  searchword.value = document.getElementById("trending-10").textContent.slice(1)
-  displayUnitOfBox()
+  let searchword = document.getElementById("search-word");
+  searchword.value = document.getElementById("trending-10").textContent.slice(1);
+  displayUnitOfBox();
 }
 ////////// Display boxes with trending keywords ////////////
 
 function displayUnitOfBox() {
   let searchword = document.getElementById("search-word").value
-
-  let transCheck = document.getElementById("minutes-transcript").checked;
-  let abCheck = document.getElementById("minutes-ab").checked;
-  let exCheck = document.getElementById("minutes-ex").checked;
-
   let messageBoxes = document.getElementsByClassName("message-box");
   let paragraphs = document.getElementsByClassName("paragraph");
-  let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
-  let exSummaryBoxes = document.getElementsByClassName("ex-summary-box");
+  // let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
 
   for (var i = 0; i < messageBoxes.length; i++) { // access each i-th index of boxes at the same time
     let isfiltered = paragraphs[i].textContent.includes(searchword);
 
     let messageBox = messageBoxes[i];
     let paragraph = paragraphs[i];
-    let abSummaryBox = abSummaryBoxes[i];
-    let exSummaryBox = exSummaryBoxes[i];
+    // let abSummaryBox = abSummaryBoxes[i];
 
-    if (!transCheck && !abCheck && !exCheck) {
-      displayBox(false && isfiltered, messageBox, displayNo);
-    }
-    else {
-      displayBox(true && isfiltered, messageBox, displayYes);
-      displayBox(transCheck && isfiltered, paragraph, displayYes);
+    displayBox(true && isfiltered, messageBox, displayYes);
+    // displayBox(true && isfiltered, paragraph, displayYes);
 
-      if (transCheck) {
-        displayBox(abCheck && isfiltered, abSummaryBox, displaySm);
-        displayBox(exCheck && isfiltered, exSummaryBox, displaySm);
-      }
-      else {
-        displayBox(abCheck && isfiltered, abSummaryBox, displayBig);
-        displayBox(exCheck && isfiltered, exSummaryBox, displayBig);
-      }
-    }
   }
 }
 
-
 //////////////////////////////////////////////
 /************* Helper functions *************/
+
+// Delete text in search box & Display all boxes
+function showAllBoxes() {
+  let searchWord = document.getElementById("search-word");
+  searchWord.value = "";
+  displayUnitOfBox();
+}
 
 // Change given box's css style to bigger text
 function displayBig(box) {
@@ -465,7 +384,6 @@ function createMessageBox(name, timestamp) {
 
   // messageBox.childNodes[0]: includes title - timestamp and name.
   let title = document.createElement("div");
-
   let nametag = document.createElement("span");
   let strong = document.createElement("strong");
   strong.textContent = name;
@@ -479,41 +397,48 @@ function createMessageBox(name, timestamp) {
   title.append(nametag, timetag);
   messageBox.append(title);
 
-  // messageBox.childNodes[1]: includes the (unsummarized) paragraph
-  let paragraph = document.createElement("p");
-  paragraph.className = "paragraph";
-  paragraph.style.fontSize = "medium";
-  messageBox.append(paragraph);
-
-  // messageBox.childNodes[2]: includes the abstraxtive summary and confidence level
+  // messageBox.childNodes[1]: includes the abstractive summary and confidence level
   let abSummaryBox = document.createElement("div");
   let abSummary = document.createElement("p");
-
-  // messageBox.childNodes[3]: includes the abstraxtive summary and confidence level
-  let exSummaryBox = document.createElement("div");
-  let exSummary = document.createElement("p");
-
-  // messageBox.childNodes[4]: includes the keywords
-  let keywordBox = document.createElement("div");
-  let keywords = document.createElement("p")
-
   abSummaryBox.className = "ab-summary-box";
-  abSummaryBox.style.fontSize = "smaller";
-  abSummaryBox.style.marginLeft = "1em";
+  abSummaryBox.style.fontSize = "medium";
+  abSummaryBox.style.marginLeft = "5px";
+  abSummaryBox.style.marginTop = "1em";
   abSummaryBox.append(abSummary);
   messageBox.append(abSummaryBox);
 
-  exSummaryBox.className = "ex-summary-box";
-  exSummaryBox.style.fontSize = "smaller";
-  exSummaryBox.style.marginLeft = "1em";
-  exSummaryBox.append(exSummary);
-  messageBox.append(exSummaryBox);
-
+  // messageBox.childNodes[2]: includes the keywords
+  let keywordBox = document.createElement("div");
+  let keywords = document.createElement("p");
   keywordBox.className = "keyword-box";
   keywordBox.style.fontSize = "smaller";
-  keywordBox.style.marginLeft = "1em";
+  keywordBox.style.marginLeft = "5px";
   keywordBox.append(keywords);
   messageBox.append(keywordBox);
+
+  // messageBox.childNodes[3]: See full text button
+  let seeFullText = document.createElement("button");
+  seeFullText.className = "seeFullText";
+  seeFullText.style.fontSize = "x-small";
+  seeFullText.style.display = "none";
+  seeFullText.style.backgroundColor = "#f2f2f2";
+  seeFullText.style.borderRadius = "3px";
+  seeFullText.style.border = "1px solid black";
+  seeFullText.innerHTML = "See full text";
+  seeFullText.onclick = function() { showFullText(timestamp);};
+  messageBox.append(seeFullText);
+
+  // messageBox.childNodes[4]: includes paragraph
+  let paragraph = document.createElement("p");
+  paragraph.className = "paragraph";
+  paragraph.style.fontSize = "smaller";
+  paragraph.style.backgroundColor = "#f2f2f2";
+  paragraph.style.borderRadius = "5px";
+  paragraph.style.marginTop = "1em";
+  paragraph.style.padding = "5px";
+  paragraph.style.border = "1px solid black";
+  paragraph.style.display = "none";
+  messageBox.append(paragraph);
 
   // Finally append the box to 'messages' area
   messages.appendChild(messageBox);
@@ -521,20 +446,17 @@ function createMessageBox(name, timestamp) {
   return messageBox;
 }
 
-// Create a button for trending keywords
-// function addTrendingWord(word){
-//   let wordBtn = document.createElement("button");
-//   wordBtn.innerHTML(word)
-//   wordBtn.style.fontsize = "smaller"
-//   wordBtn.style.marginLeft = "1em"
-//   wordBtn.setAttribute("id", timestamp.toString());
-//   wordBtn.className = "keyword-btn";
-//   keywordsList.appendChild(wordBtn);
-//   // document.body.appendChild(wordBtn)
-
-//   return wordBtn;
-// }
-
+function showFullText(timestamp) {
+  let messageBox = document.getElementById(timestamp.toString());
+  if (messageBox.childNodes[4].style.display == ""){
+    messageBox.childNodes[4].style.display = "none";
+    messageBox.childNodes[3].innerHTML = "See full text";
+  }
+  else {
+    messageBox.childNodes[4].style.display = "";
+    messageBox.childNodes[3].innerHTML = "Hide full text";
+  }
+}
 
 
 // Gets an existing message box that matches given timestamp.

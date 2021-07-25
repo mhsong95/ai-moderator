@@ -5,6 +5,8 @@ module.exports = function (io) {
   const { body, validationResult } = require("express-validator");
   const { v4: uuidV4 } = require("uuid");
 
+  const session = require("express-session");
+
   const Room = require("../lib/Room");
   const { roomList } = require("../lib/global");
   const { getMediasoupWorker } = require("../lib/Worker");
@@ -21,6 +23,8 @@ module.exports = function (io) {
         button_label: "CREATE",
         error: null,
       });
+
+      req.session.nameMap = {};
     },
 
     room_create_post: [
@@ -73,7 +77,7 @@ module.exports = function (io) {
         }, 30 * 1000);
 
         // Store the user name temporarily in session.
-        if (!req.session.nameMap) {
+        if (typeof(req.session.nameMap) === 'undefined') {
           req.session.nameMap = {};
         }
         req.session.nameMap[room_id] = user_name;
@@ -171,6 +175,15 @@ module.exports = function (io) {
         return;
       }
 
+      // Redirect to room creation page if TypeError occurs.
+      if (typeof(req.session.nameMap) === 'undefined'){
+        req.session.nameMap = {};
+        res.render("redirect", {
+          msg: "Please try again",
+          url: `create`,
+        });
+        return;
+      }
       let user_name = req.session.nameMap[room_id];
       if (!user_name) {
         // If the user access is not normal, redirect to room join page.

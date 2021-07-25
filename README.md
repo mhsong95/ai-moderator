@@ -35,10 +35,11 @@ The video conferencing feature is built over [Mediasoup video conferencing](http
 
 ### Media Server
 
-1. run `npm install` in `media-server` directory.
-2. run `npm run media-server` in `media-server` directory, then finally open your browser at `https://localhost:8000` or your own defined url/port in `media-server/config.js` file.
-3. A page is rendered requiring you to enter names for a room and your own. Enter them and click `CREATE` button.
-4. `Invite` others.
+1. make `logs` folder in `media-server` directory.
+2. run `npm install` in `media-server` directory.
+3. run `npm run media-server` in `media-server` directory, then finally open your browser at `https://localhost:8000` or your own defined url/port in `media-server/config.js` file.
+4. A page is rendered requiring you to enter names for a room and your own. Enter them and click `CREATE` button.
+5. `Invite` others.
 
 (optional) Edit the `media-server/config.js` file according to your needs and replace the `ssl/key.pem ssl/cert.pem` certificates with your own.
 
