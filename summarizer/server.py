@@ -61,8 +61,6 @@ def kobart_summarizing_model(input_txt):
     summary = kobart_model.generate(input_ids, eos_token_id=1, max_length=64, num_beams=5, early_stopping=True)
     summary = kobart_tokenizer.decode(summary[0], skip_special_tokens=True)
 
-    print("SUMMARY", summary)
-
     if len(summary) > len(input_txt):
         print("INVALID:::", input_txt)
         return ""
@@ -256,7 +254,6 @@ def get_google_universal_score(summary1, summary2):
 
 ## SCORE BY KEYWORD EXTRACTION
 def get_keyword_score(summary, keywordList):
-
     if len(keywordList) == 0:
         return False, 0
     
@@ -265,26 +262,26 @@ def get_keyword_score(summary, keywordList):
 
 ################# CONFIDENCE SCORE
 def get_confidence_score_between_two(summary, compare_summary, keywordList):
-    if summary == "" and compare_summary == "":
-        return 0
-
-    score_type_num_add, keyword_score = get_keyword_score(summary, keywordList)
-    
     if compare_summary == "":
         return keyword_score
-
-    score_list = [keyword_score] if score_type_num_add else []
 
     rouge_score = get_rouge_score(summary, compare_summary)
     google_score = get_google_universal_score(summary, compare_summary)
 
-    score_list.extend([rouge_score, google_score])
+    score_list = [rouge_score, google_score]
     return mean(score_list)
 
 def get_confidence_score(summary, compare_summarylist, keywordList):
+    if summary == "":
+        return 0
 
-    confidence_scores = []
+    score_type_num_add, keyword_score = get_keyword_score(summary, keywordList)
+    confidence_scores = [keyword_score] if score_type_num_add else []
+
     for compare_summary in compare_summarylist:
+        if compare_summary == "":
+            continue
+
         confidence_score = get_confidence_score_between_two(summary, compare_summary, keywordList)
         confidence_scores.append(confidence_score)
     
@@ -296,7 +293,8 @@ def get_confidence_score(summary, compare_summarylist, keywordList):
 def select_rep_summary(abs_summary1, abs_summary2, ext_summary1, ext_summary2):
     # SELECT Representation summary for each extractive, abstractive summmary
 
-    abs_summary, abs_compare_summary = abs_summary1, abs_summary2
+    # abs_summary, abs_compare_summary = abs_summary1, abs_summary2
+    abs_summary, abs_compare_summary = abs_summary2, abs_summary1
     ext_summary, ext_compare_summary = ext_summary1, ext_summary2
 
     if abs_summary == "" and abs_compare_summary != "":
@@ -305,6 +303,21 @@ def select_rep_summary(abs_summary1, abs_summary2, ext_summary1, ext_summary2):
         ext_summary, ext_compare_summary  = ext_compare_summary, ext_summary
 
     return abs_summary, abs_compare_summary, ext_summary, ext_compare_summary 
+
+import re
+def get_summaries(text):
+    # DO NOT SUMMARIZE TEXT when text is short enough / JUST GET ABSTRACTIVE SUMMARY
+    text_sentence_num = len(re.split('[.?!]', text)) 
+
+    pororo_ab_res = pororo_abstractive_model(text)
+    pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
+    kobart_ab_res = kobart_summarizing_model(text) 
+    kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
+
+    print("Abstractive - 1", pororo_ab_res)
+    print("Abstractive - 2", kobart_ab_res)
+    
+    return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
 
 class echoHandler(BaseHTTPRequestHandler):
@@ -316,10 +329,7 @@ class echoHandler(BaseHTTPRequestHandler):
         text = fields['content'][0]
 
         # Get summaries
-        pororo_ab_res = pororo_abstractive_model(text)
-        pororo_ex_res = pororo_extractive_model(text)
-        kobart_ab_res = kobart_summarizing_model(text)
-        kobert_ex_res = kobert_summarizing_model(text)
+        pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
 
         # Extract combined keywords
         keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
@@ -329,7 +339,7 @@ class echoHandler(BaseHTTPRequestHandler):
         # Calculate confidence score
         abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
         ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList)
-        ex_confidence_score = get_confidence_score(ext_summary, [ext_compare_summary, abs_summary, abs_compare_summary], keywordList) if ext_summary != abs_summary else ab_confidence_score 
+        ex_confidence_score = ab_confidence_score if (ext_summary == abs_summary or abs_summary == "" ) else get_confidence_score(ext_summary, [ext_compare_summary, abs_summary, abs_compare_summary], keywordList) 
         print("CONFIDENCE_SCORE", ab_confidence_score, ex_confidence_score)
 
         abs_summary = abs_summary if abs_summary!= "" else text
@@ -360,7 +370,7 @@ class echoHandler(BaseHTTPRequestHandler):
         self.wfile.write(res.encode())
 
 def main():
-    PORT = 4343
+    PORT = 4343 #5050
     # PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
