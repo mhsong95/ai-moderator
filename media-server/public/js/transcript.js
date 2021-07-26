@@ -1,7 +1,6 @@
 // transcript.js
 // Defines event handlers for transcripts from moderator server.
 // Includes UI control on transcription and summary data arrival.
-
 const messages = document.getElementById("messages");
 const keywordsList = document.getElementById("keywords-list")
 const trending_1 = document.getElementById("trending-1")
@@ -23,7 +22,7 @@ moderatorSocket.on("updateSummary", onUpdateSummary);
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   let messageBox = documentf.getElementById(timestamp);
-  let paragraph = messageBox.childNodes[4];
+  let paragraph = messageBox.childNodes[3].childNodes[1];
   let abSummaryEl = messageBox.childNodes[1].childNodes[0];
 
   paragraph.textContent = newParagraph;
@@ -39,7 +38,6 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
     let confidenceElem = confidenceElement(confArr[0]);
     abSummaryEl.append(confidenceElem);
   }
-
   addEditBtn(paragraph, "paragraph", timestamp);
   addEditBtn(abSummaryEl, "absum", timestamp);
 }
@@ -76,7 +74,7 @@ function onTranscript(transcript, name, timestamp) {
     messageBox = createMessageBox(name, timestamp);
   }
   // Append the new transcript to the old paragraph.
-  let paragraph = messageBox.childNodes[4];
+  let paragraph = messageBox.childNodes[3].childNodes[1];
   paragraph.textContent += transcript + " ";
 
   let abSummaryBox = messageBox.childNodes[1];
@@ -92,9 +90,9 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     messageBox = createMessageBox(name, timestamp);
   }
 
-  let seeFullText = messageBox.childNodes[3];
-  seeFullText.style.display = "";
-  let paragraph = messageBox.childNodes[4];
+  let seeFullText = messageBox.childNodes[3].childNodes[0];
+  seeFullText.style.display = "block";
+  let paragraph = messageBox.childNodes[3].childNodes[1];
   paragraph.style.display = "none";
 
   let abSummaryBox = messageBox.childNodes[1];
@@ -102,13 +100,30 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   let abSummaryEl = abSummaryBox.childNodes[0];
   abSummaryEl.textContent = "[Summary]\n" + summaryArr[0];
 
-  let keywordEl = keywordBox.childNodes[0];
-  var keywordRes = "";
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   for (keyword of keywordList){
-    keywordRes += "#" + keyword + " ";
+    var keywordBtn = document.createElement("p");
+    keywordBtn.innerHTML = "#" + keyword;
+    keywordBtn.style.display = "inline-block";
+    keywordBtn.style.fontSize = "small";
+    keywordBtn.style.padding = "0px 3px 0px 3px";
+    keywordBtn.style.border =  "1px solid black";
+    keywordBtn.style.backgroundColor = "transparent";
+    keywordBtn.style.margin = "0px 0px 2px 5px";
+    keywordBox.append(keywordBtn);
   }
-  keywordEl.textContent = keywordRes;
+  // Add button for adding keywords
+  var addKeywordBtn = document.createElement("button");
+  var addImage = document.createElement("i");
+  addImage.className = "fas fa-plus";
+  addImage.style.color = "black";
+  addKeywordBtn.style.backgroundColor = "transparent";
+  addKeywordBtn.style.border = 0;
+  addKeywordBtn.style.display = "inline-block";
+  addKeywordBtn.style.float = "right";
+  addKeywordBtn.onclick = function () { addKeyword(keywordBox); };
+  addKeywordBtn.append(addImage);
+  keywordBox.append(addKeywordBtn);
 
   // Add buttons for trending keywords
   var trendingList = summaryArr[3].split("@@@@@CD@@@@@AX@@@@@");
@@ -138,7 +153,29 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   addEditBtn(abSummaryEl, "absum", timestamp);
 
   // Scroll down the messages area.
-  messages.scrollTop = messages.scrollHeight;
+  // messages.scrollTop = messages.scrollHeight;
+}
+
+// Helper function for adding new keywords
+function addKeyword(box) {
+  var keyInput = document.createElement("input");
+  keyInput.style.fontSize = "small";
+  keyInput.style.marginLeft = "5px";
+  keyInput.placeholder = "Enter new keyword";
+  keyInput.addEventListener('keypress', async e => {
+    if (e.code === 'Enter') {
+      var newKeyword = document.createElement("p");
+      newKeyword.innerHTML = "#" + keyInput.value;
+      newKeyword.style.display = "inline-block";
+      newKeyword.style.padding = "0px 3px 0px 3px";
+      newKeyword.style.border = "1px solid black";
+      newKeyword.style.backgroundColor = "transparent";
+      newKeyword.style.margin = "0px 0px 2px 5px";
+      keyInput.remove();
+      box.append(newKeyword);
+    }
+  });
+  box.append(keyInput);
 }
 
 function toEditableBg(p) {
@@ -164,7 +201,7 @@ function editContent(type, timestamp) {
   let oldtxt = null;
   switch (type) {
     case "paragraph":
-      let paragraph = messageBox.childNodes[4];
+      let paragraph = messageBox.childNodes[3].childNodes[1];
       paragraph.contentEditable = "true";
 
       // change icon
@@ -203,7 +240,7 @@ function finishEditContent(type, oldtxt, timestamp) {
 
   switch (type) {
     case "paragraph":
-      let paragraph = messageBox.childNodes[4];
+      let paragraph = messageBox.childNodes[3].childNodes[1];
       console.log(paragraph.textContent);
       toEditableBg(paragraph);
       paragraph.contentEditable = "false";
@@ -409,55 +446,59 @@ function createMessageBox(name, timestamp) {
 
   // messageBox.childNodes[2]: includes the keywords
   let keywordBox = document.createElement("div");
-  let keywords = document.createElement("p");
   keywordBox.className = "keyword-box";
   keywordBox.style.fontSize = "smaller";
   keywordBox.style.marginLeft = "5px";
-  keywordBox.append(keywords);
+  keywordBox.style.marginBottom = "5px";
   messageBox.append(keywordBox);
 
-  // messageBox.childNodes[3]: See full text button
+  // messageBox.childNodes[3]: childNodes[0] = Button, childNodes[1] = Full paragraph
+  let paragraphBox = document.createElement("div"); 
+
   let seeFullText = document.createElement("button");
   seeFullText.className = "seeFullText";
   seeFullText.style.fontSize = "x-small";
   seeFullText.style.display = "none";
   seeFullText.style.backgroundColor = "#f2f2f2";
   seeFullText.style.borderRadius = "3px";
+  seeFullText.style.marginLeft = "5px";
+  seeFullText.style.marginTop = "5px";
   seeFullText.style.border = "1px solid black";
   seeFullText.innerHTML = "See full text";
   seeFullText.onclick = function() { showFullText(timestamp);};
-  messageBox.append(seeFullText);
+  paragraphBox.append(seeFullText);
 
-  // messageBox.childNodes[4]: includes paragraph
   let paragraph = document.createElement("p");
   paragraph.className = "paragraph";
   paragraph.style.fontSize = "smaller";
   paragraph.style.backgroundColor = "#f2f2f2";
   paragraph.style.borderRadius = "5px";
-  paragraph.style.marginTop = "1em";
+  paragraph.style.marginTop = "5px";
   paragraph.style.padding = "5px";
   paragraph.style.border = "1px solid black";
+  paragraph.style.marginTop = "5px";
   paragraph.style.display = "none";
-  messageBox.append(paragraph);
+  paragraphBox.append(paragraph);
+
+  messageBox.append(paragraphBox);
 
   // Finally append the box to 'messages' area
   messages.appendChild(messageBox);
-
   return messageBox;
 }
 
+// Shows the full paragraph in each message box
 function showFullText(timestamp) {
   let messageBox = document.getElementById(timestamp.toString());
-  if (messageBox.childNodes[4].style.display == ""){
-    messageBox.childNodes[4].style.display = "none";
-    messageBox.childNodes[3].innerHTML = "See full text";
+  if (messageBox.childNodes[3].childNodes[1].style.display == ""){
+    messageBox.childNodes[3].childNodes[1].style.display = "none";
+    messageBox.childNodes[3].childNodes[0].innerHTML = "See full text";
   }
   else {
-    messageBox.childNodes[4].style.display = "";
-    messageBox.childNodes[3].innerHTML = "Hide full text";
+    messageBox.childNodes[3].childNodes[1].style.display = "";
+    messageBox.childNodes[3].childNodes[0].innerHTML = "Hide full text";
   }
 }
-
 
 // Gets an existing message box that matches given timestamp.
 function getMessageBox(timestamp) {
