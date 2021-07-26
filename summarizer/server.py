@@ -338,18 +338,20 @@ class echoHandler(BaseHTTPRequestHandler):
 
         # Calculate confidence score
         abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
-        ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList)
-        ex_confidence_score = ab_confidence_score if (ext_summary == abs_summary or abs_summary == "" ) else get_confidence_score(ext_summary, [ext_compare_summary, abs_summary, abs_compare_summary], keywordList) 
-        print("CONFIDENCE_SCORE", ab_confidence_score, ex_confidence_score)
-
-        abs_summary = abs_summary if abs_summary!= "" else text
+        if ab_summary == "":
+            abs_summary = text
+            ab_confidence_score = 1
+        else :
+            ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList) 
+            
+        print("CONFIDENCE_SCORE", ab_confidence_score)
         ext_summary = ext_summary if ext_summary!= "" else text
 
         # Concatenate summaries, keywords, trending keywords
         keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
         trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
         res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
-        res += "@@@@@CF@@@@@" + str(ab_confidence_score) + "@@@@@CF@@@@@" + str(ex_confidence_score)
+        res += "@@@@@CF@@@@@" + str(ab_confidence_score) 
 
         # Print results
         print('Abstractive:::\n%s' % abs_summary)

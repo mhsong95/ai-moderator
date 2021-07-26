@@ -15,14 +15,36 @@ const trending_8 = document.getElementById("trending-8")
 const trending_9 = document.getElementById("trending-9")
 const trending_10 = document.getElementById("trending-10")
 
+const UnsureMessage_color = "rgba(117, 117, 117, 0.3)"
+const SureMessage_Mycolor = "rgba(40, 70, 167, 0.219)"
+const SureMessage_Othercolor = "rgba(40, 167, 70, 0.219)"
+
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
 
 moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
+
+let scrollPos = 0;
+var isScrolling;
+
+// Logging Scroll Event
+window.addEventListener('scroll', function ( event ) {
+	window.clearTimeout( isScrolling ); 	// Clear our timeout throughout the scroll
+	isScrolling = setTimeout(function() { 	// Set a timeout to run after scrolling ends
+    if ((document.body.getBoundingClientRect()).top > scrollPos){
+      rc.addUserLog(Date.now(), "SCROLL UP");
+    }
+    else {
+      rc.addUserLog(Date.now(), "SCROLL DOWN");
+    }
+    scrollPos = (document.body.getBoundingClientRect()).top;
+	}, 66);
+}, false);
+
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
-  let messageBox = documentf.getElementById(timestamp);
+  let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[4];
   let abSummaryEl = messageBox.childNodes[1].childNodes[0];
 
@@ -86,10 +108,13 @@ function onTranscript(transcript, name, timestamp) {
 
 // Event listener on summary arrival.
 function onSummary(summaryArr, confArr, name, timestamp) {
-
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
+  }
+
+  if (confArr[0]< 0.66){
+    messageBox.style.background = UnsureMessage_color ;
   }
 
   let seeFullText = messageBox.childNodes[3];
@@ -138,7 +163,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   addEditBtn(abSummaryEl, "absum", timestamp);
 
   // Scroll down the messages area.
-  messages.scrollTop = messages.scrollHeight;
+  // messages.scrollTop = messages.scrollHeight;
 }
 
 function toEditableBg(p) {
@@ -379,7 +404,7 @@ function createMessageBox(name, timestamp) {
 
   if (user_name == name) {
     messageBox.style.borderBottom = "0.001em solid rgba(40, 70, 167, 0.5)";
-    messageBox.style.background = "rgba(40, 70, 167, 0.219)";
+    messageBox.style.background = SureMessage_Mycolor;
   }
 
   // messageBox.childNodes[0]: includes title - timestamp and name.
@@ -449,10 +474,12 @@ function createMessageBox(name, timestamp) {
 function showFullText(timestamp) {
   let messageBox = document.getElementById(timestamp.toString());
   if (messageBox.childNodes[4].style.display == ""){
+    rc.addUserLog(Date.now(), 'Click [Hide Full Text] Button -' + timestamp.toString() + '\n');
     messageBox.childNodes[4].style.display = "none";
     messageBox.childNodes[3].innerHTML = "See full text";
   }
   else {
+    rc.addUserLog(Date.now(), 'Click [See Full Text] BUTTON -' + timestamp.toString() + '\n');
     messageBox.childNodes[4].style.display = "";
     messageBox.childNodes[3].innerHTML = "Hide full text";
   }
