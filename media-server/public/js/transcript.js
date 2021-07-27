@@ -93,6 +93,7 @@ function onUpdateSummary(type, content, timestamp) {
 
 // Event listener on individual transcript arrival.
 function onTranscript(transcript, name, timestamp) {
+  console.log("ONTRANSCRIPT")
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);

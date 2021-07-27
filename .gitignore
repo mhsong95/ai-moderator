@@ -106,6 +106,7 @@ dist
 # Configuration file
 moderator/config.js
 media-server/config.js
+summarizer/config.ini
 
 # venv files
 .venv

@@ -7,6 +7,12 @@ import subprocess
 import json
 import requests
 
+# import os
+# import configparser
+
+# config = configparser.ConfigParser()
+# config.read(os.getcwd() + os.sep + 'config.ini', encoding='utf-8')
+
 # Convert audio file from MediaRecorder in `moderator` into .wav format for STT process
 # parameter
 # - input: filename to convert (e.g., 'input.webm')
@@ -318,23 +324,29 @@ def select_rep_summary(abs_summary1, abs_summary2, ext_summary1, ext_summary2):
 
 import re
 def get_summaries(text):
+    print("get_summaries for text: "+text)
+    print(type(text))
     # DO NOT SUMMARIZE TEXT when text is short enough / JUST GET ABSTRACTIVE SUMMARY
     text_sentence_num = len(re.split('[.?!]', text)) 
 
     pororo_ab_res = pororo_abstractive_model(text)
+    print("pororo_ab_res:   "+ pororo_ab_res)
     pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
+    print("pororo_ex_res:   "+ pororo_ex_res)
     kobart_ab_res = kobart_summarizing_model(text) 
+    print("kobart_ab_res:   "+ kobart_ab_res)
     kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
 
     print("Abstractive - 1", pororo_ab_res)
     print("Abstractive - 2", kobart_ab_res)
     
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
+
 class ClovaSpeechClient:
     # Clova Speech invoke URL
-    invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/843/043a718774c572bd8a25adbeb1bfcd5c0256ae11cecf9f9c3f925d0e52beaf89'
+    invoke_url = ''#config['Clova_STT']['invoke_url']
     # Clova Speech secret key
-    secret = 'a52a19a5dca64e2395fc35bf3d834a10'
+    secret = ''#config['Clova_STT']['secret']
 
     def req_upload(self, file, completion, callback=None, userdata=None, forbiddens=None, boostings=None, sttEnable=True,
                 wordAlignment=True, fullText=True, script='', diarization=None, keywordExtraction=None, groupByAudio=False):

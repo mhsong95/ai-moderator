@@ -123,7 +123,7 @@ module.exports = class Clerk {
 
           // Parse returned summary
           let summary_text = summary.split("@@@@@CF@@@@@")[0];
-          const confidence_score =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
+          const confidence_score = parseFloat(summary.split("@@@@@CF@@@@@")[1]);
           confArr[0] = confidence_score;
 
           // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
@@ -171,7 +171,7 @@ module.exports = class Clerk {
 
           // Parse returned summary
           let summary_text = summary.split("@@@@@CF@@@@@")[0];
-          const confidence_score =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
+          const confidence_score = parseFloat(summary.split("@@@@@CF@@@@@")[1]);
           confArr[0] = confidence_score;
 
           // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
@@ -240,7 +240,7 @@ module.exports = class Clerk {
           summary = summary.split("@@@@@txt@@@@@")[1];
           // Parse returned summary
           let summary_text = summary.split("@@@@@CF@@@@@")[0];
-          const confidence_score =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
+          const confidence_score = parseFloat(summary.split("@@@@@CF@@@@@")[1]);
           confArr[0] = confidence_score;
 
           // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
@@ -255,6 +255,7 @@ module.exports = class Clerk {
       })
       .catch((e) => {
         console.log("CATCH - requestSTT");
+        console.log(e);
 
         // let summaryArr = [paragraph, paragraph]
         // let confArr = [-1, -1];
