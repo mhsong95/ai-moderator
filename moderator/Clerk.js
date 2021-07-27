@@ -227,6 +227,7 @@ module.exports = class Clerk {
         let confArr = [1, 1]; //Math.random();
         // No summary: just emit the paragraph with an indication that
         // it is not a summary (confidence === -1).
+        let transcript;
         if (!summary) {
           summaryArr = [paragraph, paragraph]
           confArr = [-1, -1];
@@ -247,7 +248,7 @@ module.exports = class Clerk {
           summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
         }
 
-        this.io.sockets.to(this.room_id).emit("transcript", transcript, speakerName, timestamp)
+        this.io.sockets.to(this.room_id).emit("transcript", transcript, speakerName, timestamp);
 
         this.io.sockets
           .to(this.room_id)

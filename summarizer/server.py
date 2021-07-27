@@ -7,11 +7,16 @@ import subprocess
 import json
 import requests
 
-# import os
-# import configparser
+import os
+import configparser
 
-# config = configparser.ConfigParser()
-# config.read(os.getcwd() + os.sep + 'config.ini', encoding='utf-8')
+config = configparser.ConfigParser()
+config.read(os.getcwd() + os.sep + 'config.ini', encoding='utf-8')
+
+# Clova Speech invoke URL
+invoke_url = config['Clova_STT']['invoke_url']
+# Clova Speech secret key
+secret = config['Clova_STT']['secret']
 
 # Convert audio file from MediaRecorder in `moderator` into .wav format for STT process
 # parameter
@@ -335,7 +340,11 @@ def get_summaries(text):
     print("pororo_ex_res:   "+ pororo_ex_res)
     kobart_ab_res = kobart_summarizing_model(text) 
     print("kobart_ab_res:   "+ kobart_ab_res)
-    kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
+    try:
+        kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
+    except:
+        print("EXCEPTION::::::::::::::::::::::kobert_ex_res")
+        kobert_ex_res = text
 
     print("Abstractive - 1", pororo_ab_res)
     print("Abstractive - 2", kobart_ab_res)
@@ -343,11 +352,10 @@ def get_summaries(text):
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
 class ClovaSpeechClient:
-    # Clova Speech invoke URL
-    invoke_url = ''#config['Clova_STT']['invoke_url']
-    # Clova Speech secret key
-    secret = ''#config['Clova_STT']['secret']
-
+    def __init__(self, invoke_url, secret):
+        self.invoke_url = invoke_url
+        self.secret = secret
+        
     def req_upload(self, file, completion, callback=None, userdata=None, forbiddens=None, boostings=None, sttEnable=True,
                 wordAlignment=True, fullText=True, script='', diarization=None, keywordExtraction=None, groupByAudio=False):
         request_body = {
@@ -394,7 +402,7 @@ class echoHandler(BaseHTTPRequestHandler):
         convert_and_split(inputfile, outputfile)
         
         # run STT
-        stt_res = ClovaSpeechClient().req_upload(file=outputfile, completion='sync')
+        stt_res = ClovaSpeechClient(invoke_url, secret).req_upload(file=outputfile, completion='sync')
         print(stt_res.text)
         print(json.loads(stt_res.text)['text'])
         
@@ -445,7 +453,7 @@ class echoHandler(BaseHTTPRequestHandler):
         self.wfile.write(res.encode())
 
 def main():
-    PORT = 4343 #5050
+    PORT = 5555 #5050
     # PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
