@@ -200,4 +200,68 @@ module.exports = class Clerk {
       .to(this.room_id)
       .emit("updateSummary", type, content, timestamp);
   }
+
+  requestSTT(roomID, user, timestamp) {
+    let speakerName = this.speakerName;
+    axios
+      .post(
+        // TODO: include in config.js
+        config.summaryHost,
+        {
+          roomID,
+          user,
+          timestamp,
+        },
+        {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
+      )
+      .then((response) => {
+        console.log("requset success");
+        let summary, summaryArr;
+        if (response.status === 200) {
+          summary = response.data;
+        }
+
+        // TODO: Get the real confidence value.
+        let confArr = [1, 1]; //Math.random();
+        // No summary: just emit the paragraph with an indication that
+        // it is not a summary (confidence === -1).
+        if (!summary) {
+          summaryArr = [paragraph, paragraph]
+          confArr = [-1, -1];
+        }
+        else {
+          console.log("SUMMARY::::::")
+          console.log(summary);
+
+          // Parse returned summary
+          transcript = summary.split("@@@@@txt@@@@@")[0];
+          summary = summary.split("@@@@@txt@@@@@")[1];
+          // Parse returned summary
+          let summary_text = summary.split("@@@@@CF@@@@@")[0];
+          const confidence_score =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
+          confArr[0] = confidence_score;
+
+          // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
+          summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
+        }
+
+        this.io.sockets.to(this.room_id).emit("transcript", transcript, speakerName, timestamp)
+
+        this.io.sockets
+          .to(this.room_id)
+          .emit("summary", summaryArr, confArr, speakerName, timestamp);
+      })
+      .catch((e) => {
+        console.log("CATCH - requestSTT");
+
+        // let summaryArr = [paragraph, paragraph]
+        // let confArr = [-1, -1];
+
+        // this.io.sockets
+        //   .to(this.room_id)
+        //   .emit("updateParagraph", paragraph, summaryArr, confArr, timestamp);
+      });
+  }
 };

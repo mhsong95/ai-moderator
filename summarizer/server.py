@@ -3,6 +3,18 @@ from typing import Text
 from urllib.parse import parse_qs
 from IPython.display import display
 
+import subprocess
+import json
+import requests
+
+# Convert audio file from MediaRecorder in `moderator` into .wav format for STT process
+# parameter
+# - input: filename to convert (e.g., 'input.webm')
+# - output: filename to save (e.g., 'output.wav')
+def convert_and_split(input, output):
+    command = ['ffmpeg', '-i', input, '-c:a', 'pcm_f32le', output]
+    subprocess.run(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+
 ################# BERT & BART ###########################################
 # # INITIALIZE [BERT&BART] 
 # from summarizer import Summarizer
@@ -40,8 +52,8 @@ kobert_model = KOBERT_SUMMARIZER()
 # Ko-BART
 import torch
 from kobart import get_kobart_tokenizer
-from transformers.modeling_bart import BartForConditionalGeneration 
-#from transformers.models.bart import BartForConditionalGeneration
+# from transformers.modeling_bart import BartForConditionalGeneration 
+from transformers.models.bart import BartForConditionalGeneration
 kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart_summary')#, from_tf=True)
 kobart_tokenizer = get_kobart_tokenizer()
 
@@ -318,6 +330,40 @@ def get_summaries(text):
     print("Abstractive - 2", kobart_ab_res)
     
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
+class ClovaSpeechClient:
+    # Clova Speech invoke URL
+    invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/843/043a718774c572bd8a25adbeb1bfcd5c0256ae11cecf9f9c3f925d0e52beaf89'
+    # Clova Speech secret key
+    secret = 'a52a19a5dca64e2395fc35bf3d834a10'
+
+    def req_upload(self, file, completion, callback=None, userdata=None, forbiddens=None, boostings=None, sttEnable=True,
+                wordAlignment=True, fullText=True, script='', diarization=None, keywordExtraction=None, groupByAudio=False):
+        request_body = {
+            'language': 'ko-KR',
+            'completion': completion,
+            'callback': callback,
+            'userdata': userdata,
+            'sttEnable': sttEnable,
+            'wordAlignment': wordAlignment,
+            'fullText': fullText,
+            'script': script,
+            'forbiddens': forbiddens,
+            'boostings': boostings,
+            'diarization': diarization,
+            'keywordExtraction': keywordExtraction,
+            'groupByAudio': groupByAudio,
+        }
+        headers = {
+            'Accept': 'application/json;UTF-8',
+            'X-CLOVASPEECH-API-KEY': self.secret
+        }
+        print(json.dumps(request_body).encode('UTF-8'))
+        files = {
+            'media': open(file, 'rb'),
+            'params': (None, json.dumps(request_body).encode('UTF-8'), 'application/json')
+        }
+        response = requests.post(headers=headers, url=self.invoke_url + '/recognizer/upload', files=files)
+        return response
 
 
 class echoHandler(BaseHTTPRequestHandler):
@@ -325,8 +371,23 @@ class echoHandler(BaseHTTPRequestHandler):
         print(self.client_address)
         content_len = int(self.headers.get('Content-Length'))
         post_body = self.rfile.read(content_len).decode('utf-8')
-        fields = parse_qs(post_body)
-        text = fields['content'][0]
+        fields = json.loads(post_body)
+        roomID = fields["roomID"]
+        user = fields["user"]
+        timestamp = fields["timestamp"]
+
+        # convert file type
+        inputfile = "../moderator/"+roomID+"_"+user+"_"+str(timestamp)+".webm"
+        outputfile = "./"+roomID+"_"+user+"_"+str(timestamp)+".wav"
+        convert_and_split(inputfile, outputfile)
+        
+        # run STT
+        stt_res = ClovaSpeechClient().req_upload(file=outputfile, completion='sync')
+        print(stt_res.text)
+        print(json.loads(stt_res.text)['text'])
+        
+        text = json.loads(stt_res.text)['text']
+        res = text + "@@@@@txt@@@@@"
 
         # Get summaries
         pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
@@ -350,7 +411,7 @@ class echoHandler(BaseHTTPRequestHandler):
         # Concatenate summaries, keywords, trending keywords
         keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
         trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
-        res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
+        res += '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
         res += "@@@@@CF@@@@@" + str(ab_confidence_score) 
 
         # Print results
