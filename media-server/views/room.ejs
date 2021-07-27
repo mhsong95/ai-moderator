@@ -134,7 +134,7 @@
       
         <div style="margin-top: 1em; ">
           <input type="text" id="search-word" placeholder="SEARCH"
-            onkeydown="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Search\n');">
+            onkeydown="checkEnter(event); rc.addUserLog(Date.now(), 'Search\n');">
           <button type="button" onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Search Button\n');" width="50px" style="padding: 3.5px; background-color:yellowgreen; margin: 2px; border: none; border-radius: 5px;">
             <!--<img src="/img/search.png" width="30px" style="padding: 0px; margin: 0px;">-->
             <i class="fas fa-search" width="30px", style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
@@ -145,21 +145,25 @@
         </div>
 
         <!--Add buttons for trending keyword-->
-        <div id="keywords-list" style="margin-top: 1em; ">
-          <button type="button" id="trending-1" onclick="displayTrendingBox1();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#1</button>
-          <button type="button" id="trending-2" onclick="displayTrendingBox2();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#2</button>
-          <button type="button" id="trending-3" onclick="displayTrendingBox3();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#3</button>
-          <button type="button" id="trending-4" onclick="displayTrendingBox4();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#4</button>
-          <button type="button" id="trending-5" onclick="displayTrendingBox5();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#5</button>
-          <button type="button" id="trending-6" onclick="displayTrendingBox6();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#6</button>
-          <button type="button" id="trending-7" onclick="displayTrendingBox7();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#7</button>
-          <button type="button" id="trending-8" onclick="displayTrendingBox8();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#8</button>
-          <button type="button" id="trending-9" onclick="displayTrendingBox9();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#9</button>
-          <button type="button" id="trending-10" onclick="displayTrendingBox10();" style="font-size: smaller; padding: 3px; margin-top: 2px; border-radius: 2px;" >#10</button>
+        <div id="keywords-list" style="margin-top: 5px;">
+          <p style="font-size:medium; display: inline-block; margin-bottom: 5px;"><strong>Trending: </strong></p>
+          <button type="button" id="trending-1" onclick="displayTrendingBox1();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#1</button>
+          <button type="button" id="trending-2" onclick="displayTrendingBox2();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#2</button>
+          <button type="button" id="trending-3" onclick="displayTrendingBox3();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#3</button>
+          <button type="button" id="trending-4" onclick="displayTrendingBox4();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#4</button>
+          <button type="button" id="trending-5" onclick="displayTrendingBox5();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#5</button>
+          <button type="button" id="trending-6" onclick="displayTrendingBox6();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#6</button>
+          <button type="button" id="trending-7" onclick="displayTrendingBox7();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#7</button>
+          <button type="button" id="trending-8" onclick="displayTrendingBox8();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#8</button>
+          <button type="button" id="trending-9" onclick="displayTrendingBox9();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#9</button>
+          <button type="button" id="trending-10" onclick="displayTrendingBox10();" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#10</button>
         </div>
-
+        <div id="favorites">
+          <p style="font-size: medium; display: inline-block; margin-bottom: 5px;"><strong>Favorites: </strong></p>
+          <button type="button" id="my-keyword" onclick="addFavorite();" style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px;" ><i class="fas fa-plus"></i> Add Favorites</button>
+        </div>
       </div>
-      <div id="messages"></div>
+      <div id="messages" style="clear: both;"></div>
   </body>
 
   <footer>

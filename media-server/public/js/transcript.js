@@ -24,7 +24,7 @@ moderatorSocket.on("summary", onSummary);
 moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
-
+var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
 
@@ -133,7 +133,14 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     keywordBtn.style.fontSize = "small";
     keywordBtn.style.padding = "0px 3px 0px 3px";
     keywordBtn.style.border =  "1px solid black";
-    keywordBtn.style.backgroundColor = "transparent";
+    keywordBtn.style.borderRadius = "5px";
+
+    if (favoriteKeywords.includes(keyword)) {
+      keywordBtn.style.backgroundColor = "#fed7bf";
+    }
+    else {
+      keywordBtn.style.backgroundColor = "transparent";
+    }
     keywordBtn.style.margin = "0px 5px 2px 0px";
     keywordBox.append(keywordBtn);
   }
@@ -194,7 +201,13 @@ function addKeyword(box) {
       newKeyword.style.display = "inline-block";
       newKeyword.style.padding = "0px 3px 0px 3px";
       newKeyword.style.border = "1px solid black";
-      newKeyword.style.backgroundColor = "transparent";
+      newKeyword.style.borderRadius = "5px";
+      if (favoriteKeywords.includes(newKeyword)) {
+        newKeyword.style.backgroundColor = "#fed7bf";
+      }
+      else {
+        newKeyword.style.backgroundColor = "transparent";
+      }
       newKeyword.style.margin = "0px 5px 2px 0px";
       keyInput.remove();
       box.append(newKeyword);
@@ -382,6 +395,47 @@ function displayUnitOfBox() {
 
 //////////////////////////////////////////////
 /************* Helper functions *************/
+
+// Add new following keywords
+function addFavorite() {
+  let keywordList = document.getElementById("favorites");
+  var keyInput = document.createElement("input");
+  keyInput.style.fontSize = "small";
+  keyInput.style.margin = "0px 5px 0px 0px";
+  keyInput.placeholder = "Enter new keyword";
+
+  keyInput.addEventListener('keypress', async e => {
+    if (e.code === 'Enter') {
+      favoriteKeywords.push(keyInput.value);
+
+      let myKeyword = document.createElement("button");
+      myKeyword.innerHTML = "#" + keyInput.value;
+      myKeyword.style.fontSize = "smaller";
+      myKeyword.style.padding = "1px 3px 1px 3px";
+      myKeyword.style.backgroundColor = "#fed7bf";
+      myKeyword.style.margin = "0px 5px 0px 0px";
+      myKeyword.style.borderRadius = "5px";
+      myKeyword.style.border = "1px solid black";
+      myKeyword.style.display = "inline-block";
+      myKeyword.onclick = function() {
+        let searchword = document.getElementById("search-word");
+        searchword.value = this.textContent.slice(1);
+        displayUnitOfBox();
+      };
+      keyInput.remove();
+      keywordList.append(myKeyword);
+    }
+  });
+  keywordList.append(keyInput);
+}
+
+// Helper function for searching when ENTER keydown
+function checkEnter(e) {
+  //let keyInput = document.getElementById("search-word");
+  if (e.code === 'Enter') {
+    displayUnitOfBox();
+  }
+}
 
 // Delete text in search box & Display all boxes
 function showAllBoxes() {
