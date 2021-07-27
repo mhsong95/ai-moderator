@@ -24,6 +24,7 @@ moderatorSocket.on("summary", onSummary);
 moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
+var keywordMap = {};
 var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
@@ -126,13 +127,15 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   abSummaryEl.textContent = "[Summary]\n" + summaryArr[0];
 
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
+  keywordMap[timestamp.toString()] = keywordList;
+
   for (keyword of keywordList){
     var keywordBtn = document.createElement("p");
     keywordBtn.innerHTML = "#" + keyword;
     keywordBtn.style.display = "inline-block";
     keywordBtn.style.fontSize = "small";
-    keywordBtn.style.padding = "0px 3px 0px 3px";
-    keywordBtn.style.border =  "1px solid black";
+    keywordBtn.style.padding = "0px 5px 0px 3px";
+    keywordBtn.style.border =  "1px solid #6b787e";
     keywordBtn.style.borderRadius = "5px";
 
     if (favoriteKeywords.includes(keyword)) {
@@ -200,9 +203,9 @@ function addKeyword(box) {
       newKeyword.innerHTML = "#" + keyInput.value;
       newKeyword.style.display = "inline-block";
       newKeyword.style.padding = "0px 3px 0px 3px";
-      newKeyword.style.border = "1px solid black";
+      newKeyword.style.border = "1px solid #6b787e";
       newKeyword.style.borderRadius = "5px";
-      if (favoriteKeywords.includes(newKeyword)) {
+      if (favoriteKeywords.includes(keyInput.value)) {
         newKeyword.style.backgroundColor = "#fed7bf";
       }
       else {
@@ -378,18 +381,14 @@ function displayUnitOfBox() {
   let searchword = document.getElementById("search-word").value
   let messageBoxes = document.getElementsByClassName("message-box");
   let paragraphs = document.getElementsByClassName("paragraph");
-  // let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
-
+  let summaryBox = document.getElementById("summary-for-keyword");
+  if (summaryBox) {
+    summaryBox.remove();
+  }
   for (var i = 0; i < messageBoxes.length; i++) { // access each i-th index of boxes at the same time
     let isfiltered = paragraphs[i].textContent.includes(searchword);
-
     let messageBox = messageBoxes[i];
-    let paragraph = paragraphs[i];
-    // let abSummaryBox = abSummaryBoxes[i];
-
     displayBox(true && isfiltered, messageBox, displayYes);
-    // displayBox(true && isfiltered, paragraph, displayYes);
-
   }
 }
 
@@ -421,17 +420,65 @@ function addFavorite() {
         let searchword = document.getElementById("search-word");
         searchword.value = this.textContent.slice(1);
         displayUnitOfBox();
+        createSummaryBox(keyInput.value);
       };
       keyInput.remove();
       keywordList.append(myKeyword);
+      checkBoxWithKey(myKeyword.innerHTML.slice(1));
     }
   });
   keywordList.append(keyInput);
 }
 
+// Finds previous boxes containing the new keyword & colors it
+function checkBoxWithKey(keyword) {
+  let messageBoxes = document.getElementsByClassName("message-box");
+  for (var i = 0; i < messageBoxes.length; i++) {
+    let messageBox = messageBoxes[i];
+    let timestamp = messageBox.getAttribute("id");
+    if (keywordMap[timestamp].includes(keyword)) {
+      let keywordBox = messageBox.childNodes[2];
+      for (keywordBtn of keywordBox.childNodes) {
+        if (keywordBtn.innerHTML.slice(1) === keyword) {
+          keywordBtn.style.backgroundColor = "#fed7bf";
+        }
+      }
+    }
+  }
+}
+
+// Show the overall summary for each thread (favorite keyword)
+function createSummaryBox(keyword) {
+  let summaryBox = document.createElement("div");
+  summaryBox.setAttribute("id", "summary-for-keyword");
+  summaryBox.className = "summary-box";
+
+  // summaryBox.childNodes[0]: Includes the keyword
+  let title = document.createElement("div");
+  let nametag = document.createElement("span");
+  let strong = document.createElement("strong");
+  strong.textContent = "Overall Summary for #" + keyword;
+  nametag.className = "nametag";
+  nametag.append(strong);
+  title.append(nametag);
+  summaryBox.append(title);
+
+  // summaryBox.childNodes[1]: Includes abstract summary
+  let abSummaryBox = document.createElement("div");
+  let abSummary = document.createElement("p");
+  abSummary = "Not done yet!";
+  abSummaryBox.style.fontSize = "medium";
+  abSummaryBox.style.marginLeft = "5px";
+  abSummaryBox.style.marginTop = "1em";
+  abSummaryBox.append(abSummary);
+  summaryBox.append(abSummary);
+  
+  messages.insertBefore(summaryBox, messages.firstChild);
+  return summaryBox;
+}
+
 // Helper function for searching when ENTER keydown
 function checkEnter(e) {
-  //let keyInput = document.getElementById("search-word");
   if (e.code === 'Enter') {
     displayUnitOfBox();
   }

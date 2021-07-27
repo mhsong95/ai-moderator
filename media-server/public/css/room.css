@@ -143,6 +143,15 @@ span.timetag {
   background: rgba(40, 167, 70, 0.219);
 }
 
+.summary-box {
+  padding: 0.5em 1em;
+  margin: 0.1em;
+  border-radius: 10px;
+  border-bottom: 0.001em solid rgba(255, 225, 216, 0.5);
+  background: rgba(255, 201, 192, 0.5);
+  z-index: -1;
+}
+
 .edit-btn {
   display: block;
   float: right;
