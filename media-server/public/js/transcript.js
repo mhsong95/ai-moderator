@@ -2,17 +2,17 @@
 // Defines event handlers for transcripts from moderator server.
 // Includes UI control on transcription and summary data arrival.
 const messages = document.getElementById("messages");
-const keywordsList = document.getElementById("keywords-list")
-const trending_1 = document.getElementById("trending-1")
-const trending_2 = document.getElementById("trending-2")
-const trending_3 = document.getElementById("trending-3")
-const trending_4 = document.getElementById("trending-4")
-const trending_5 = document.getElementById("trending-5")
-const trending_6 = document.getElementById("trending-6")
-const trending_7 = document.getElementById("trending-7")
-const trending_8 = document.getElementById("trending-8")
-const trending_9 = document.getElementById("trending-9")
-const trending_10 = document.getElementById("trending-10")
+const keywordsList = document.getElementById("keywords-list");
+const trending_1 = document.getElementById("trending-1");
+const trending_2 = document.getElementById("trending-2");
+const trending_3 = document.getElementById("trending-3");
+const trending_4 = document.getElementById("trending-4");
+const trending_5 = document.getElementById("trending-5");
+const trending_6 = document.getElementById("trending-6");
+const trending_7 = document.getElementById("trending-7");
+const trending_8 = document.getElementById("trending-8");
+const trending_9 = document.getElementById("trending-9");
+const trending_10 = document.getElementById("trending-10");
 
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("summary", onSummary);
@@ -21,7 +21,7 @@ moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
-  let messageBox = documentf.getElementById(timestamp);
+  let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[3].childNodes[1];
   let abSummaryEl = messageBox.childNodes[1].childNodes[0];
 
@@ -109,7 +109,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     keywordBtn.style.padding = "0px 3px 0px 3px";
     keywordBtn.style.border =  "1px solid black";
     keywordBtn.style.backgroundColor = "transparent";
-    keywordBtn.style.margin = "0px 0px 2px 5px";
+    keywordBtn.style.margin = "0px 5px 2px 0px";
     keywordBox.append(keywordBtn);
   }
   // Add button for adding keywords
@@ -170,7 +170,7 @@ function addKeyword(box) {
       newKeyword.style.padding = "0px 3px 0px 3px";
       newKeyword.style.border = "1px solid black";
       newKeyword.style.backgroundColor = "transparent";
-      newKeyword.style.margin = "0px 0px 2px 5px";
+      newKeyword.style.margin = "0px 5px 2px 0px";
       keyInput.remove();
       box.append(newKeyword);
     }
@@ -430,8 +430,23 @@ function createMessageBox(name, timestamp) {
   let timetag = document.createElement("span");
   timetag.className = "timetag";
   timetag.append(document.createTextNode(formatTime(timestamp)));
-
   title.append(nametag, timetag);
+
+  // Add pin button
+  let pinBtn = document.createElement("button");
+  let pin = document.createElement("i");
+  pin.className = "fas fa-thumbtack";
+  pin.style.color = "#F2F3F4";
+  pinBtn.append(pin);
+  pinBtn.style.backgroundColor = "transparent";
+  pinBtn.style.border = "0";
+  pinBtn.style.float = "right";
+  pinBtn.style.display = "inline-block";
+  pinBtn.onclick = function () { pinBox(timestamp); }; 
+
+  messageBox.setAttribute("pinned", "false");
+
+  title.append(pinBtn);
   messageBox.append(title);
 
   // messageBox.childNodes[1]: includes the abstractive summary and confidence level
@@ -453,18 +468,16 @@ function createMessageBox(name, timestamp) {
   messageBox.append(keywordBox);
 
   // messageBox.childNodes[3]: childNodes[0] = Button, childNodes[1] = Full paragraph
-  let paragraphBox = document.createElement("div"); 
+  let paragraphBox = document.createElement("div");
 
   let seeFullText = document.createElement("button");
   seeFullText.className = "seeFullText";
   seeFullText.style.fontSize = "x-small";
   seeFullText.style.display = "none";
-  seeFullText.style.backgroundColor = "#f2f2f2";
-  seeFullText.style.borderRadius = "3px";
-  seeFullText.style.marginLeft = "5px";
+  seeFullText.style.border = "0";
+  seeFullText.style.backgroundColor = "transparent";
   seeFullText.style.marginTop = "5px";
-  seeFullText.style.border = "1px solid black";
-  seeFullText.innerHTML = "See full text";
+  seeFullText.innerHTML = "<u>See full text</u>";
   seeFullText.onclick = function() { showFullText(timestamp);};
   paragraphBox.append(seeFullText);
 
@@ -475,8 +488,7 @@ function createMessageBox(name, timestamp) {
   paragraph.style.borderRadius = "5px";
   paragraph.style.marginTop = "5px";
   paragraph.style.padding = "5px";
-  paragraph.style.border = "1px solid black";
-  paragraph.style.marginTop = "5px";
+  paragraph.style.border = "1px solid #d4d4d4";
   paragraph.style.display = "none";
   paragraphBox.append(paragraph);
 
@@ -487,16 +499,62 @@ function createMessageBox(name, timestamp) {
   return messageBox;
 }
 
+// Pins message box
+function pinBox(timestamp) {
+  let stringTime = timestamp.toString();
+  let messageBox = document.getElementById(stringTime);
+  let pinBtn = messageBox.childNodes[0].childNodes[2];
+  let dropdownPin = document.getElementById("dropdownPin");
+  let newPin = document.createElement("a");
+
+  if (messageBox.getAttribute("pinned") === "false") {
+    messageBox.setAttribute("pinned", "true");
+    newPin.setAttribute("id", "pin" + stringTime);
+    newPin.href = "#";
+    newPin.onclick = function() { messageBox.scrollIntoView(true); };
+    newPin.style.padding = "0px 2px 0px 2px";
+    newPin.style.backgroundColor = "#ffffff";
+    newPin.style.border = "0.1px solid #d4d4d4";
+    newPin.style.fontSize = "smaller";
+    newPin.style.color = "#000000";
+    newPin.style.float = "right";
+    newPin.style.width = "180px";
+    newPin.style.overflow = "auto";
+    newPin.style.textAlign = "left";
+    newPin.style.textDecoration = "none";
+    newPin.innerHTML = "[" + messageBox.childNodes[0].childNodes[0].childNodes[0].textContent + "] " 
+                      + messageBox.childNodes[3].childNodes[1].textContent.substr(0, 10) + "...";
+    dropdownPin.append(newPin);
+    pinBtn.childNodes[0].style.color = "#000000";
+  }
+  else {
+    messageBox.setAttribute("pinned", "false");
+    let delPin = document.getElementById("pin" + stringTime);
+    delPin.remove();
+    pinBtn.childNodes[0].style.color = "#F2F3F4";
+  }
+}
+
+function showPinBoxes() {
+  let pinClick = document.getElementById("dropdownPin");
+  if (pinClick.style.display === "none"){
+    pinClick.style.display = "block";
+  }
+  else {
+    pinClick.style.display = "none";
+  }
+}
+
 // Shows the full paragraph in each message box
 function showFullText(timestamp) {
   let messageBox = document.getElementById(timestamp.toString());
   if (messageBox.childNodes[3].childNodes[1].style.display == ""){
     messageBox.childNodes[3].childNodes[1].style.display = "none";
-    messageBox.childNodes[3].childNodes[0].innerHTML = "See full text";
+    messageBox.childNodes[3].childNodes[0].innerHTML = "<u>See full text</u>";
   }
   else {
     messageBox.childNodes[3].childNodes[1].style.display = "";
-    messageBox.childNodes[3].childNodes[0].innerHTML = "Hide full text";
+    messageBox.childNodes[3].childNodes[0].innerHTML = "<u>Hide full text</u>";
   }
 }
 

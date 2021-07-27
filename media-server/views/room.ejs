@@ -123,20 +123,15 @@
 
     <div id="right">
       <div class="border bg-light bg-gradient" id="display-choice">
-        <p class="h5" style="margin-bottom: 0.5em;"><strong>Summary</strong></p>
+        <p class="h5" style="margin-bottom: 0.5em; display: inline-block;"><strong>Summary</strong></p>
 
-        <!-- <input type="checkbox" class="btn-check" id="minutes-transcript"
-          onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Whole Script: '+this.checked+'\n');" checked>
-        <label class="btn btn-outline-warning shadow-none" for="minutes-transcript"">Whole Script</label>
-
-        <input type="checkbox" class="btn-check" id="minutes-ab"
-          onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Abstractive Summary: '+this.checked+'\n');" checked>
-        <label class="btn btn-outline-warning shadow-none" for="minutes-ab">Abstractive Summary</label>
-        
-        <input type="checkbox" class="btn-check" id="minutes-ex"
-          onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Extractive Summary: '+this.checked+'\n');" checked>
-        <label class="btn btn-outline-warning shadow-none" for="minutes-ex">Extractive Summary</label> -->
-
+        <div class="dropdown" style="display: block; float: right; margin-top: 5px;">
+          <button style="border-radius: 5px; font-size: smaller;" onclick="showPinBoxes();">
+            <i class="fas fa-thumbtack"></i> Pinned <i class="fas fa-caret-down"></i>
+          </button>
+          <div id="dropdownPin" style="display: none; position: absolute;" class="dropdown-pin"></div>
+        </div>
+      
         <div style="margin-top: 1em; ">
           <input type="text" id="search-word" placeholder="SEARCH"
             onkeydown="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Search\n');">
