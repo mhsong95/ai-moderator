@@ -3,201 +3,17 @@
 // References:
 // https://docs.microsoft.com/ko-kr/azure/cognitive-services/speech-service/get-started-speech-to-text?tabs=windowsinstall&pivots=programming-language-nodejs
 
-const { Writable } = require("stream");
 const { clerks } = require("./global");
 
 const fs = require("fs");
 
-// Microsoft Azure Speech
-const sdk = require("microsoft-cognitiveservices-speech-sdk");
-const { subKey, servReg } = require("./config");
-const { time } = require("console");
-const speechConfig = sdk.SpeechConfig.fromSubscription(subKey, servReg);
-speechConfig.speechRecognitionLanguage = "ko-KR";
-
-// var filestream;
-// var filename;
-
 module.exports = function (io, socket) {
   // Variables for maintaining infinite stream of recognition.
-  const streamingLimit = 290000; // streaming limit in ms. (~5 minutes)
-  let restartCounter = 0;
-  let audioInput = [];
-  let lastAudioInput = [];
-  let resultEndTime = 0;
-  let isFinalEndTime = 0;
-  let finalRequestEndTime = 0;
-  let newStream = true;
-  let bridgingOffset = 0;
+  const streamingLimit = 60000; // streaming limit in ms. (~1 minutes)
   let restartTimeout = null;
 
-  //// AZURE
-  let pushStream = null;
-  let audioConfig = null;
-  let recognizer = null;
-
-  // Callback to be called when a response (transcript) arrives from API.
-  const speechCallback = (data) => {
-    let clerk = clerks.get(socket.room_id);
-
-    // Convert API result end time from seconds + nanoseconds to milliseconds
-    resultEndTime =
-      Math.round(data.offset / 1000000) +
-      Math.round(data.duration / 1000000);
-
-    // Calculate correct time (considering restarts)
-    // based on offset from audio sent twice
-    const correctedTime =
-      resultEndTime - bridgingOffset + streamingLimit * restartCounter;
-
-    let transcript = data.text;
-
-    // Paragraph switch timer should be reset when someone starts talking.
-    clerk.clearSwitchTimeout();
-    clerk.startSwitchTimeout();
-
-    // Clerk accumulates these full sentences ("final" results)
-    console.log(`${correctedTime}(${socket.name}): ${transcript}`);
-
-    // When speaker changes, paragraph switches.
-    if (clerk.speakerId !== socket.id) {
-      clerk.switchParagraph(socket.id, socket.name, transcript);
-    } else {
-      clerk.appendTranscript(transcript);
-    }
-
-    isFinalEndTime = resultEndTime;
-  };
-
-  // Interface between input audio stream and recognition stream.
-  // Acts as a buffer to smoothe out restarts of recognize stream.
-  const audioInputStreamTransform = new Writable({
-    write(chunk, encoding, next) {
-      // Send audio input chunks if recognition stream restarts.
-      if (newStream && lastAudioInput.length !== 0) {
-        // Approximate duration of each chunk
-        const chunkTime = streamingLimit / lastAudioInput.length;
-        if (chunkTime !== 0) {
-          if (bridgingOffset < 0) {
-            bridgingOffset = 0;
-          }
-          if (bridgingOffset > finalRequestEndTime) {
-            bridgingOffset = finalRequestEndTime;
-          }
-          const chunksFromMS = Math.floor(
-            (finalRequestEndTime - bridgingOffset) / chunkTime
-          );
-          bridgingOffset = Math.floor(
-            (lastAudioInput.length - chunksFromMS) * chunkTime
-          );
-
-          for (let i = chunksFromMS; i < lastAudioInput.length; i++) {
-            pushStream.write(lastAudioInput[i]);
-          }
-        }
-        newStream = false;
-      }
-
-      // Store audio input for next restart.
-      audioInput.push(chunk);
-
-      if (pushStream) {
-        pushStream.write(chunk);
-      }
-
-      next();
-    },
-
-    final() {
-      if (pushStream) {
-        pushStream.close();
-      }
-    },
-  });
-
   function startStream() {
-    console.log(
-      `Recognition starting by ${socket.name} in ${socket.room_id}`
-    );
-
-    // Clear current audioInput (buffered audio)
-    audioInput = [];
-
-    // Create audioConfig for get audio input for stream
-    pushStream = sdk.AudioInputStream.createPushStream();
-    audioConfig = sdk.AudioConfig.fromStreamInput(
-      pushStream,
-      sdk.AudioStreamFormat.getDefaultInputFormat()
-    );
-
-    // Define recognizer
-    // Document: https://docs.microsoft.com/ko-kr/javascript/api/microsoft-cognitiveservices-speech-sdk/speechrecognizer?view=azure-node-latest#recognized
-    recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
-
-    // The event recognized signals that a final recognition result is received.
-    recognizer.recognized = (s, e) => {
-      if (e.result.reason === sdk.ResultReason.NoMatch) {
-        const noMatchDetail = sdk.NoMatchDetails.fromResult(e.result);
-        console.log(
-          "(recognized)  Reason: " +
-          sdk.ResultReason[e.result.reason] +
-          " | NoMatchReason: " +
-          sdk.NoMatchReason[noMatchDetail.reason]
-        );
-      } else {
-        if (e.result.reason === sdk.ResultReason.RecognizedSpeech) {
-          speechCallback(e.result);
-        } else {
-          console.log(
-            "ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly."
-          );
-        }
-      }
-    };
-
-    // Event handler for speech stopped events.
-    recognizer.speechEndDetected = (s, e) => {
-      console.log("\n  Speech End Detected!!");
-      audioInput = [];
-      lastAudioInput = [];
-    };
-
-    // Event handler for speech started events.
-    recognizer.speechStartDetected = (s, e) => {
-      console.log("\n  Speech Start Detected!!");
-    };
-
-    // The event canceled signals that an error occurred during recognition.
-    recognizer.canceled = (s, e) => {
-      console.log(`CANCELED: Reason=${e.reason}`);
-
-      if (e.reason == CancellationReason.Error) {
-        console.log(`"CANCELED: ErrorCode=${e.errorCode}`);
-        console.log(`"CANCELED: ErrorDetails=${e.errorDetails}`);
-        console.log("CANCELED: Did you update the subscription info?");
-      }
-      audioInput = [];
-      lastAudioInput = [];
-    };
-
-    // Event handler for session stopped events.
-    recognizer.sessionStopped = (s, e) => {
-      console.log("\n    Session stopped event.");
-      audioInput = [];
-      lastAudioInput = [];
-    };
-
-    // Starts speech recognition, until stopContinuousRecognitionAsync() is called.
-    recognizer.startContinuousRecognitionAsync(
-      () => {
-        console.log("Recognition started");
-      },
-      (err) => {
-        console.trace("err - " + err);
-        recognizer.close();
-      }
-    );
-
+    // clerks.get(socket.room_id).speakerId = null;
     // Restart stream when it is about to exceed streamingLimit.
     restartTimeout = setTimeout(() => {
       restartStream();
@@ -210,10 +26,7 @@ module.exports = function (io, socket) {
       clearTimeout(restartTimeout);
       restartTimeout = null;
     }
-    if (pushStream) {
-      // Stops continuous speech recognition.
-      recognizer.stopContinuousRecognitionAsync();
-    }
+    // clerks.get(socket.room_id).requestSummary();
     console.log(`Recognition from ${socket.name} ended.`);
   }
 
@@ -221,18 +34,8 @@ module.exports = function (io, socket) {
   function restartStream() {
     stopStream();
 
-    if (resultEndTime > 0) {
-      finalRequestEndTime = isFinalEndTime;
-    }
-    resultEndTime = 0;
-
-    lastAudioInput = [];
-    lastAudioInput = audioInput;
-
-    restartCounter++;
-    console.log(`${streamingLimit * restartCounter}: RESTARTING REQUEST`);
-
-    newStream = true;
+    console.log(`Recognition from ${socket.name}: RESTARTING REQUEST`);
+    clerks.get(socket.room_id).requestSummary();
     startStream();
   }
 
@@ -246,40 +49,35 @@ module.exports = function (io, socket) {
 
   // socket event listeners
   socket.on("startRecognition", () => {
-    // startStream();
+    startStream();
     console.log(
       `Recognition starting by ${socket.name} in ${socket.room_id}`
     );
-    // filename = socket.room_id+"_"+socket.name+"_"+timestamp+".wav";
-    // filestream = fs.createWriteStream(filename, { flags: 'a' });
   });
 
   socket.on("binaryAudioData", (data, timestamp) => {
-    // audioInputStreamTransform.write(data);
-    let filename = socket.room_id+"_"+socket.name+"_"+timestamp+".webm";
+    let filename = "./webm/"+socket.room_id+"_"+socket.name+"_"+timestamp+".webm";
     let filestream = fs.createWriteStream(filename, { flags: 'a' });
     filestream.write(Buffer.from(new Uint8Array(data)), (err) => {
       if (err) throw err;
       console.log(timestamp);
     })
     filestream.close();
-    // filestream.write(Buffer.from(new Uint8Array(data)));
-    // console.log(timestamp);
   });
 
-  socket.on("requestSTT", (timestamp) => {
+  socket.on("requestSTT", (timestamp, islast) => {
     console.log("requestSTT: "+timestamp);
-    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.name, timestamp);
-    // var newfilename = socket.room_id+"_"+socket.name+"_"+timestamp+".wav";
-    // var newfilestream = fs.createWriteStream(newfilename, { flags: 'a' });
-    // filestream.close();
-    // filestream = newfilestream;
-    // // TODO: convert file and send signal to STT server
-    // filename = newfilename;
+    console.log(islast);
+    let clerk = clerks.get(socket.room_id);
+    // When speaker changes, paragraph switches.
+    if (clerk.speakerId !== socket.id) {
+      clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, timestamp, true, islast);
+    } else {
+      clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, timestamp, false, islast);
+    }
   })
 
   socket.on("endRecognition", () => {
-    // filestream.close();
     stopStream();
   });
 

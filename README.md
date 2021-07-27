@@ -25,13 +25,16 @@ The video conferencing feature is built over [Mediasoup video conferencing](http
 - `$ cd package_python`
 - `$ pip install .` (Done.)
 
-3. Run `npm run summarizer` in the `summarizer` directory. It also takes some time to start listening. It will listen for summary request from **Moderator server**.
+3. Check if there is `summarizer/wav` directory. If not, make `wav` directory.
+
+4. Run `npm run summarizer` in the `summarizer` directory. It also takes some time to start listening. It will listen for summary request from **Moderator server**.
 
 ### Moderator server
 
 1. (required) Change name of `moderator/config.example.js` into `config.js`, then add Microsoft Azure STT's subscription key(subKey) and service region(servReg) in the `moderator/config.js` file.
 2. run `npm install` in `moderator` directory.
-3. run `npm run moderator` in `moderator` directory. It will start listening for transcription requests from clients accessing through **Media server**.
+3. Check if there is `moderator/webm` directory. If not, make `webm` directory.
+4. run `npm run moderator` in `moderator` directory. It will start listening for transcription requests from clients accessing through **Media server**.
 
 ### Media Server
 

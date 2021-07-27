@@ -100,11 +100,11 @@ function onTranscript(transcript, name, timestamp) {
   }
   // Append the new transcript to the old paragraph.
   let paragraph = messageBox.childNodes[3].childNodes[1];
-  paragraph.textContent += transcript + " ";
+  paragraph.textContent = transcript;
 
   let abSummaryBox = messageBox.childNodes[1];
   let abSummaryEl = abSummaryBox.childNodes[0];
-  abSummaryEl.textContent = "Summarizing...";
+  abSummaryEl.textContent = transcript;
 }
 
 // Event listener on summary arrival.

@@ -24,37 +24,41 @@ module.exports = class Clerk {
     this.timestamp = null;
   }
 
-  /**
-   * Possibly clears switchTimeout if one exists.
-   */
-  clearSwitchTimeout() {
-    if (this.switchTimeout !== null) {
-      clearTimeout(this.switchTimeout);
-      this.switchTimeout = null;
-    }
-  }
+  // /**
+  //  * Possibly clears switchTimeout if one exists.
+  //  */
+  // clearSwitchTimeout() {
+  //   if (this.switchTimeout !== null) {
+  //     clearTimeout(this.switchTimeout);
+  //     this.switchTimeout = null;
+  //   }
+  // }
 
-  /**
-   * Sets a timer that cuts the paragraph on timeout,
-   * and send request for a summary for that paragraph.
-   */
-  startSwitchTimeout() {
-    this.clearSwitchTimeout();
-    this.switchTimeout = setTimeout(() => {
-      if (this.speakerId !== null) {
-        this.requestSummary();
-      }
-      this.speakerId = null;
-      this.speakerName = null;
-      this.paragraph = "";
-      this.switchTimeout = null;
-    }, SILENCE_LIMIT);
-  }
+  // /**
+  //  * Sets a timer that cuts the paragraph on timeout,
+  //  * and send request for a summary for that paragraph.
+  //  */
+  // startSwitchTimeout() {
+  //   this.clearSwitchTimeout();
+  //   this.switchTimeout = setTimeout(() => {
+  //     if (this.speakerId !== null) {
+  //       this.requestSummary();
+  //     }
+  //     this.speakerId = null;
+  //     this.speakerName = null;
+  //     this.paragraph = "";
+  //     this.switchTimeout = null;
+  //   }, SILENCE_LIMIT);
+  // }
 
   /**
    * Cuts the paragraph and request summary, then switch to a new paragraph.
    */
-  switchParagraph(nextSpeakerId, nextSpeakerName, nextTranscript) {
+  switchParagraph(nextSpeakerId, nextSpeakerName, nextTranscript, nextTimeStamp, isLast) {
+    console.log("switchParagraph");
+
+    console.log(isLast);
+    console.log(typeof isLast);
     // There might not be a paragraph, thus should check this condition.
     if (this.speakerId !== null) {
       this.requestSummary();
@@ -62,23 +66,35 @@ module.exports = class Clerk {
     this.speakerId = nextSpeakerId;
     this.speakerName = nextSpeakerName;
     this.paragraph = nextTranscript;
-    this.timestamp = Date.now();
+    this.timestamp = nextTimeStamp;
 
     this.publishTranscript(nextTranscript, this.speakerName, this.timestamp);
+    if (isLast) {
+      this.requestSummary();
+    }
   }
 
   /**
    * Appends a transcript to the paragraph.
    */
-  appendTranscript(transcript) {
+  appendTranscript(transcript, isLast) {
+    console.log("appendTranscript: ", this.timestamp);
+    console.log(isLast);
+    console.log(transcript);
+    
     this.paragraph += " " + transcript;
-    this.publishTranscript(transcript, this.speakerName, this.timestamp);
+    console.log(this.paragraph);
+    this.publishTranscript(this.paragraph, this.speakerName, this.timestamp);
+    if (isLast) {
+      this.requestSummary();
+    }
   }
 
   /**
    * Broadcasts a transcript to the room.
    */
   publishTranscript(transcript, name, timestamp) {
+    console.log("publishTranscript")
     if (transcript.split(' ')[0].length == 0) return;
     this.io.sockets
       .to(this.room_id)
@@ -90,10 +106,15 @@ module.exports = class Clerk {
    * broadcasts the result with given confidence level.
    */
   requestSummary() {
+    console.log("requestSummary");
     let paragraph = this.paragraph;
     let speakerId = this.speakerId;
     let speakerName = this.speakerName;
     let timestamp = this.timestamp;
+    this.speakerId = null;
+    this.speakerName = null;
+    this.paragraph = "";
+    this.switchTimeout = null;
 
     if (paragraph.split(' ')[0].length == 0) return;
 
@@ -101,9 +122,17 @@ module.exports = class Clerk {
       .post(
         // TODO: include in config.js
         config.summaryHost,
-        `userId=${speakerId}&content=${paragraph}`
+        {
+          type: "requestSummary",
+          user: speakerId,
+          content: paragraph,
+        },
+        {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
       )
       .then((response) => {
+        console.log("request Summary Success!")
         let summary, summaryArr;
         if (response.status === 200) {
           summary = response.data;
@@ -135,6 +164,7 @@ module.exports = class Clerk {
           .emit("summary", summaryArr, confArr, speakerName, timestamp);
       })
       .catch((e) => {
+        console.log("request Summary Fail!")
         let summaryArr = [paragraph, paragraph]
         let confArr = [-1, -1];
 
@@ -148,8 +178,14 @@ module.exports = class Clerk {
     axios
       .post(
         // TODO: include in config.js
-        config.summaryHost,
-        `userId=${editor}&content=${paragraph}`
+        {
+          type: "requestSummary",
+          user: editor,
+          content: paragraph,
+        },
+        {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
       )
       .then((response) => {
         let summary, summaryArr;
@@ -201,13 +237,14 @@ module.exports = class Clerk {
       .emit("updateSummary", type, content, timestamp);
   }
 
-  requestSTT(roomID, user, timestamp) {
-    let speakerName = this.speakerName;
+  requestSTT(roomID, userID, user, timestamp, isNew, isLast) {
+    if (isNew) { this.speakerId = userID; }
     axios
       .post(
         // TODO: include in config.js
         config.summaryHost,
         {
+          type: "requestSTT",
           roomID,
           user,
           timestamp,
@@ -218,52 +255,22 @@ module.exports = class Clerk {
       )
       .then((response) => {
         console.log("requset success");
-        let summary, summaryArr;
+        let transcript;
         if (response.status === 200) {
-          summary = response.data;
+          transcript = response.data;
         }
 
-        // TODO: Get the real confidence value.
-        let confArr = [1, 1]; //Math.random();
-        // No summary: just emit the paragraph with an indication that
-        // it is not a summary (confidence === -1).
-        let transcript;
-        if (!summary) {
-          summaryArr = [paragraph, paragraph]
-          confArr = [-1, -1];
+        // new speaker :: new to switch to a new paragraph
+        if (isNew) {
+          this.switchParagraph(userID, user, transcript, timestamp, isLast);
         }
         else {
-          console.log("SUMMARY::::::")
-          console.log(summary);
-
-          // Parse returned summary
-          transcript = summary.split("@@@@@txt@@@@@")[0];
-          summary = summary.split("@@@@@txt@@@@@")[1];
-          // Parse returned summary
-          let summary_text = summary.split("@@@@@CF@@@@@")[0];
-          const confidence_score = parseFloat(summary.split("@@@@@CF@@@@@")[1]);
-          confArr[0] = confidence_score;
-
-          // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
-          summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
+          this.appendTranscript(transcript, isLast);
         }
-
-        this.io.sockets.to(this.room_id).emit("transcript", transcript, speakerName, timestamp);
-
-        this.io.sockets
-          .to(this.room_id)
-          .emit("summary", summaryArr, confArr, speakerName, timestamp);
       })
       .catch((e) => {
         console.log("CATCH - requestSTT");
         console.log(e);
-
-        // let summaryArr = [paragraph, paragraph]
-        // let confArr = [-1, -1];
-
-        // this.io.sockets
-        //   .to(this.room_id)
-        //   .emit("updateParagraph", paragraph, summaryArr, confArr, timestamp);
       });
   }
 };

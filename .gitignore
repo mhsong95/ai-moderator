@@ -114,7 +114,6 @@ summarizer/config.ini
 # vscode settings
 .vscode
 
-
 # pycache
 __pycache__
 __init__.py
@@ -123,3 +122,7 @@ __init__.pyc
 #json / lock for KoBERT
 summarizer/KoBertSum/temp/
 summarizer/KoBertSum/ext/
+
+# audio files
+*.wav
+*.webm

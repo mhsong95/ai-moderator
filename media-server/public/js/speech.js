@@ -33,7 +33,8 @@ function startRecord(track) {
       let now = Date.now();
       if (timestamp + 30000 < now) {
         mediaRecorder.stop();
-        moderatorSocket.emit("requestSTT", timestamp);
+        let islast = false;
+        moderatorSocket.emit("requestSTT", timestamp, islast);
         startRecord(track);
       }
     }
@@ -41,8 +42,9 @@ function startRecord(track) {
 }
 
 rc.on(RoomClient.EVENTS.stopAudio, () => {
+  let islast = true;
+  moderatorSocket.emit("requestSTT", lastStamp, islast);
   moderatorSocket.emit("endRecognition");
-  moderatorSocket.emit("requestSTT", lastStamp);
   closeAll();
 });
 
@@ -53,23 +55,4 @@ rc.on(RoomClient.EVENTS.stopAudio, () => {
 function closeAll() {
   // Clear the listeners (prevents issue if opening and closing repeatedly)
   moderatorSocket.off("recognitionError");
-
-  // if (processor) {
-  //   if (input) {
-  //     try {
-  //       input.disconnect(processor);
-  //     } catch (error) {
-  //       console.warn("Attempt to disconnect input failed.");
-  //     }
-  //   }
-  //   processor.disconnect(context.destination);
-  // }
-  // if (context) {
-  //   context.close().then(function () {
-  //     input = null;
-  //     processor = null;
-  //     context = null;
-  //     AudioContext = null;
-  //   });
-  // }
 }

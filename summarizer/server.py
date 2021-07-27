@@ -392,60 +392,66 @@ class echoHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('Content-Length'))
         post_body = self.rfile.read(content_len).decode('utf-8')
         fields = json.loads(post_body)
-        roomID = fields["roomID"]
-        user = fields["user"]
-        timestamp = fields["timestamp"]
+        if fields["type"] == "requestSTT":
+            print("REQUEST::::::STT")
+            roomID = fields["roomID"]
+            user = fields["user"]
+            timestamp = fields["timestamp"]
 
-        # convert file type
-        inputfile = "../moderator/"+roomID+"_"+user+"_"+str(timestamp)+".webm"
-        outputfile = "./"+roomID+"_"+user+"_"+str(timestamp)+".wav"
-        convert_and_split(inputfile, outputfile)
-        
-        # run STT
-        stt_res = ClovaSpeechClient(invoke_url, secret).req_upload(file=outputfile, completion='sync')
-        print(stt_res.text)
-        print(json.loads(stt_res.text)['text'])
-        
-        text = json.loads(stt_res.text)['text']
-        res = text + "@@@@@txt@@@@@"
-
-        # Get summaries
-        pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
-
-        # Extract combined keywords
-        keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
-        # Extract Top 10 trending keywords
-        top10_trending = get_trending_keyword(keywordList)
-
-        # Calculate confidence score
-        abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
-        if abs_summary == "" or abs_summary.strip()==text.strip():
-            abs_summary = text
-            ab_confidence_score = 1
-        else :
-            ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList) 
+            # convert file type
+            inputfile = "../moderator/webm/"+roomID+"_"+user+"_"+str(timestamp)+".webm"
+            outputfile = "./wav/"+roomID+"_"+user+"_"+str(timestamp)+".wav"
+            convert_and_split(inputfile, outputfile)
             
-        print("CONFIDENCE_SCORE", ab_confidence_score)
-        ext_summary = ext_summary if ext_summary!= "" else text
+            # run STT
+            stt_res = ClovaSpeechClient(invoke_url, secret).req_upload(file=outputfile, completion='sync')
+            print(stt_res.text)
+            print(json.loads(stt_res.text)['text'])
+            
+            text = json.loads(stt_res.text)['text']
+            res = text
+        elif fields["type"] == "requestSummary":
+            print("REQUEST::::::SUMMARY")
+            speaker = fields["user"]
+            text = fields["content"]
+            
+            # Get summaries
+            pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
 
-        # Concatenate summaries, keywords, trending keywords
-        keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
-        trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
-        res += '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
-        res += "@@@@@CF@@@@@" + str(ab_confidence_score) 
+            # Extract combined keywords
+            keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
+            # Extract Top 10 trending keywords
+            top10_trending = get_trending_keyword(keywordList)
 
-        # Print results
-        print('Abstractive:::\n%s' % abs_summary)
-        print('Extractive:::\n%s' % ext_summary)
-        print('Keywords:::')
-        for keyword in keywordList:
-            print("#%s " % keyword, end="")
-        print('\nTrending Keywords:::')
-        n = 1
-        for keyword in top10_trending:
-            print("%d. %s " % (n, keyword), end="")
-            n += 1
-        print()
+            # Calculate confidence score
+            abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
+            if abs_summary == "":
+                abs_summary = text
+                ab_confidence_score = 1
+            else :
+                ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList) 
+                
+            print("CONFIDENCE_SCORE", ab_confidence_score)
+            ext_summary = ext_summary if ext_summary!= "" else text
+
+            # Concatenate summaries, keywords, trending keywords
+            keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
+            trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
+            res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
+            res += "@@@@@CF@@@@@" + str(ab_confidence_score) 
+
+            # Print results
+            print('Abstractive:::\n%s' % abs_summary)
+            print('Extractive:::\n%s' % ext_summary)
+            print('Keywords:::')
+            for keyword in keywordList:
+                print("#%s " % keyword, end="")
+            print('\nTrending Keywords:::')
+            n = 1
+            for keyword in top10_trending:
+                print("%d. %s " % (n, keyword), end="")
+                n += 1
+            print()
 
         self.send_response(200)
         self.send_header('content-type', 'text/html')
