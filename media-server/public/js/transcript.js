@@ -241,6 +241,12 @@ function editContent(type, timestamp) {
     case "paragraph":
       let paragraph = messageBox.childNodes[3].childNodes[1];
       paragraph.contentEditable = "true";
+      paragraph.addEventListener("keydown", function(event){
+        // event.preventDefault();
+        if (event.keyCode === 13 ){
+          finishEditContent("paragraph", oldtxt, timestamp);
+        }
+      });
 
       // change icon
       console.log(paragraph);
@@ -250,13 +256,17 @@ function editContent(type, timestamp) {
       toEditingIcon(paragraph.childNodes[1])
 
       oldtxt = paragraph.textContent;
-
       paragraph.childNodes[1].onclick = function () { finishEditContent("paragraph", oldtxt, timestamp); };
 
       break;
     case "absum":
       let abSummary = messageBox.childNodes[1].childNodes[0];
       abSummary.contentEditable = "true";
+      abSummary.addEventListener("keydown", function(event){
+        if (event.keyCode === 13 ){
+          finishEditContent("absum", oldtxt, timestamp);
+        }
+      });
 
       // change icon
       console.log(abSummary);
@@ -373,6 +383,7 @@ function displayTrendingBox10() {
   displayUnitOfBox();
 }
 ////////// Display boxes with trending keywords ////////////
+var highlighter = new Hilitor();
 
 function displayUnitOfBox() {
   let searchword = document.getElementById("search-word").value
@@ -381,7 +392,7 @@ function displayUnitOfBox() {
   // let abSummaryBoxes = document.getElementsByClassName("ab-summary-box");
 
   for (var i = 0; i < messageBoxes.length; i++) { // access each i-th index of boxes at the same time
-    let isfiltered = paragraphs[i].textContent.includes(searchword);
+    let isfiltered = paragraphs[i].textContent.includes(searchword.trim());
 
     let messageBox = messageBoxes[i];
     let paragraph = paragraphs[i];
@@ -389,7 +400,12 @@ function displayUnitOfBox() {
 
     displayBox(true && isfiltered, messageBox, displayYes);
     // displayBox(true && isfiltered, paragraph, displayYes);
+  }
 
+  if (searchword == ""){
+    highlighter.remove();
+  }else {
+    highlighter.apply(searchword);
   }
 }
 
@@ -685,4 +701,147 @@ function confidenceElement(confidence) {
   elem.textContent = emoji + " " + percentage;
 
   return elem;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////       HIGHLIGHTER              /////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+// Original JavaScript code by Chirp Internet: chirpinternet.eu
+// Please acknowledge use of this code by including this header.
+
+function Hilitor(id, tag)
+{
+
+  // private variables
+  var targetNode = document.getElementById(id) || document.body;
+  var hiliteTag = tag || "MARK";
+  var skipTags = new RegExp("^(?:" + hiliteTag + "|SCRIPT|FORM|SPAN)$");
+  var colors = ["#ff6"] 
+  var wordColor = [];
+  var colorIdx = 0;
+  var matchRegExp = "";
+  var openLeft = false;
+  var openRight = false;
+
+  // characters to strip from start and end of the input string
+  var endRegExp = new RegExp('^[^\\w]+|[^\\w]+$', "g");
+
+  // characters used to break up the input string into words
+  var breakRegExp = new RegExp('[^\\w\'-]+', "g");
+
+  this.setEndRegExp = function(regex) {
+    endRegExp = regex;
+    return endRegExp;
+  };
+
+  this.setBreakRegExp = function(regex) {
+    breakRegExp = regex;
+    return breakRegExp;
+  };
+
+  this.setMatchType = function(type)
+  {
+    switch(type)
+    {
+      case "left":
+        this.openLeft = false;
+        this.openRight = true;
+        break;
+
+      case "right":
+        this.openLeft = true;
+        this.openRight = false;
+        break;
+
+      case "open":
+        this.openLeft = this.openRight = true;
+        break;
+
+      default:
+        this.openLeft = this.openRight = false;
+
+    }
+  };
+
+  this.setRegex = function(input)
+  {
+    // input = input.replace(endRegExp, "");
+    // input = input.replace(breakRegExp, "|");
+    // input = input.replace(/^\||\|$/g, "");
+    if(input) {
+      // var re = "(" + input + ")";
+      // if(!this.openLeft) {
+      //   re = "\\b" + re;
+      // }
+      // if(!this.openRight) {
+      //   re = re + "\\b";
+      // }
+      var re = "("+input+")"
+      matchRegExp = new RegExp(re, "i");
+      return matchRegExp;
+    }
+    return false;
+  };
+
+  this.getRegex = function()
+  {
+    var retval = matchRegExp.toString();
+    retval = retval.replace(/(^\/(\\b)?|\(|\)|(\\b)?\/i$)/g, "");
+    retval = retval.replace(/\|/g, " ");
+    return retval;
+  };
+
+  // recursively apply word highlighting
+  this.hiliteWords = function(node)
+  {
+    if(node === undefined || !node) return;
+    if(!matchRegExp) return;
+    if(skipTags.test(node.nodeName)) return;
+
+    if(node.hasChildNodes()) {
+      for(var i=0; i < node.childNodes.length; i++)
+        this.hiliteWords(node.childNodes[i]);
+    }
+    if(node.nodeType == 3) { // NODE_TEXT
+      if((nv = node.nodeValue) && (regs = matchRegExp.exec(nv))) {
+        if(!wordColor[regs[0].toLowerCase()]) {
+          wordColor[regs[0].toLowerCase()] = colors[colorIdx++ % colors.length];
+        }
+        var match = document.createElement(hiliteTag);
+        match.appendChild(document.createTextNode(regs[0]));
+        match.style.backgroundColor = wordColor[regs[0].toLowerCase()];
+        match.style.color = "#000";
+
+        var after = node.splitText(regs.index);
+        after.nodeValue = after.nodeValue.substring(regs[0].length);
+        node.parentNode.insertBefore(match, after);
+      }
+    };
+  };
+
+  // remove highlighting
+  this.remove = function()
+  {
+    var arr = document.getElementsByTagName(hiliteTag);
+    while(arr.length && (el = arr[0])) {
+      var parent = el.parentNode;
+      parent.replaceChild(el.firstChild, el);
+      parent.normalize();
+    }
+  };
+
+  // start highlighting at target node
+  this.apply = function(input)
+  {
+    this.remove();
+    if(input === undefined || !(input = input.replace(/(^\s+|\s+$)/g, ""))) {
+      return;
+    }
+    if(this.setRegex(input)) {
+      this.hiliteWords(targetNode);
+    }
+    return matchRegExp;
+  };
+
 }

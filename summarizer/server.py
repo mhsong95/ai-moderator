@@ -338,7 +338,7 @@ class echoHandler(BaseHTTPRequestHandler):
 
         # Calculate confidence score
         abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
-        if abs_summary == "":
+        if abs_summary == "" or abs_summary.strip()==text.strip():
             abs_summary = text
             ab_confidence_score = 1
         else :
