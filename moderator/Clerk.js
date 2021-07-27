@@ -123,9 +123,8 @@ module.exports = class Clerk {
 
           // Parse returned summary
           let summary_text = summary.split("@@@@@CF@@@@@")[0];
-          const newLocal =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
-          const newLocal_1 =  parseFloat(summary.split("@@@@@CF@@@@@")[2]);
-          confArr = [newLocal, newLocal_1];
+          const confidence_score =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
+          confArr[0] = confidence_score;
 
           // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
           summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
@@ -171,11 +170,11 @@ module.exports = class Clerk {
           console.log(summary);
 
           // Parse returned summary
-          summary_text = summary.split("@@@@@CF@@@@@")[0];
-          const newLocal =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
-          const newLocal_1 =  parseFloat(summary.split("@@@@@CF@@@@@")[2]);
-          confArr = [newLocal, newLocal_1];
+          let summary_text = summary.split("@@@@@CF@@@@@")[0];
+          const confidence_score =  parseFloat(summary.split("@@@@@CF@@@@@")[1]);
+          confArr[0] = confidence_score;
 
+          // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
           summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
         }
 
