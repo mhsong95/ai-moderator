@@ -20,7 +20,7 @@ const Clerk = require("./Clerk");
 const { clerks } = require("./global");
 
 // Use msspeechHandler.js for ko-KR transcript
-const registerSpeechHandler = require("./msspeechHandler");
+const registerSpeechHandler = require("./audioFileHandler");
 
 // Use speechHandler.js for en-US transcript
 // const registerSpeechHandler = require("./speechHandler");
