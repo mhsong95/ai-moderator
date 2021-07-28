@@ -25,6 +25,7 @@ moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
 var keywordMap = {};
+var favoriteSummary = {};
 var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
@@ -140,6 +141,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
     if (favoriteKeywords.includes(keyword)) {
       keywordBtn.style.backgroundColor = "#fed7bf";
+      favoriteSummary[keyword] += " " + summaryArr[0];
     }
     else {
       keywordBtn.style.backgroundColor = "transparent";
@@ -440,6 +442,7 @@ function addFavorite() {
         displayUnitOfBox();
         createSummaryBox(keyInput.value);
       };
+      favoriteSummary[keyInput.value] = "";
       keyInput.remove();
       keywordList.append(myKeyword);
       checkBoxWithKey(myKeyword.innerHTML.slice(1));
@@ -457,11 +460,13 @@ function checkBoxWithKey(keyword) {
     if (keywordMap[timestamp].includes(keyword)) {
       let keywordBox = messageBox.childNodes[2];
       for (keywordBtn of keywordBox.childNodes) {
-        if (keywordBtn.innerHTML.slice(1) === keyword) {
+        let keywordEx = keywordBtn.innerHTML.slice(1);
+        if (keywordEx === keyword) {
           keywordBtn.style.backgroundColor = "#fed7bf";
         }
       }
     }
+    favoriteSummary[keyword] += " " + messageBox.childNodes[1].childNodes[0].textContent.slice(10);
   }
 }
 
@@ -484,7 +489,8 @@ function createSummaryBox(keyword) {
   // summaryBox.childNodes[1]: Includes abstract summary
   let abSummaryBox = document.createElement("div");
   let abSummary = document.createElement("p");
-  abSummary = "Not done yet!";
+  // abSummary.textContent = "Not done yet!";
+  abSummary.textContent = favoriteSummary[keyword];
   abSummaryBox.style.fontSize = "medium";
   abSummaryBox.style.marginLeft = "5px";
   abSummaryBox.style.marginTop = "1em";
