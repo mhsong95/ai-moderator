@@ -178,6 +178,7 @@ module.exports = class Clerk {
     axios
       .post(
         // TODO: include in config.js
+        config.summaryHost,
         {
           type: "requestSummary",
           user: editor,
