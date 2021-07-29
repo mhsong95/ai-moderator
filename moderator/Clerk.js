@@ -143,8 +143,8 @@ module.exports = class Clerk {
         // No summary: just emit the paragraph with an indication that
         // it is not a summary (confidence === -1).
         if (!summary) {
-          summaryArr = [paragraph, paragraph]
-          confArr = [-1, -1];
+          summaryArr = [paragraph, paragraph, "", ""];
+          confArr = [0, 0];
         }
         else {
           console.log("SUMMARY::::::");
@@ -165,8 +165,8 @@ module.exports = class Clerk {
       })
       .catch((e) => {
         console.log("request Summary Fail!")
-        let summaryArr = [paragraph, paragraph]
-        let confArr = [-1, -1];
+        let summaryArr = [paragraph, paragraph, "", ""];
+        let confArr = [0, 0];
 
         this.io.sockets
           .to(this.room_id)
@@ -178,6 +178,7 @@ module.exports = class Clerk {
     axios
       .post(
         // TODO: include in config.js
+        config.summaryHost,
         {
           type: "requestSummary",
           user: editor,
@@ -198,8 +199,8 @@ module.exports = class Clerk {
         // No summary: just emit the paragraph with an indication that
         // it is not a summary (confidence === -1).
         if (!summary) {
-          summaryArr = [paragraph, paragraph]
-          confArr = [-1, -1];
+          summaryArr = [paragraph, paragraph, "", ""];
+          confArr = [0, 0];
         }
         else {
           console.log("SUMMARY::::::")
@@ -221,8 +222,8 @@ module.exports = class Clerk {
       .catch((e) => {
         console.log("CATCH - updateParagraph");
 
-        let summaryArr = [paragraph, paragraph]
-        let confArr = [-1, -1];
+        let summaryArr = [paragraph, paragraph, "", ""];
+        let confArr = [0, 0];
 
         this.io.sockets
           .to(this.room_id)

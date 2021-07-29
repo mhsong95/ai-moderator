@@ -11,7 +11,7 @@ import os
 import configparser
 
 config = configparser.ConfigParser()
-config.read(os.getcwd() + os.sep + 'config.ini', encoding='utf-8')
+config.read(os.getcwd().split("ai-moderator")[0]+"ai-moderator"+ os.sep + "summarizer" +os.sep+ 'config.ini', encoding='utf-8')
 
 # Clova Speech invoke URL
 invoke_url = config['Clova_STT']['invoke_url']
@@ -63,8 +63,8 @@ kobert_model = KOBERT_SUMMARIZER()
 # Ko-BART
 import torch
 from kobart import get_kobart_tokenizer
-# from transformers.modeling_bart import BartForConditionalGeneration 
-from transformers.models.bart import BartForConditionalGeneration
+from transformers.modeling_bart import BartForConditionalGeneration 
+# from transformers.models.bart import BartForConditionalGeneration
 kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart_summary')#, from_tf=True)
 kobart_tokenizer = get_kobart_tokenizer()
 
@@ -316,8 +316,8 @@ def get_confidence_score(summary, compare_summarylist, keywordList):
 def select_rep_summary(abs_summary1, abs_summary2, ext_summary1, ext_summary2):
     # SELECT Representation summary for each extractive, abstractive summmary
 
-    # abs_summary, abs_compare_summary = abs_summary1, abs_summary2
-    abs_summary, abs_compare_summary = abs_summary2, abs_summary1
+    abs_summary, abs_compare_summary = abs_summary1, abs_summary2
+    # abs_summary, abs_compare_summary = abs_summary2, abs_summary1
     ext_summary, ext_compare_summary = ext_summary1, ext_summary2
 
     if abs_summary == "" and abs_compare_summary != "":
@@ -459,7 +459,7 @@ class echoHandler(BaseHTTPRequestHandler):
         self.wfile.write(res.encode())
 
 def main():
-    PORT = 5555 #5050
+    PORT = 5050
     # PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)

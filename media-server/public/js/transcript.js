@@ -45,12 +45,14 @@ window.addEventListener('scroll', function ( event ) {
 }, false);
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
+  console.log("ON UPDATEPARAGRAPH - timestamp="+timestamp);
+
   let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[3].childNodes[1];
-  let abSummaryEl = messageBox.childNodes[1].childNodes[0];
+  let abSummaryEl = messageBox.childNodes[1];
+  let speaker = messageBox.childNodes[0].childNodes[0].childNodes[0].textContent; //messageBox.title.nametag.strong.textContent  
 
   paragraph.textContent = newParagraph;
-  abSummaryEl.textContent = "[Summary]\n" + summaryArr[0];
 
   rc.addUserLog(Date.now(), 'New paragraph contents: ' + timestamp + '\n'
     + '                [Paragraph] ' + newParagraph + '\n'
@@ -58,12 +60,25 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
+  let confidenceElem = null;
   if (confArr[0] !== -1) {
-    let confidenceElem = confidenceElement(confArr[0]);
-    abSummaryEl.append(confidenceElem);
+    confidenceElem = confidenceElement(confArr[0]);
+    if (confArr[0] < 0.66){
+      messageBox.style.background = UnsureMessage_color ;
+    }
+    else if (confArr[0] < 1){
+      if (user_name === speaker) { messageBox.style.background = SureMessage_Mycolor; }
+      else {  messageBox.style.background = SureMessage_Othercolor; }
+    }
   }
+
+  // ADD summary text and confidence score to summary-box
+  abSummaryEl.childNodes[0].textContent="[Summary]"
+  abSummaryEl.childNodes[0].append(confidenceElem);
+  abSummaryEl.childNodes[1].textContent=summaryArr[0];
+
   addEditBtn(paragraph, "paragraph", timestamp);
-  addEditBtn(abSummaryEl, "absum", timestamp);
+  addEditBtn(abSummaryEl.childNodes[1], "absum", timestamp);
 }
 
 function addEditBtn(area, type, timestamp) {
@@ -78,22 +93,33 @@ function addEditBtn(area, type, timestamp) {
 }
 
 function onUpdateSummary(type, content, timestamp) {
-  console.log("onUpdateSummary");
+  console.log("ON UPDATESUMMARY - timestamp="+timestamp+" / content="+content);
   let messageBox = document.getElementById(timestamp);
   let summaryEl = null;
   let msg = 'New summary contents: ' + timestamp + '\n';
   if (type == "absum") {
-    summaryEl = messageBox.childNodes[1].childNodes[0];
-    msg = msg + '                [AbSummary] ' + summaryArr[0] + '\n';
+    summaryEl = messageBox.childNodes[1];
+    msg = msg + '                [AbSummary] ' + content + '\n';
   }
-  summaryEl.textContent = content;
+
+  // if user change summary, confidence score == 1
+  let speaker = messageBox.childNodes[0].childNodes[0].childNodes[0].textContent;
+  if (user_name === speaker) { messageBox.style.background = SureMessage_Mycolor; }
+  else { messageBox.style.background = SureMessage_Othercolor; }
+
+  summaryEl = messageBox.childNodes[1];
+  let confidenceElem = confidenceElement(1); // if user change summary, confidence score would be 100 % 
+  summaryEl.childNodes[0].textContent="[Summary]"
+  summaryEl.childNodes[0].append(confidenceElem);
+  summaryEl.childNodes[1].textContent=content;
+
   rc.addUserLog(Date.now(), msg);
-  addEditBtn(summaryEl, type, timestamp);
+  addEditBtn(summaryEl.childNodes[1], type, timestamp);
 }
 
 // Event listener on individual transcript arrival.
 function onTranscript(transcript, name, timestamp) {
-  console.log("ONTRANSCRIPT")
+  console.log("ON TRANSCRIPT - timestamp="+timestamp);
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
@@ -103,16 +129,22 @@ function onTranscript(transcript, name, timestamp) {
   paragraph.textContent = transcript;
 
   let abSummaryBox = messageBox.childNodes[1];
-  let abSummaryEl = abSummaryBox.childNodes[0];
-  abSummaryEl.textContent = transcript;
+  abSummaryBox.childNodes[0].textContent="[Transcript]"
+  abSummaryBox.childNodes[1].textContent=transcript;
+
+  // Filtering with new message box
+  displayUnitOfBox(); 
 }
 
 // Event listener on summary arrival.
 function onSummary(summaryArr, confArr, name, timestamp) {
+  console.log("ON SUMMARY - timestamp="+timestamp);
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
+  // Filtering with new message box
+  displayUnitOfBox();
 
   if (confArr[0]< 0.66){
     messageBox.style.background = UnsureMessage_color ;
@@ -125,8 +157,8 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
   let abSummaryBox = messageBox.childNodes[1];
   let keywordBox = messageBox.childNodes[2];
-  let abSummaryEl = abSummaryBox.childNodes[0];
-  abSummaryEl.textContent = "[Summary]\n" + summaryArr[0];
+  // let abSummaryEl = abSummaryBox.childNodes[0];
+  // abSummaryEl.textContent = "[Summary]\n" + summaryArr[0];
 
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   keywordMap[timestamp.toString()] = keywordList;
@@ -180,15 +212,19 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
+
+  abSummaryBox.childNodes[0].textContent="[Summary]"
+  abSummaryBox.childNodes[1].textContent=summaryArr[0];
+
   if (confArr[0] !== -1) {
     let confidenceElem = confidenceElement(confArr[0]);
-    abSummaryEl.append(confidenceElem);
+    abSummaryBox.childNodes[0].append(confidenceElem);
   }
 
   // Add edit button in order to allow user change contents (paragraph, absummary, exsummary)
   // let paragraph = messageBox.childNodes[3].childNodes[0];
   addEditBtn(paragraph, "paragraph", timestamp);
-  addEditBtn(abSummaryEl, "absum", timestamp);
+  addEditBtn(abSummaryBox.childNodes[1], "absum", timestamp);
 
   // Scroll down the messages area.
   // messages.scrollTop = messages.scrollHeight;
@@ -266,7 +302,7 @@ function editContent(type, timestamp) {
 
       break;
     case "absum":
-      let abSummary = messageBox.childNodes[1].childNodes[0];
+      let abSummary = messageBox.childNodes[1].childNodes[1];
       abSummary.contentEditable = "true";
       abSummary.addEventListener("keydown", function(event){
         if (event.keyCode === 13 ){
@@ -319,7 +355,7 @@ function finishEditContent(type, oldtxt, timestamp) {
     default:
       let summary = null;
       if (type == "absum") {
-        summary = messageBox.childNodes[1].childNodes[0];
+        summary = messageBox.childNodes[1].childNodes[1];
       }
       toEditableBg(summary);
       summary.contentEditable = "false";
@@ -392,20 +428,26 @@ function displayTrendingBox10() {
 var highlighter = new Hilitor();
 
 function displayUnitOfBox() {
-  let searchword = document.getElementById("search-word").value
+  let searchword = document.getElementById("search-word").value.trim()
   let messageBoxes = document.getElementsByClassName("message-box");
   let paragraphs = document.getElementsByClassName("paragraph");
   let summaryBox = document.getElementById("summary-for-keyword");
   if (summaryBox) {
     summaryBox.remove();
   }
+  if (searchword != ""){
+    rc.addUserLog(Date.now(), 'Search Word= '+searchword+'\n');
+  }
+
   for (var i = 0; i < messageBoxes.length; i++) { // access each i-th index of boxes at the same time
-    let isfiltered = paragraphs[i].textContent.includes(searchword.trim());
+    let isfiltered = paragraphs[i].textContent.includes(searchword);
 
     let messageBox = messageBoxes[i];
     displayBox(true && isfiltered, messageBox, displayYes);
     // displayBox(true && isfiltered, paragraph, displayYes);
   }
+
+  // highlight with search-word
   if (searchword == ""){
     highlighter.remove();
   }else {
@@ -602,12 +644,19 @@ function createMessageBox(name, timestamp) {
 
   // messageBox.childNodes[1]: includes the abstractive summary and confidence level
   let abSummaryBox = document.createElement("div");
-  let abSummary = document.createElement("p");
   abSummaryBox.className = "ab-summary-box";
   abSummaryBox.style.fontSize = "medium";
   abSummaryBox.style.marginLeft = "5px";
   abSummaryBox.style.marginTop = "1em";
-  abSummaryBox.append(abSummary);
+  // let abSummary = document.createElement("p");
+  // abSummaryBox.append(abSummary);
+
+  let abSummaryTitle = document.createElement("p");
+  let abSummaryContent = document.createElement("p");
+
+  abSummaryBox.append(abSummaryTitle);
+  abSummaryBox.append(abSummaryContent);
+
   messageBox.append(abSummaryBox);
 
   // messageBox.childNodes[2]: includes the keywords
