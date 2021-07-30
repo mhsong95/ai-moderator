@@ -63,8 +63,8 @@ kobert_model = KOBERT_SUMMARIZER()
 # Ko-BART
 import torch
 from kobart import get_kobart_tokenizer
-# from transformers.modeling_bart import BartForConditionalGeneration 
-from transformers.models.bart import BartForConditionalGeneration
+from transformers.modeling_bart import BartForConditionalGeneration 
+# from transformers.models.bart import BartForConditionalGeneration
 kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart_summary')#, from_tf=True)
 kobart_tokenizer = get_kobart_tokenizer()
 
@@ -412,12 +412,23 @@ class echoHandler(BaseHTTPRequestHandler):
             res = text
         elif fields["type"] == "requestSummary":
             print("REQUEST::::::SUMMARY")
-            speaker = fields["user"]
+            keyword = fields["user"]    # Only for overall summary request
             text = fields["content"]
             
-            # Get summaries
-            pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
-
+            try:
+                pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
+            except IndexError:
+                sentences = text.split(". ")
+                newText = ""
+                for sentence in sentences:
+                    if keyword in sentence:
+                        newText += sentence + ". "
+                try:
+                    pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(newText)
+                except IndexError:
+                    print("Text is too long!")
+                    pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = newText, newText, newText, newText
+                
             # Extract combined keywords
             keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
             # Extract Top 10 trending keywords
@@ -459,7 +470,7 @@ class echoHandler(BaseHTTPRequestHandler):
         self.wfile.write(res.encode())
 
 def main():
-    PORT = 5555 #5050
+    PORT = 4343 # PORT = 5555 #5050
     # PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)

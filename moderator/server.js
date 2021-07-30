@@ -46,8 +46,8 @@ io.on("connection", (socket) => {
 
 io.of("/").adapter.on("delete-room", (room_id) => {
   if (clerks.has(room_id)) {
-    let clerk = clerks.get(room_id);
-    clerk.clearSwitchTimeout();
+    // let clerk = clerks.get(room_id);
+    // clerk.clearSwitchTimeout();
     clerks.delete(room_id);
     console.log(`Room deleted: ${room_id}`);
   }
