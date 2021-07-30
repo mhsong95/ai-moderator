@@ -24,41 +24,43 @@ module.exports = class Clerk {
     this.timestamp = null;
   }
 
-  // /**
-  //  * Possibly clears switchTimeout if one exists.
-  //  */
-  // clearSwitchTimeout() {
-  //   if (this.switchTimeout !== null) {
-  //     clearTimeout(this.switchTimeout);
-  //     this.switchTimeout = null;
-  //   }
-  // }
+  /**
+   * Possibly clears switchTimeout if one exists.
+   */
+  clearSwitchTimeout() {
+    if (this.switchTimeout !== null) {
+      clearTimeout(this.switchTimeout);
+      this.switchTimeout = null;
+    }
+  }
 
-  // /**
-  //  * Sets a timer that cuts the paragraph on timeout,
-  //  * and send request for a summary for that paragraph.
-  //  */
-  // startSwitchTimeout() {
-  //   this.clearSwitchTimeout();
-  //   this.switchTimeout = setTimeout(() => {
-  //     if (this.speakerId !== null) {
-  //       this.requestSummary();
-  //     }
-  //     this.speakerId = null;
-  //     this.speakerName = null;
-  //     this.paragraph = "";
-  //     this.switchTimeout = null;
-  //   }, SILENCE_LIMIT);
-  // }
+  /**
+   * Sets a timer that cuts the paragraph on timeout,
+   * and send request for a summary for that paragraph.
+   */
+  startSwitchTimeout() {
+    this.clearSwitchTimeout();
+    this.switchTimeout = setTimeout(() => {
+      if (this.speakerId !== null) {
+        this.requestSummary();
+      }
+      this.speakerId = null;
+      this.speakerName = null;
+      this.paragraph = "";
+      this.switchTimeout = null;
+    }, SILENCE_LIMIT);
+  }
 
+  // TODO: maybe add update paragraph function: update overall paragraph data after naver STT
   /**
    * Cuts the paragraph and request summary, then switch to a new paragraph.
    */
+  // TODO: remove islast
   switchParagraph(nextSpeakerId, nextSpeakerName, nextTranscript, nextTimeStamp, isLast) {
-    console.log("switchParagraph");
+    // console.log("switchParagraph");
 
-    console.log(isLast);
-    console.log(typeof isLast);
+    // console.log(isLast);
+    // console.log(typeof isLast);
     // There might not be a paragraph, thus should check this condition.
     if (this.speakerId !== null) {
       this.requestSummary();
@@ -77,13 +79,14 @@ module.exports = class Clerk {
   /**
    * Appends a transcript to the paragraph.
    */
+  // TODO: remove islast
   appendTranscript(transcript, isLast) {
-    console.log("appendTranscript: ", this.timestamp);
-    console.log(isLast);
-    console.log(transcript);
+    // console.log("appendTranscript: ", this.timestamp);
+    // console.log(isLast);
+    // console.log(transcript);
     
     this.paragraph += " " + transcript;
-    console.log(this.paragraph);
+    // console.log(this.paragraph);
     this.publishTranscript(this.paragraph, this.speakerName, this.timestamp);
     if (isLast) {
       this.requestSummary();
@@ -94,7 +97,7 @@ module.exports = class Clerk {
    * Broadcasts a transcript to the room.
    */
   publishTranscript(transcript, name, timestamp) {
-    console.log("publishTranscript")
+    // console.log("publishTranscript")
     if (transcript.split(' ')[0].length == 0) return;
     this.io.sockets
       .to(this.room_id)
