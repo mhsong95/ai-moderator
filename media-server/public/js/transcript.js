@@ -523,7 +523,7 @@ function createSummaryBox(keyword) {
   summaryBox.append(abSummaryBox);
 
   messages.insertBefore(summaryBox, messages.firstChild);
-  rc.updateParagraph(keywordParagraph, "summary-for-keyword", keyword);
+  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
   return summaryBox;
 }
 

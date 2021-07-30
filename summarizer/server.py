@@ -338,17 +338,43 @@ def get_summaries(text):
     print("pororo_ab_res:   "+ pororo_ab_res)
     pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
     print("pororo_ex_res:   "+ pororo_ex_res)
-    kobart_ab_res = kobart_summarizing_model(text) 
-    print("kobart_ab_res:   "+ kobart_ab_res)
+    try:
+        kobart_ab_res = kobart_summarizing_model(text)
+        print("kobart_ab_res:   "+ kobart_ab_res)
+    except:
+        print("EXCEPTION::::::::::::::::::::::kobart_ab_res")
+        kobart_ab_res = text  
     try:
         kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
     except:
         print("EXCEPTION::::::::::::::::::::::kobert_ex_res")
         kobert_ex_res = text
-
     print("Abstractive - 1", pororo_ab_res)
     print("Abstractive - 2", kobart_ab_res)
     
+    return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
+
+def get_overall_summaries(text, keyword):
+    print("get_overall_summaries for keyword: " + keyword)
+    # Only need extractive summary
+    text_sentence_num = len(re.split('[.?!]', text)) 
+    pororo_ab_res, kobart_ab_res = text, text
+
+    try: 
+        pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
+        kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
+    except:
+        sentences = text.split(". ")
+        newText = ""
+        for sentence in sentences:
+            if keyword in sentence:
+                newText += sentence + ". "
+        try:
+            pororo_ex_res = pororo_extractive_model(newText)
+            kobert_ex_res = kobert_summarizing_model(newText)
+        except:
+            pororo_ex_res = newText
+            kobert_ex_res = newText
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
 class ClovaSpeechClient:
@@ -412,22 +438,14 @@ class echoHandler(BaseHTTPRequestHandler):
             res = text
         elif fields["type"] == "requestSummary":
             print("REQUEST::::::SUMMARY")
-            keyword = fields["user"]    # Only for overall summary request
+            checkType = fields["user"]    # Only for overall summary request
             text = fields["content"]
-            
-            try:
+
+            # Check if request for an overall summary (fields["user"] == "OVERALL" + keyword)
+            if (checkType[:7] == "OVERALL"):
+                pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_overall_summaries(text, checkType[7:])
+            else:
                 pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
-            except IndexError:
-                sentences = text.split(". ")
-                newText = ""
-                for sentence in sentences:
-                    if keyword in sentence:
-                        newText += sentence + ". "
-                try:
-                    pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(newText)
-                except IndexError:
-                    print("Text is too long!")
-                    pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = newText, newText, newText, newText
                 
             # Extract combined keywords
             keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
