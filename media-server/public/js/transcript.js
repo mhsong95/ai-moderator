@@ -467,7 +467,8 @@ function addFavorite() {
         let searchword = document.getElementById("search-word");
         searchword.value = this.textContent.slice(1);
         displayUnitOfBox();
-        createSummaryBox(keyInput.value);
+        newSummaryBox = createSummaryBox(keyInput.value);
+        newSummaryBox.scrollIntoView(true);
       };
       keyInput.remove();
       keywordList.append(myKeyword);
@@ -524,6 +525,7 @@ function createSummaryBox(keyword) {
 
   messages.insertBefore(summaryBox, messages.firstChild);
   rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
+  highlighter.apply(keyword);
   return summaryBox;
 }
 

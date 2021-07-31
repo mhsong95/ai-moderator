@@ -373,8 +373,8 @@ def get_overall_summaries(text, keyword):
             pororo_ex_res = pororo_extractive_model(newText)
             kobert_ex_res = kobert_summarizing_model(newText)
         except:
-            pororo_ex_res = newText
-            kobert_ex_res = newText
+            pororo_ex_res = sentences[-5:]
+            kobert_ex_res = sentences[-5:]
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
 class ClovaSpeechClient:
