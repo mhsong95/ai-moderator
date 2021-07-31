@@ -57,10 +57,6 @@ class RoomClient {
             this._isOpen = true
             successCallback()
         }.bind(this))
-
-
-
-
     }
 
     ////////// INIT /////////
@@ -759,6 +755,11 @@ class RoomClient {
             this.userLog = {}
         }
     }
+
+    // addPinBox(timestamp){
+    //     console.log("rc.addPinBox")
+    //     moderatorSocket.emit("addPinBox", timestamp);
+    // }
 
     //////// GETTERS ////////
 

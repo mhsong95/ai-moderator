@@ -24,6 +24,9 @@ moderatorSocket.on("summary", onSummary);
 moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
+// moderatorSocket.on("addPinBox", onAddPinBox);
+// moderatorSocket.on("addPinBox", pinBox);
+
 var keywordMap = {};
 var keywordParagraph;
 var favoriteKeywords = [];
@@ -104,6 +107,12 @@ function addEditBtn(area, type, timestamp) {
 }
 
 function onUpdateSummary(type, content, timestamp) {
+  // Use updateSummary function for pin
+  if (type === "pin") {
+    pinBox(timestamp);
+    return;
+  }
+
   console.log("ON UPDATESUMMARY - timestamp="+timestamp+" / content="+content);
   let messageBox = document.getElementById(timestamp);
   let summaryEl = null;
@@ -657,9 +666,9 @@ function createMessageBox(name, timestamp) {
   pinBtn.style.border = "0";
   pinBtn.style.float = "right";
   pinBtn.style.display = "inline-block";
-  pinBtn.onclick = function () { pinBox(timestamp); }; 
-
   messageBox.setAttribute("pinned", "false");
+  // pinBtn.onclick = function () { pinBox(timestamp); }; 
+  pinBtn.onclick = function () { rc.updateSummary("pin", "pinBox", timestamp); };
 
   title.append(pinBtn);
   messageBox.append(title);
@@ -756,6 +765,11 @@ function pinBox(timestamp) {
     pinBtn.childNodes[0].style.color = "#F2F3F4";
   }
 }
+
+// function onAddPinBox(timestamp) {
+//   console.log("onAddPinBox")
+//   pinBox(timestamp);
+// }
 
 function showPinBoxes() {
   let pinClick = document.getElementById("dropdownPin");

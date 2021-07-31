@@ -438,11 +438,11 @@ class echoHandler(BaseHTTPRequestHandler):
             res = text
         elif fields["type"] == "requestSummary":
             print("REQUEST::::::SUMMARY")
-            checkType = fields["user"]    # Only for overall summary request
+            user_name = fields["user"]    # Only for overall summary request
             text = fields["content"]
 
             # Check if request for an overall summary (fields["user"] == "OVERALL" + keyword)
-            if (checkType[:7] == "OVERALL"):
+            if (user_name[:7] == "OVERALL"):
                 pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_overall_summaries(text, checkType[7:])
             else:
                 pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
