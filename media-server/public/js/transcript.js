@@ -25,7 +25,7 @@ moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
 var keywordMap = {};
-var favoriteSummary = {};
+var keywordParagraph;
 var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
@@ -45,8 +45,19 @@ window.addEventListener('scroll', function ( event ) {
 }, false);
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
+  // For summary request on overall summary of favorite keywords
+  if (timestamp === "summary-for-keyword") {
+    console.log("SUMMARY-FOR-KEYWORD");
+    let summaryBox = document.getElementById("summary-for-keyword");
+    let extSumm = summaryArr[1].split(". ");
+    extSummary = "";
+    for (sentence of extSumm) {
+      extSummary += "> " + sentence + "\n";
+    }
+    summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
+    return;
+  }
   console.log("ON UPDATEPARAGRAPH - timestamp="+timestamp);
-
   let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[3].childNodes[1];
   let abSummaryEl = messageBox.childNodes[1];
@@ -174,7 +185,6 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
     if (favoriteKeywords.includes(keyword)) {
       keywordBtn.style.backgroundColor = "#fed7bf";
-      favoriteSummary[keyword] += " " + summaryArr[0];
     }
     else {
       keywordBtn.style.backgroundColor = "transparent";
@@ -428,23 +438,34 @@ function displayTrendingBox10() {
 var highlighter = new Hilitor();
 
 function displayUnitOfBox() {
-  let searchword = document.getElementById("search-word").value.trim()
+  let searchword = document.getElementById("search-word").value.trim();
   let messageBoxes = document.getElementsByClassName("message-box");
   let paragraphs = document.getElementsByClassName("paragraph");
   let summaryBox = document.getElementById("summary-for-keyword");
   if (summaryBox) {
     summaryBox.remove();
   }
+
   if (searchword != ""){
     rc.addUserLog(Date.now(), 'Search Word= '+searchword+'\n');
   }
-
-  for (var i = 0; i < messageBoxes.length; i++) { // access each i-th index of boxes at the same time
-    let isfiltered = paragraphs[i].textContent.includes(searchword);
-
-    let messageBox = messageBoxes[i];
-    displayBox(true && isfiltered, messageBox, displayYes);
-    // displayBox(true && isfiltered, paragraph, displayYes);
+  if (favoriteKeywords.includes(searchword)) {
+    keywordParagraph = "";
+    for (var i = 0; i < messageBoxes.length; i++) { // access each i-th index of boxes at the same time
+      let isfiltered = paragraphs[i].textContent.includes(searchword.trim());
+      let messageBox = messageBoxes[i];
+      if (isfiltered) {
+        keywordParagraph += messageBox.childNodes[3].childNodes[1].textContent;
+      }
+      displayBox(true && isfiltered, messageBox, displayYes);
+    }
+  }
+  else {
+    for (var i = 0; i < messageBoxes.length; i++) {
+      let isfiltered = paragraphs[i].textContent.includes(searchword.trim());
+      let messageBox = messageBoxes[i];
+      displayBox(true && isfiltered, messageBox, displayYes);
+    }
   }
 
   // highlight with search-word
@@ -483,9 +504,9 @@ function addFavorite() {
         let searchword = document.getElementById("search-word");
         searchword.value = this.textContent.slice(1);
         displayUnitOfBox();
-        createSummaryBox(keyInput.value);
+        newSummaryBox = createSummaryBox(keyInput.value);
+        newSummaryBox.scrollIntoView(true);
       };
-      favoriteSummary[keyInput.value] = "";
       keyInput.remove();
       keywordList.append(myKeyword);
       checkBoxWithKey(myKeyword.innerHTML.slice(1));
@@ -509,7 +530,6 @@ function checkBoxWithKey(keyword) {
         }
       }
     }
-    favoriteSummary[keyword] += " " + messageBox.childNodes[1].childNodes[0].textContent.slice(10);
   }
 }
 
@@ -532,15 +552,17 @@ function createSummaryBox(keyword) {
   // summaryBox.childNodes[1]: Includes abstract summary
   let abSummaryBox = document.createElement("div");
   let abSummary = document.createElement("p");
-  // abSummary.textContent = "Not done yet!";
-  abSummary.textContent = favoriteSummary[keyword];
+  abSummary.textContent = "Processing overall summary...";
   abSummaryBox.style.fontSize = "medium";
   abSummaryBox.style.marginLeft = "5px";
   abSummaryBox.style.marginTop = "1em";
+  abSummaryBox.style.fontStyle = "italic";
   abSummaryBox.append(abSummary);
-  summaryBox.append(abSummary);
-  
+  summaryBox.append(abSummaryBox);
+
   messages.insertBefore(summaryBox, messages.firstChild);
+  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
+  highlighter.apply(keyword);
   return summaryBox;
 }
 

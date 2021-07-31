@@ -221,6 +221,7 @@ module.exports = class Clerk {
       })
       .catch((e) => {
         console.log("CATCH - updateParagraph");
+        console.log(e);
 
         let summaryArr = [paragraph, paragraph, "", ""];
         let confArr = [0, 0];
