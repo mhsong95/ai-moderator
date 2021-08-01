@@ -24,9 +24,7 @@ moderatorSocket.on("summary", onSummary);
 moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
-// moderatorSocket.on("addPinBox", onAddPinBox);
-// moderatorSocket.on("addPinBox", pinBox);
-
+var notiAudio = new Audio('../img/notification.mp3')
 var keywordMap = {};
 var keywordParagraph;
 var favoriteKeywords = [];
@@ -144,6 +142,25 @@ function onTranscript(transcript, name, timestamp) {
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
+
+  // Alert if transcript includes favorite keywords
+  for (word of favoriteKeywords) {
+    if (transcript.includes(word)) {
+      notiAudio.play();
+      let rightDisplay = document.getElementById("display-choice");
+      let newAlarm = document.createElement("p");
+      newAlarm.style.backgroundColor = "#fffaa3";
+      newAlarm.style.fontSize = "small";
+      newAlarm.style.marginBottom = "2px";
+      newAlarm.textContent = "New message includes your favorite keyword!";
+      setTimeout(function() {
+        newAlarm.parentNode.removeChild(newAlarm);
+      }, 10000);
+      rightDisplay.appendChild(newAlarm);
+      break;
+    }
+  }
+
   // Append the new transcript to the old paragraph.
   let paragraph = messageBox.childNodes[3].childNodes[1];
   paragraph.textContent = transcript;
@@ -461,11 +478,6 @@ function displayUnitOfBox() {
   let messageBoxes = document.getElementsByClassName("message-box");
   let paragraphs = document.getElementsByClassName("paragraph");
 
-  // let summaryBox = document.getElementById("summary-for-keyword");
-  // if (summaryBox) {
-  //   summaryBox.remove();
-  // }
-
   if (searchword != ""){
     rc.addUserLog(Date.now(), 'Search Word= '+searchword+'\n');
   }
@@ -688,7 +700,6 @@ function createMessageBox(name, timestamp) {
   pinBtn.style.float = "right";
   pinBtn.style.display = "inline-block";
   messageBox.setAttribute("pinned", "false");
-  // pinBtn.onclick = function () { pinBox(timestamp); }; 
   pinBtn.onclick = function () { rc.updateSummary("pin", "pinBox", timestamp); };
 
   title.append(pinBtn);
@@ -700,8 +711,6 @@ function createMessageBox(name, timestamp) {
   abSummaryBox.style.fontSize = "medium";
   abSummaryBox.style.marginLeft = "5px";
   abSummaryBox.style.marginTop = "1em";
-  // let abSummary = document.createElement("p");
-  // abSummaryBox.append(abSummary);
 
   let abSummaryTitle = document.createElement("p");
   let abSummaryContent = document.createElement("p");
