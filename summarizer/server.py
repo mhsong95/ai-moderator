@@ -443,7 +443,7 @@ class echoHandler(BaseHTTPRequestHandler):
 
             # Check if request for an overall summary (fields["user"] == "OVERALL" + keyword)
             if (user_name[:7] == "OVERALL"):
-                pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_overall_summaries(text, checkType[7:])
+                pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_overall_summaries(text, user_name[7:])
             else:
                 pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
                 
@@ -489,7 +489,6 @@ class echoHandler(BaseHTTPRequestHandler):
 
 def main():
     PORT = 5050
-    # PORT = 3030
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()

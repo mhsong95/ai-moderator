@@ -396,51 +396,61 @@ function finishEditContent(type, oldtxt, timestamp) {
 function displayTrendingBox1() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-1").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox2() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-2").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox3() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-3").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox4() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-4").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox5() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-5").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox6() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-6").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox7() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-7").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox8() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-8").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox9() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-9").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 function displayTrendingBox10() {
   let searchword = document.getElementById("search-word");
   searchword.value = document.getElementById("trending-10").textContent.slice(1);
+  removeSummaryBox();
   displayUnitOfBox();
 }
 ////////// Display boxes with trending keywords ////////////
@@ -450,10 +460,11 @@ function displayUnitOfBox() {
   let searchword = document.getElementById("search-word").value.trim();
   let messageBoxes = document.getElementsByClassName("message-box");
   let paragraphs = document.getElementsByClassName("paragraph");
-  let summaryBox = document.getElementById("summary-for-keyword");
-  if (summaryBox) {
-    summaryBox.remove();
-  }
+
+  // let summaryBox = document.getElementById("summary-for-keyword");
+  // if (summaryBox) {
+  //   summaryBox.remove();
+  // }
 
   if (searchword != ""){
     rc.addUserLog(Date.now(), 'Search Word= '+searchword+'\n');
@@ -513,7 +524,8 @@ function addFavorite() {
         let searchword = document.getElementById("search-word");
         searchword.value = this.textContent.slice(1);
         displayUnitOfBox();
-        newSummaryBox = createSummaryBox(keyInput.value);
+        let newSummaryBox = createSummaryBox(keyInput.value);
+        rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + searchword.value);
         newSummaryBox.scrollIntoView(true);
       };
       keyInput.remove();
@@ -570,15 +582,23 @@ function createSummaryBox(keyword) {
   summaryBox.append(abSummaryBox);
 
   messages.insertBefore(summaryBox, messages.firstChild);
-  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
-  highlighter.apply(keyword);
+  // rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
   return summaryBox;
 }
 
 // Helper function for searching when ENTER keydown
 function checkEnter(e) {
   if (e.code === 'Enter') {
+    removeSummaryBox();
     displayUnitOfBox();
+  }
+}
+
+// Remove existing summaryBox
+function removeSummaryBox() {
+  let summaryBox = document.getElementById("summary-for-keyword");
+  if (summaryBox) {
+    summaryBox.remove();
   }
 }
 
@@ -586,6 +606,7 @@ function checkEnter(e) {
 function showAllBoxes() {
   let searchWord = document.getElementById("search-word");
   searchWord.value = "";
+  removeSummaryBox();
   displayUnitOfBox();
 }
 
