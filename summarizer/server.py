@@ -422,20 +422,34 @@ class echoHandler(BaseHTTPRequestHandler):
             print("REQUEST::::::STT")
             roomID = fields["roomID"]
             user = fields["user"]
-            timestamp = fields["timestamp"]
+            # timestamp = fields["timestamp"]
+            startTimestamp = fields["startTimestamp"]
+            endTimestamp = fields["endTimestamp"]
+            audioFileList = fields["audioFileList"]
 
+            # DESIGN: traverse audioFileList and convert file
             # convert file type
-            inputfile = "../moderator/webm/"+roomID+"_"+user+"_"+str(timestamp)+".webm"
-            outputfile = "./wav/"+roomID+"_"+user+"_"+str(timestamp)+".wav"
-            convert_and_split(inputfile, outputfile)
+            wavFiles = []
+            for t in audioFileList:
+                inputfile = "../moderator/webm/"+roomID+"_"+user+"_"+str(t)+".webm"
+                outputfile = "./wav/"+roomID+"_"+user+"_"+str(t)+".wav"
+                wavFiles.append(outputfile)
+                convert_and_split(inputfile, outputfile)
+                # TODO: remove[debug]
+                print(inputfile +'\n'+ outputfile +'\n'+ "convert file type")
             
+            # DESIGN: traverse audioFileList and run naverSTT for each files
+            # DESIGN: Combine STT result and make timestamp sync using startTimestamp and endTimestamp if needed
             # run STT
-            stt_res = ClovaSpeechClient(invoke_url, secret).req_upload(file=outputfile, completion='sync')
-            print(stt_res.text)
-            print(json.loads(stt_res.text)['text'])
+            returnText = ''
+            for wav in wavFiles:
+                stt_res = ClovaSpeechClient(invoke_url, secret).req_upload(file=wav, completion='sync')
+                print(stt_res.text)
+                print(json.loads(stt_res.text)['text'])
+                returnText += json.loads(stt_res.text)['text']
             
-            text = json.loads(stt_res.text)['text']
-            res = text
+            # DESIGN: Return result text
+            res = returnText
         elif fields["type"] == "requestSummary":
             print("REQUEST::::::SUMMARY")
             user_name = fields["user"]    # Only for overall summary request

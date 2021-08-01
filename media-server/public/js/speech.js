@@ -62,12 +62,13 @@ let AudioStreamer = {
 /**
  * Send audio data to `moderator/audioFileHandler`.
  * This is for recording audio files to use in Naver STT.
- * @param {MediaStream} stream 
+ * 
+ * @param {MediaStream} stream Audio stream to record
+ * @param {Number} timestamp Timestamp when audio recording starts
  */
-function startRecord(stream) {
+function startRecord(stream, timestamp) {
   let mediaRecorder = new MediaRecorder(stream);
   mediaRecorder.start(1000); // 1000 - the number of milliseconds to record into each Blob
-  let timestamp = Date.now();
   lastStamp = timestamp;
   mediaRecorder.ondataavailable = (event) => {
     if (event.data && event.data.size > 0) {
@@ -77,20 +78,21 @@ function startRecord(stream) {
       let now = Date.now();
       if (timestamp + 30000 < now) {
         mediaRecorder.stop();
-        startRecord(stream);
+        startRecord(stream, now);
       }
     }
   };
 }
 
 rc.on(RoomClient.EVENTS.startAudio, () => {
-  moderatorSocket.emit("startRecognition");
+  let timestamp = Date.now()
+  moderatorSocket.emit("startRecognition", timestamp);
   let producer_id = rc.producerLabel.get(mediaType.audio);
   let track = rc.producers.get(producer_id).track;
   let stream = new MediaStream([track]);
 
   // Use `MediaRecorder` to record webm file for Naver STT
-  startRecord(stream);
+  startRecord(stream, timestamp);
 
   // Use `AudioContext` to send audio data for MS STT
   AudioStreamer.initRecording(stream,
@@ -115,8 +117,7 @@ rc.on(RoomClient.EVENTS.stopAudio, () => {
 function microphoneProcess(e) {
   var left = e.inputBuffer.getChannelData(0);
   var left16 = convertFloat32ToInt16(left);
-  var timestamp = Date.now();
-  moderatorSocket.emit("binaryAudioData", left16, timestamp);
+  moderatorSocket.emit("binaryAudioData", left16);
 }
 
 /**
