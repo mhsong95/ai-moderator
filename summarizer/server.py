@@ -32,6 +32,8 @@ invoke_url = config['Clova_STT']['invoke_url']
 secret = config['Clova_STT']['secret']
 
 # Convert audio file from MediaRecorder in `moderator` into .wav format for STT process
+# run following command
+# - ffmpeg -i ./input_file.webm -c:a pcm_f32le ./ouput_file.wav
 # parameter
 # - input: filename to convert (e.g., 'input.webm')
 # - output: filename to save (e.g., 'output.wav')

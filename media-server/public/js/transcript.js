@@ -18,6 +18,7 @@ const UnsureMessage_color = "rgba(117, 117, 117, 0.3)"
 const SureMessage_Mycolor = "rgba(40, 70, 167, 0.219)"
 const SureMessage_Othercolor = "rgba(40, 167, 70, 0.219)"
 
+moderatorSocket.on("restore", onRestore);
 moderatorSocket.on("transcript", onTranscript);
 // moderatorSocket.on("replaceTranscript", onReplaceTranscript);
 moderatorSocket.on("summary", onSummary);
@@ -59,7 +60,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
     summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
     return;
   }
-  console.log("ON UPDATEPARAGRAPH - timestamp="+timestamp);
+  console.log("ON UPDATEPARAGRAPH - timestamp=" + timestamp);
   let messageBox = document.getElementById(timestamp);
   let paragraph = messageBox.childNodes[3].childNodes[1];
   let abSummaryEl = messageBox.childNodes[1];
@@ -76,19 +77,19 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   let confidenceElem = null;
   if (confArr[0] !== -1) {
     confidenceElem = confidenceElement(confArr[0]);
-    if (confArr[0] < 0.66){
-      messageBox.style.background = UnsureMessage_color ;
+    if (confArr[0] < 0.66) {
+      messageBox.style.background = UnsureMessage_color;
     }
-    else if (confArr[0] < 1){
+    else if (confArr[0] < 1) {
       if (user_name === speaker) { messageBox.style.background = SureMessage_Mycolor; }
-      else {  messageBox.style.background = SureMessage_Othercolor; }
+      else { messageBox.style.background = SureMessage_Othercolor; }
     }
   }
 
   // ADD summary text and confidence score to summary-box
-  abSummaryEl.childNodes[0].textContent="[Summary]"
+  abSummaryEl.childNodes[0].textContent = "[Summary]"
   abSummaryEl.childNodes[0].append(confidenceElem);
-  abSummaryEl.childNodes[1].textContent=summaryArr[0];
+  abSummaryEl.childNodes[1].textContent = summaryArr[0];
 
   addEditBtn(paragraph, "paragraph", timestamp);
   addEditBtn(abSummaryEl.childNodes[1], "absum", timestamp);
@@ -103,6 +104,46 @@ function addEditBtn(area, type, timestamp) {
   pen1.className = "fas fa-pen";
   editBtn1.append(pen1);
   area.append(editBtn1);
+}
+
+function onRestore(past_paragraphs) {
+  console.log("onRestore");
+  console.log(past_paragraphs);
+  for (var timestamp in past_paragraphs) {
+    let messageBox = getMessageBox(timestamp);
+    if (messageBox) continue;
+
+    // Restore pase paragraphs
+    messageBox = createMessageBox(past_paragraphs[timestamp]["speakerName"], timestamp);
+
+    let transcript;
+    if (past_paragraphs[timestamp]["naver"] != '') {
+      transcript = past_paragraphs[timestamp]["naver"]
+    }
+    else {
+      transcript = past_paragraphs[timestamp]["ms"]
+    }
+
+    // Append the new transcript to the old paragraph.
+    let paragraph = messageBox.childNodes[3].childNodes[1];
+    paragraph.textContent = transcript;
+
+    if (Object.keys(past_paragraphs[timestamp]["sum"]).length === 0) {
+      let abSummaryBox = messageBox.childNodes[1];
+      abSummaryBox.childNodes[0].textContent = "[Transcript]"
+      abSummaryBox.childNodes[1].textContent = transcript;
+    }
+    else {
+      let summaryArr = past_paragraphs[timestamp]["sum"]["summaryArr"]
+      let confArr = past_paragraphs[timestamp]["sum"]["confArr"]
+      let name = past_paragraphs[timestamp]["speakerName"]
+
+      onSummary(summaryArr, confArr, name, timestamp);
+    }
+
+    // Filtering with new message box
+    displayUnitOfBox();
+  }
 }
 
 function onUpdateSummary(type, content, timestamp) {
@@ -120,7 +161,7 @@ function onUpdateSummary(type, content, timestamp) {
     return;
   }
 
-  console.log("ON UPDATESUMMARY - timestamp="+timestamp+" / content="+content);
+  console.log("ON UPDATESUMMARY - timestamp=" + timestamp + " / content=" + content);
   let messageBox = document.getElementById(timestamp);
   let summaryEl = null;
   let msg = 'New summary contents: ' + timestamp + '\n';
@@ -136,9 +177,9 @@ function onUpdateSummary(type, content, timestamp) {
 
   summaryEl = messageBox.childNodes[1];
   let confidenceElem = confidenceElement(1); // if user change summary, confidence score would be 100 % 
-  summaryEl.childNodes[0].textContent="[Summary]"
+  summaryEl.childNodes[0].textContent = "[Summary]"
   summaryEl.childNodes[0].append(confidenceElem);
-  summaryEl.childNodes[1].textContent=content;
+  summaryEl.childNodes[1].textContent = content;
 
   rc.addUserLog(Date.now(), msg);
   addEditBtn(summaryEl.childNodes[1], type, timestamp);
@@ -146,7 +187,7 @@ function onUpdateSummary(type, content, timestamp) {
 
 // Event listener on individual transcript arrival.
 function onTranscript(transcript, name, timestamp) {
-  console.log("ON TRANSCRIPT - timestamp="+timestamp);
+  console.log("ON TRANSCRIPT - timestamp=" + timestamp);
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
@@ -157,36 +198,17 @@ function onTranscript(transcript, name, timestamp) {
   paragraph.textContent = transcript;
 
   let abSummaryBox = messageBox.childNodes[1];
-  abSummaryBox.childNodes[0].textContent="[Transcript]"
-  abSummaryBox.childNodes[1].textContent=transcript;
+  abSummaryBox.childNodes[0].textContent = "[Transcript]"
+  abSummaryBox.childNodes[1].textContent = transcript;
 
   console.log("ON TRANSCRIPT content="+transcript);
   // Filtering with new message box
-  displayUnitOfBox(); 
+  displayUnitOfBox();
 }
-
-// /**
-//  * TODO: add comment
-//  */
-// function onReplaceTranscript(transcript, speakerName, timestamp) {
-//   console.log("ONREPLACETRANSCRIPT");
-
-//   let messageBox = getMessageBox(timestamp);
-//   if (!messageBox) {
-//     throw "Wrong timestamp in onReplaceTranscript by " + speakerName + " : " + timestamp.toString();
-//   }
-//   // Append the new transcript to the old paragraph.
-//   let paragraph = messageBox.childNodes[3].childNodes[1];
-//   paragraph.textContent = transcript;
-
-//   let abSummaryBox = messageBox.childNodes[1];
-//   let abSummaryEl = abSummaryBox.childNodes[0];
-//   abSummaryEl.textContent = transcript;
-// }
 
 // Event listener on summary arrival.
 function onSummary(summaryArr, confArr, name, timestamp) {
-  console.log("ON SUMMARY - timestamp="+timestamp);
+  console.log("ON SUMMARY - timestamp=" + timestamp);
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
@@ -298,8 +320,8 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
 
-  abSummaryBox.childNodes[0].textContent="[Summary]"
-  abSummaryBox.childNodes[1].textContent=summaryArr[0];
+  abSummaryBox.childNodes[0].textContent = "[Summary]"
+  abSummaryBox.childNodes[1].textContent = summaryArr[0];
 
   if (confArr[0] !== -1) {
     let confidenceElem = confidenceElement(confArr[0]);
@@ -576,8 +598,8 @@ function displayUnitOfBox() {
   let messageBoxes = document.getElementsByClassName("message-box");
   let paragraphs = document.getElementsByClassName("paragraph");
 
-  if (searchword != ""){
-    rc.addUserLog(Date.now(), 'Search Word= '+searchword+'\n');
+  if (searchword != "") {
+    rc.addUserLog(Date.now(), 'Search Word= ' + searchword + '\n');
   }
   if (favoriteKeywords.includes(searchword)) {
     keywordParagraph = "";
@@ -599,7 +621,7 @@ function displayUnitOfBox() {
   }
 
   // highlight with search-word
-  if (searchword == ""){
+  if (searchword == "") {
     highlighter.remove();
   } else {
     highlighter.apply(searchword);
@@ -938,7 +960,10 @@ function getMessageBox(timestamp) {
 
 // Formats time from a timestamp in hh:mm:ss AM/PM format.
 function formatTime(timestamp) {
-  let date = new Date(timestamp);
+  console.log("formatTime");
+  console.log(Number(timestamp));
+  let date = new Date(Number(timestamp));
+  console.log(date);
 
   // Appends leading zero for one-digit hours, minutes, and seconds
   function appendZero(time) {
