@@ -151,8 +151,6 @@ module.exports = class Clerk {
   /**
    * Requests for a summary for the current paragraph, then
    * broadcasts the result with given confidence level.
-   * 
-   * TODO: 새로운 사용자가 이전 대화 로그를 다 확인할 수 있으면 더 이상 speakerName은 필요없음.
    */
   requestSummary(speakerName, paragraph, timestamp) {
     console.log("requestSummary");
@@ -173,6 +171,7 @@ module.exports = class Clerk {
         config.summaryHost,
         {
           type: "requestSummary",
+          user: speakerName,
           content: paragraph,
         },
         {
