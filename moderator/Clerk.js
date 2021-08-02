@@ -172,7 +172,7 @@ module.exports = class Clerk {
    * Requests for a summary for the current paragraph, then
    * broadcasts the result with given confidence level.
    */
-  requestSummary(speakerName, paragraph, timestamp) {
+  requestSummary(speakerId, speakerName, paragraph, timestamp) {
     console.log("requestSummary");
     // let paragraph = this.paragraph;
     // let speakerId = this.speakerId;
@@ -195,7 +195,7 @@ module.exports = class Clerk {
         host,
         {
           type: "requestSummary",
-          user: speakerName,
+          user: speakerId,
           content: paragraph,
         },
         {
@@ -324,7 +324,7 @@ module.exports = class Clerk {
   //  * @param {*} isLast 
    */
   // TODO: remove userID if it is not used in `summarizer/server.py`
-  requestSTT(roomID, user, startTimestamp, endTimestamp, audioFileList) {
+  requestSTT(roomID, userId, user, startTimestamp, endTimestamp, audioFileList) {
     let host = this.summaryPort[this.requestCnt++ % this.portCnt]
 
     console.log("HOST: ", host)
@@ -356,7 +356,7 @@ module.exports = class Clerk {
         this.replaceParagraph(user, transcript, startTimestamp);
 
         // Conduct summarizer request
-        this.requestSummary(user, transcript, startTimestamp);
+        this.requestSummary(userId, user, transcript, startTimestamp);
 
         // // new speaker :: new to switch to a new paragraph
         // if (isNew) {

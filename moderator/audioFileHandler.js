@@ -192,7 +192,7 @@ module.exports = function (io, socket) {
         }
       }
 
-      clerks.get(socket.room_id).requestSTT(socket.room_id, socket.name, prevStart, prevEnd, candidates);
+      clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, prevStart, prevEnd, candidates);
     };
 
     // Event handler for speech started events.
