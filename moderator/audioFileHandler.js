@@ -73,7 +73,6 @@ module.exports = function (io, socket) {
     console.log(Math.round(data.duration / 10000)); // Duration of recognized speech in 100 nano second incements.
 
     // Convert API result end time from seconds + nanoseconds to milliseconds
-    // DESIGN [V]: calculate this again
     resultEndTime =
       Math.round(data.offset / 10000) +
       Math.round(data.duration / 10000);
@@ -98,15 +97,6 @@ module.exports = function (io, socket) {
     // Clerk accumulates these full sentences ("final" results)
     console.log(`${timestamp}(${socket.name}): ${transcript}`);
 
-    // DESIGN [V]: Fix here -> send socket.id, socket.name, timestamp, transcript for each transcript
-    // ? Maybe let Clerks to save all past transcripts with timestamp?
-    // When speaker changes, paragraph switches.
-    // if (clerk.speakerId !== socket.id) {
-    //   clerk.switchParagraph(socket.id, socket.name, transcript, timestamp, false);
-    // } else {
-    //   clerk.appendTranscript(transcript, false);
-    // }
-
     // Update temporary messagebox
     clerk.tempParagraph(socket.id, socket.name, transcript, timestamp);
 
@@ -130,10 +120,6 @@ module.exports = function (io, socket) {
     // Define recognizer
     // Document: https://docs.microsoft.com/ko-kr/javascript/api/microsoft-cognitiveservices-speech-sdk/speechrecognizer?view=azure-node-latest#recognized
     recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
-
-    // recognizer.recognizing = (s, e) => {
-    //   console.log(`RECOGNIZING: Text=${e.result.text}`);
-    // };
 
     // The event recognized signals that a final recognition result is received.
     // DESIGN: Write recognized log at server
@@ -169,7 +155,7 @@ module.exports = function (io, socket) {
       audioInput = [];
       lastAudioInput = [];
 
-      // DESIGN [V]: save timestamp
+      // Save timestamp
       let prevEnd = curTimestamp + Math.round(e.privOffset / 10000);
       let prevStart = timestamps[curTimestamp]["curStart"];
       let lastEnd = timestamps[curTimestamp]["prevEnd"];
@@ -178,7 +164,7 @@ module.exports = function (io, socket) {
       timestamps[curTimestamp]["prevStart"] = prevStart;
 
 
-      // DESIGN: request naver STT from timestamp range
+      // Request naver STT from timestamp range
       let candidates = [];
       let prev = lastEnd;
       var len = audiofiles.length;
@@ -215,8 +201,7 @@ module.exports = function (io, socket) {
       console.log("\n  Speech Start Detected!! ", socket.name);
       console.log("event log", e)
 
-      // DESIGN [V]: save start timestamp
-      console.log("offset2", e.privOffset);
+      // Save speech start timestamp
       const startTime = curTimestamp + Math.round(e.privOffset / 10000);
       console.log("start time", startTime);
 
@@ -396,8 +381,6 @@ module.exports = function (io, socket) {
    * @param {mediaRecoder data} data Audio data from mediarecorder in user's browser
    * @param {Number} timestamp Timestamp where audio recording starts
    * 
-   * DESIGN: save timestamp and filename in some local dictionary
-   * DESIGN: {(timestamp): filename, ...}
    */
   socket.on("streamAudioData", (data, timestamp) => {
     // Record audio files in webm format
@@ -405,8 +388,6 @@ module.exports = function (io, socket) {
     let filestream = fs.createWriteStream(filename, { flags: 'a' });
     filestream.write(Buffer.from(new Uint8Array(data)), (err) => {
       if (err) throw err;
-      //TODO: remove[debug]
-      // console.log(timestamp);
     })
     filestream.close();
 
@@ -421,22 +402,6 @@ module.exports = function (io, socket) {
       //DESIGN: Write new file log at server
     }
   })
-
-  /**
-   * TODO: Add comment
-   */
-  // socket.on("requestSTT", (timestamp, islast) => {
-  //   console.log("requestSTT: " + timestamp);
-  //   console.log(islast);
-  //   let clerk = clerks.get(socket.room_id);
-  //   // When speaker changes, paragraph switches.
-  //   // DESIGN: remove islast
-  //   if (clerk.speakerId !== socket.id) {
-  //     clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, timestamp, true, islast);
-  //   } else {
-  //     clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, timestamp, false, islast);
-  //   }
-  // })
 
   /**
    * TODO: Add comment

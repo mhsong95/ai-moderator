@@ -59,8 +59,14 @@ module.exports = class Clerk {
   //   }, SILENCE_LIMIT);
   // }
 
-  // DESIGN: add update paragraph function: update overall paragraph data after naver STT
-  // TODO: add comment
+
+  /**
+   * TODO: add comment
+   * add update paragraph function: update overall paragraph data after naver STT
+   * @param {*} speakerName 
+   * @param {*} transcript 
+   * @param {*} timestamp 
+   */
   replaceParagraph(speakerName, transcript, timestamp) {
     this.paragraphs[timestamp]["naver"] = transcript;
 
@@ -68,16 +74,13 @@ module.exports = class Clerk {
       .to(this.room_id)
       .emit("transcript", transcript, speakerName, timestamp);
   }
+
   /**
    * Cuts the paragraph and request summary, then switch to a new paragraph.
    */
   // TODO: remove islast
   // ? remove?
   switchParagraph(nextSpeakerId, nextSpeakerName, nextTranscript, nextTimeStamp, isLast) {
-    // console.log("switchParagraph");
-
-    // console.log(isLast);
-    // console.log(typeof isLast);
     // There might not be a paragraph, thus should check this condition.
     if (this.speakerId !== null) {
       this.requestSummary();
@@ -96,14 +99,9 @@ module.exports = class Clerk {
   /**
    * Appends a transcript to the paragraph.
    */
-  // TODO: remove islast
+  // ? TODO: remove?
   appendTranscript(transcript, isLast) {
-    // console.log("appendTranscript: ", this.timestamp);
-    // console.log(isLast);
-    // console.log(transcript);
-
     this.paragraph += " " + transcript;
-    // console.log(this.paragraph);
     this.publishTranscript(this.paragraph, this.speakerName, this.timestamp);
     if (isLast) {
       this.requestSummary();
@@ -323,10 +321,10 @@ module.exports = class Clerk {
           transcript = response.data;
         }
 
-        // DESIGN: update message box transcript
+        // Update message box transcript
         this.replaceParagraph(user, transcript, startTimestamp);
 
-        // DESIGN: conduct summarizer request
+        // Conduct summarizer request
         this.requestSummary(user, transcript, startTimestamp);
 
         // // new speaker :: new to switch to a new paragraph
