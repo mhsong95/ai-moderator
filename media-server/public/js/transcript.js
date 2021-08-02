@@ -548,6 +548,11 @@ function addFavorite() {
   keywordList.append(keyInput);
 }
 
+// Helper function for adding favorite keywords
+// function onClickAdd(keyword, )
+
+// Helper function for deleting favortie keywords
+
 // Finds previous boxes containing the new keyword & colors it
 function checkBoxWithKey(keyword) {
   let messageBoxes = document.getElementsByClassName("message-box");
@@ -576,7 +581,7 @@ function createSummaryBox(keyword) {
   let title = document.createElement("div");
   let nametag = document.createElement("span");
   let strong = document.createElement("strong");
-  strong.textContent = "Overall Summary for #" + keyword;
+  strong.textContent = "Key Sentences for #" + keyword;
   nametag.className = "nametag";
   nametag.append(strong);
   title.append(nametag);
