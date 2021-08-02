@@ -10,6 +10,19 @@ import requests
 import os
 import configparser
 
+# import argparse
+
+# parser = argparse.ArgumentParser()
+# parser.add_argument("port", help="Input port to use in summarizer server.", type=int)
+# args = parser.parse_args()
+# print(args.port)
+# print(type(args.port))
+
+import sys
+for line in sys.stdin:
+    PORT = int(line)
+print("PORT: ", PORT)
+
 config = configparser.ConfigParser()
 config.read(os.getcwd().split("ai-moderator")[0]+"ai-moderator"+ os.sep + "summarizer" +os.sep+ 'config.ini', encoding='utf-8')
 
@@ -63,8 +76,8 @@ kobert_model = KOBERT_SUMMARIZER()
 # Ko-BART
 import torch
 from kobart import get_kobart_tokenizer
-from transformers.modeling_bart import BartForConditionalGeneration 
-# from transformers.models.bart import BartForConditionalGeneration
+# from transformers.modeling_bart import BartForConditionalGeneration 
+from transformers.models.bart import BartForConditionalGeneration
 kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart_summary')#, from_tf=True)
 kobart_tokenizer = get_kobart_tokenizer()
 
@@ -497,9 +510,11 @@ class echoHandler(BaseHTTPRequestHandler):
         self.send_header('content-type', 'text/html')
         self.end_headers()
         self.wfile.write(res.encode())
+        
+
 
 def main():
-    PORT = 5050
+    # PORT = int(input("!!! Input PORT to run summaerizer server :"))
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()

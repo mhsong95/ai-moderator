@@ -9,6 +9,16 @@ const config = require("./config");
 // Maximum length of silence not to switch a paragraph.
 const SILENCE_LIMIT = 10 * 1000;
 
+const summaryHost = config.summaryHost;
+const summaryPorts = config.summaryPorts;
+const portCnt = summaryPorts.length;
+
+let summaryHosts = []
+for (i = 0; i < portCnt; i++) {
+  summaryHosts.push(summaryHost + summaryPorts[i])
+  // console.log(summaryHosts);
+}
+
 module.exports = class Clerk {
   constructor (io, room_id) {
     this.io = io;
@@ -30,6 +40,16 @@ module.exports = class Clerk {
      * - naver paragraph
      */
     this.paragraphs = {}
+
+
+    /**
+     * TODO: update this comment
+     * summarizer 포트 지정
+     */
+    this.summaryPort = summaryHosts
+
+    this.portCnt = portCnt
+    this.requestCnt = 0
   }
 
   /**
@@ -163,12 +183,16 @@ module.exports = class Clerk {
     // this.paragraph = "";
     // this.switchTimeout = null;
 
+    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+
+    console.log("HOST: ", host)
+    console.log("this.requestCnt: ", this.requestCnt)
+
     if (paragraph.split(' ')[0].length == 0) return;
 
     axios
       .post(
-        // TODO: include in config.js
-        config.summaryHost,
+        host,
         {
           type: "requestSummary",
           user: speakerName,
@@ -222,10 +246,14 @@ module.exports = class Clerk {
   }
 
   updateParagraph(paragraph, timestamp, editor) {
+    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+
+    console.log("HOST: ", host)
+    console.log("this.requestCnt: ", this.requestCnt)
+
     axios
       .post(
-        // TODO: include in config.js
-        config.summaryHost,
+        host,
         {
           type: "requestSummary",
           user: editor,
@@ -297,10 +325,14 @@ module.exports = class Clerk {
    */
   // TODO: remove userID if it is not used in `summarizer/server.py`
   requestSTT(roomID, user, startTimestamp, endTimestamp, audioFileList) {
+    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+
+    console.log("HOST: ", host)
+    console.log("this.requestCnt: ", this.requestCnt)
+
     axios
       .post(
-        // TODO: include in config.js
-        config.summaryHost,
+        host,
         {
           type: "requestSTT",
           roomID,
