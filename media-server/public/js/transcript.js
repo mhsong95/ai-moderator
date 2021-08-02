@@ -170,6 +170,8 @@ function onTranscript(transcript, name, timestamp) {
   abSummaryBox.childNodes[0].textContent="[Transcript]"
   abSummaryBox.childNodes[1].textContent=transcript;
 
+
+
   // Filtering with new message box
   displayUnitOfBox(); 
 }
@@ -581,7 +583,7 @@ function checkBoxWithKey(keyword) {
   for (var i = 0; i < messageBoxes.length; i++) {
     let messageBox = messageBoxes[i];
     let timestamp = messageBox.getAttribute("id");
-    if (keywordMap[timestamp].includes(keyword)) {
+    if ((timestamp in keywordMap) && keywordMap[timestamp].includes(keyword)) {
       let keywordBox = messageBox.childNodes[2];
       for (keywordBtn of keywordBox.childNodes) {
         let keywordEx = keywordBtn.innerHTML.slice(1);
