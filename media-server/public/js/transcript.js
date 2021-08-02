@@ -144,24 +144,6 @@ function onTranscript(transcript, name, timestamp) {
     messageBox = createMessageBox(name, timestamp);
   }
 
-  // Alert if transcript includes favorite keywords
-  for (word of favoriteKeywords) {
-    if (transcript.includes(word)) {
-      notiAudio.play();
-      let rightDisplay = document.getElementById("display-choice");
-      let newAlarm = document.createElement("p");
-      newAlarm.style.backgroundColor = "#fffaa3";
-      newAlarm.style.fontSize = "small";
-      newAlarm.style.marginBottom = "2px";
-      newAlarm.textContent = "New message includes your favorite keyword!";
-      setTimeout(function() {
-        newAlarm.parentNode.removeChild(newAlarm);
-      }, 10000);
-      rightDisplay.appendChild(newAlarm);
-      break;
-    }
-  }
-
   // Append the new transcript to the old paragraph.
   let paragraph = messageBox.childNodes[3].childNodes[1];
   paragraph.textContent = transcript;
@@ -169,8 +151,6 @@ function onTranscript(transcript, name, timestamp) {
   let abSummaryBox = messageBox.childNodes[1];
   abSummaryBox.childNodes[0].textContent="[Transcript]"
   abSummaryBox.childNodes[1].textContent=transcript;
-
-
 
   // Filtering with new message box
   displayUnitOfBox(); 
@@ -213,6 +193,23 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   seeFullText.style.display = "block";
   let paragraph = messageBox.childNodes[3].childNodes[1];
   paragraph.style.display = "none";
+
+  for (word of favoriteKeywords) {
+    if (paragraph.includes(word)) {
+      notiAudio.play();
+      let rightDisplay = document.getElementById("display-choice");
+      let newAlarm = document.createElement("p");
+      newAlarm.style.backgroundColor = "#fffaa3";
+      newAlarm.style.fontSize = "small";
+      newAlarm.style.marginBottom = "2px";
+      newAlarm.textContent = "New message includes your favorite keyword!";
+      setTimeout(function() {
+        newAlarm.parentNode.removeChild(newAlarm);
+      }, 7000);
+      rightDisplay.appendChild(newAlarm);
+      break;
+    }
+  }
 
   let abSummaryBox = messageBox.childNodes[1];
   let keywordBox = messageBox.childNodes[2];
