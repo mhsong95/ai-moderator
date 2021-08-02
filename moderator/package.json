@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "moderator": "node server.js",
-    "dev-moderator": "nodemon server.js"
+    "dev-moderator": "nodemon server.js --ignore wevm/"
   },
   "author": "",
   "license": "ISC",

@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "media-server": "node app.js",
-    "dev-media-server": "nodemon app.js"
+    "dev-media-server": "nodemon app.js --ignore logs/"
   },
   "author": "",
   "license": "ISC",

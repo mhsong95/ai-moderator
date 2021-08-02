@@ -9,6 +9,16 @@ const config = require("./config");
 // Maximum length of silence not to switch a paragraph.
 const SILENCE_LIMIT = 10 * 1000;
 
+const summaryHost = config.summaryHost;
+const summaryPorts = config.summaryPorts;
+const portCnt = summaryPorts.length;
+
+let summaryHosts = []
+for (i = 0; i < portCnt; i++) {
+  summaryHosts.push(summaryHost + summaryPorts[i])
+  // console.log(summaryHosts);
+}
+
 module.exports = class Clerk {
   constructor (io, room_id) {
     this.io = io;
@@ -22,11 +32,29 @@ module.exports = class Clerk {
     // Timestamp records when a new paragraph started.
     // It can be used to identify a paragraph uniquely.
     this.timestamp = null;
+
+    /**
+     * TODO: update this comment
+     * timestamp
+     * - ms paragraph
+     * - naver paragraph
+     */
+    this.paragraphs = {}
+
+
+    /**
+     * TODO: update this comment
+     * summarizer 포트 지정
+     */
+    this.summaryPort = summaryHosts
+
+    this.portCnt = portCnt
+    this.requestCnt = 0
   }
 
-  // /**
-  //  * Possibly clears switchTimeout if one exists.
-  //  */
+  /**
+   * Possibly clears switchTimeout if one exists.
+   */
   // clearSwitchTimeout() {
   //   if (this.switchTimeout !== null) {
   //     clearTimeout(this.switchTimeout);
@@ -34,10 +62,10 @@ module.exports = class Clerk {
   //   }
   // }
 
-  // /**
-  //  * Sets a timer that cuts the paragraph on timeout,
-  //  * and send request for a summary for that paragraph.
-  //  */
+  /**
+   * Sets a timer that cuts the paragraph on timeout,
+   * and send request for a summary for that paragraph.
+   */
   // startSwitchTimeout() {
   //   this.clearSwitchTimeout();
   //   this.switchTimeout = setTimeout(() => {
@@ -51,14 +79,28 @@ module.exports = class Clerk {
   //   }, SILENCE_LIMIT);
   // }
 
+
+  /**
+   * TODO: add comment
+   * add update paragraph function: update overall paragraph data after naver STT
+   * @param {*} speakerName 
+   * @param {*} transcript 
+   * @param {*} timestamp 
+   */
+  replaceParagraph(speakerName, transcript, timestamp) {
+    this.paragraphs[timestamp]["naver"] = transcript;
+
+    this.io.sockets
+      .to(this.room_id)
+      .emit("transcript", transcript, speakerName, timestamp);
+  }
+
   /**
    * Cuts the paragraph and request summary, then switch to a new paragraph.
    */
+  // TODO: remove islast
+  // ? remove?
   switchParagraph(nextSpeakerId, nextSpeakerName, nextTranscript, nextTimeStamp, isLast) {
-    console.log("switchParagraph");
-
-    console.log(isLast);
-    console.log(typeof isLast);
     // There might not be a paragraph, thus should check this condition.
     if (this.speakerId !== null) {
       this.requestSummary();
@@ -77,13 +119,9 @@ module.exports = class Clerk {
   /**
    * Appends a transcript to the paragraph.
    */
+  // ? TODO: remove?
   appendTranscript(transcript, isLast) {
-    console.log("appendTranscript: ", this.timestamp);
-    console.log(isLast);
-    console.log(transcript);
-    
     this.paragraph += " " + transcript;
-    console.log(this.paragraph);
     this.publishTranscript(this.paragraph, this.speakerName, this.timestamp);
     if (isLast) {
       this.requestSummary();
@@ -91,10 +129,39 @@ module.exports = class Clerk {
   }
 
   /**
+   * TODO: ADD comment
+   * MS STT에서 return 된 transcript를 임시로 messagebox에 표시
+   * 
+   * DESIGN: maybe add log?
+   */
+  tempParagraph(speakerId, speakerName, transcript, timestamp) {
+    console.log("tempParagraph");
+
+    // Save transcript
+    if (timestamp in this.paragraphs) {
+      console.log("add transcript to existing msgbox")
+      this.paragraphs[timestamp]["ms"] = this.paragraphs[timestamp]["ms"] + " " + transcript;
+      console.log(this.paragraphs)
+    }
+    else {
+      console.log("add new msgbox")
+      this.paragraphs[timestamp] = {
+        "speakerID": speakerId,
+        "speakerName": speakerName,
+        "ms": transcript,
+        "naver": ""
+      }
+    }
+
+    // Show message box
+    this.publishTranscript(this.paragraphs[timestamp]["ms"], speakerName, timestamp);
+  }
+
+  /**
    * Broadcasts a transcript to the room.
    */
   publishTranscript(transcript, name, timestamp) {
-    console.log("publishTranscript")
+    // console.log("publishTranscript")
     if (transcript.split(' ')[0].length == 0) return;
     this.io.sockets
       .to(this.room_id)
@@ -105,23 +172,27 @@ module.exports = class Clerk {
    * Requests for a summary for the current paragraph, then
    * broadcasts the result with given confidence level.
    */
-  requestSummary() {
+  requestSummary(speakerId, speakerName, paragraph, timestamp) {
     console.log("requestSummary");
-    let paragraph = this.paragraph;
-    let speakerId = this.speakerId;
-    let speakerName = this.speakerName;
-    let timestamp = this.timestamp;
-    this.speakerId = null;
-    this.speakerName = null;
-    this.paragraph = "";
-    this.switchTimeout = null;
+    // let paragraph = this.paragraph;
+    // let speakerId = this.speakerId;
+    // let speakerName = this.speakerName;
+    // let timestamp = this.timestamp;
+    // this.speakerId = null;
+    // this.speakerName = null;
+    // this.paragraph = "";
+    // this.switchTimeout = null;
+
+    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+
+    console.log("HOST: ", host)
+    console.log("this.requestCnt: ", this.requestCnt)
 
     if (paragraph.split(' ')[0].length == 0) return;
 
     axios
       .post(
-        // TODO: include in config.js
-        config.summaryHost,
+        host,
         {
           type: "requestSummary",
           user: speakerId,
@@ -175,10 +246,14 @@ module.exports = class Clerk {
   }
 
   updateParagraph(paragraph, timestamp, editor) {
+    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+
+    console.log("HOST: ", host)
+    console.log("this.requestCnt: ", this.requestCnt)
+
     axios
       .post(
-        // TODO: include in config.js
-        config.summaryHost,
+        host,
         {
           type: "requestSummary",
           user: editor,
@@ -239,17 +314,32 @@ module.exports = class Clerk {
       .emit("updateSummary", type, content, timestamp);
   }
 
-  requestSTT(roomID, userID, user, timestamp, isNew, isLast) {
-    if (isNew) { this.speakerId = userID; }
+  /**
+   * TODO: add comment
+  //  * @param {*} roomID 
+  //  * @param {*} userID 
+  //  * @param {*} user 
+  //  * @param {*} timestamp 
+  //  * @param {*} isNew 
+  //  * @param {*} isLast 
+   */
+  // TODO: remove userID if it is not used in `summarizer/server.py`
+  requestSTT(roomID, userId, user, startTimestamp, endTimestamp, audioFileList) {
+    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+
+    console.log("HOST: ", host)
+    console.log("this.requestCnt: ", this.requestCnt)
+
     axios
       .post(
-        // TODO: include in config.js
-        config.summaryHost,
+        host,
         {
           type: "requestSTT",
           roomID,
           user,
-          timestamp,
+          startTimestamp,
+          endTimestamp,
+          audioFileList
         },
         {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -262,13 +352,19 @@ module.exports = class Clerk {
           transcript = response.data;
         }
 
-        // new speaker :: new to switch to a new paragraph
-        if (isNew) {
-          this.switchParagraph(userID, user, transcript, timestamp, isLast);
-        }
-        else {
-          this.appendTranscript(transcript, isLast);
-        }
+        // Update message box transcript
+        this.replaceParagraph(user, transcript, startTimestamp);
+
+        // Conduct summarizer request
+        this.requestSummary(userId, user, transcript, startTimestamp);
+
+        // // new speaker :: new to switch to a new paragraph
+        // if (isNew) {
+        //   this.switchParagraph(userID, user, transcript, timestamp, isLast);
+        // }
+        // else {
+        //   this.appendTranscript(transcript, isLast);
+        // }
       })
       .catch((e) => {
         console.log("CATCH - requestSTT");
