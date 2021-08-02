@@ -49,6 +49,11 @@ module.exports = function (io, socket) {
       console.log('File is created successfully.');
     });
 
+    fs.appendFile('logs/' + room_name + '_' + room_id + '.txt', msg, function (err) {
+      if (err) throw err;
+      console.log('File is created successfully.');
+    });
+
     let room = roomList.get(room_id);
     if (room.roomExpireTimeout) {
       clearTimeout(room.roomExpireTimeout);

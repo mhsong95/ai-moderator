@@ -10,6 +10,19 @@ import requests
 import os
 import configparser
 
+# import argparse
+
+# parser = argparse.ArgumentParser()
+# parser.add_argument("port", help="Input port to use in summarizer server.", type=int)
+# args = parser.parse_args()
+# print(args.port)
+# print(type(args.port))
+
+import sys
+for line in sys.stdin:
+    PORT = int(line)
+print("PORT: ", PORT)
+
 config = configparser.ConfigParser()
 config.read(os.getcwd().split("ai-moderator")[0]+"ai-moderator"+ os.sep + "summarizer" +os.sep+ 'config.ini', encoding='utf-8')
 
@@ -422,20 +435,31 @@ class echoHandler(BaseHTTPRequestHandler):
             print("REQUEST::::::STT")
             roomID = fields["roomID"]
             user = fields["user"]
-            timestamp = fields["timestamp"]
+            startTimestamp = fields["startTimestamp"]
+            endTimestamp = fields["endTimestamp"]
+            audioFileList = fields["audioFileList"]
 
-            # convert file type
-            inputfile = "../moderator/webm/"+roomID+"_"+user+"_"+str(timestamp)+".webm"
-            outputfile = "./wav/"+roomID+"_"+user+"_"+str(timestamp)+".wav"
-            convert_and_split(inputfile, outputfile)
+            # Traverse audioFileList and convert file type from webm to wav
+            wavFiles = []
+            for t in audioFileList:
+                inputfile = "../moderator/webm/"+roomID+"_"+user+"_"+str(t)+".webm"
+                outputfile = "./wav/"+roomID+"_"+user+"_"+str(t)+".wav"
+                wavFiles.append(outputfile)
+                convert_and_split(inputfile, outputfile)
+                # TODO: remove[debug]
+                print(inputfile +'\n'+ outputfile +'\n'+ "convert file type")
             
-            # run STT
-            stt_res = ClovaSpeechClient(invoke_url, secret).req_upload(file=outputfile, completion='sync')
-            print(stt_res.text)
-            print(json.loads(stt_res.text)['text'])
+            # Traverse audioFileList and run Naver STT for each files
+            # DESIGN: Combine STT result and make timestamp sync using startTimestamp and endTimestamp if needed
+            returnText = ''
+            for wav in wavFiles:
+                stt_res = ClovaSpeechClient(invoke_url, secret).req_upload(file=wav, completion='sync')
+                print(stt_res.text)
+                print(json.loads(stt_res.text)['text'])
+                returnText += json.loads(stt_res.text)['text']
             
-            text = json.loads(stt_res.text)['text']
-            res = text
+            # Return result text
+            res = returnText
         elif fields["type"] == "requestSummary":
             print("REQUEST::::::SUMMARY")
             user_name = fields["user"]    # Only for overall summary request
@@ -486,9 +510,11 @@ class echoHandler(BaseHTTPRequestHandler):
         self.send_header('content-type', 'text/html')
         self.end_headers()
         self.wfile.write(res.encode())
+        
+
 
 def main():
-    PORT = 4343 # PORT = 5050
+    # PORT = int(input("!!! Input PORT to run summaerizer server :"))
     server = HTTPServer(('', PORT), echoHandler)
     print('Server running on port %s' % PORT)
     server.serve_forever()

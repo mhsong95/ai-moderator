@@ -19,6 +19,7 @@ const SureMessage_Mycolor = "rgba(40, 70, 167, 0.219)"
 const SureMessage_Othercolor = "rgba(40, 167, 70, 0.219)"
 
 moderatorSocket.on("transcript", onTranscript);
+// moderatorSocket.on("replaceTranscript", onReplaceTranscript);
 moderatorSocket.on("summary", onSummary);
 
 moderatorSocket.on("updateParagraph", onUpdateParagraph);
@@ -32,17 +33,17 @@ let scrollPos = 0;
 var isScrolling;
 
 // Logging Scroll Event
-window.addEventListener('scroll', function ( event ) {
-	window.clearTimeout( isScrolling ); 	// Clear our timeout throughout the scroll
-	isScrolling = setTimeout(function() { 	// Set a timeout to run after scrolling ends
-    if ((document.body.getBoundingClientRect()).top > scrollPos){
+window.addEventListener('scroll', function (event) {
+  window.clearTimeout(isScrolling); // Clear our timeout throughout the scroll
+  isScrolling = setTimeout(function () { // Set a timeout to run after scrolling ends
+    if ((document.body.getBoundingClientRect()).top > scrollPos) {
       rc.addUserLog(Date.now(), "SCROLL UP");
     }
     else {
       rc.addUserLog(Date.now(), "SCROLL DOWN");
     }
     scrollPos = (document.body.getBoundingClientRect()).top;
-	}, 66);
+  }, 66);
 }, false);
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
@@ -173,6 +174,25 @@ function onTranscript(transcript, name, timestamp) {
   displayUnitOfBox(); 
 }
 
+// /**
+//  * TODO: add comment
+//  */
+// function onReplaceTranscript(transcript, speakerName, timestamp) {
+//   console.log("ONREPLACETRANSCRIPT");
+
+//   let messageBox = getMessageBox(timestamp);
+//   if (!messageBox) {
+//     throw "Wrong timestamp in onReplaceTranscript by " + speakerName + " : " + timestamp.toString();
+//   }
+//   // Append the new transcript to the old paragraph.
+//   let paragraph = messageBox.childNodes[3].childNodes[1];
+//   paragraph.textContent = transcript;
+
+//   let abSummaryBox = messageBox.childNodes[1];
+//   let abSummaryEl = abSummaryBox.childNodes[0];
+//   abSummaryEl.textContent = transcript;
+// }
+
 // Event listener on summary arrival.
 function onSummary(summaryArr, confArr, name, timestamp) {
   console.log("ON SUMMARY - timestamp="+timestamp);
@@ -183,8 +203,8 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   // Filtering with new message box
   displayUnitOfBox();
 
-  if (confArr[0]< 0.66){
-    messageBox.style.background = UnsureMessage_color ;
+  if (confArr[0] < 0.66) {
+    messageBox.style.background = UnsureMessage_color;
   }
 
   let seeFullText = messageBox.childNodes[3].childNodes[0];
@@ -200,13 +220,13 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   keywordMap[timestamp.toString()] = keywordList;
 
-  for (keyword of keywordList){
+  for (keyword of keywordList) {
     var keywordBtn = document.createElement("p");
     keywordBtn.innerHTML = "#" + keyword;
     keywordBtn.style.display = "inline-block";
     keywordBtn.style.fontSize = "small";
     keywordBtn.style.padding = "0px 5px 0px 3px";
-    keywordBtn.style.border =  "1px solid #6b787e";
+    keywordBtn.style.border = "1px solid #6b787e";
     keywordBtn.style.borderRadius = "5px";
 
     if (favoriteKeywords.includes(keyword)) {
@@ -235,8 +255,8 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   var trendingList = summaryArr[3].split("@@@@@CD@@@@@AX@@@@@");
   var trendingBtns = [trending_1, trending_2, trending_3, trending_4, trending_5, trending_6, trending_7, trending_8, trending_9, trending_10];
   let i = 0;
-  for (trendBtn of trendingBtns){
-    if (trendingList[i]){
+  for (trendBtn of trendingBtns) {
+    if (trendingList[i]) {
       trendBtn.textContent = "#" + trendingList[i];
       trendBtn.style.display = "inline-block";
     }
@@ -268,6 +288,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
 // Helper function for adding new keywords
 function addKeyword(box) {
+  console.log("Add keyword for messagebox");
   var keyInput = document.createElement("input");
   keyInput.style.fontSize = "small";
   keyInput.style.marginLeft = "5px";
@@ -319,9 +340,9 @@ function editContent(type, timestamp) {
     case "paragraph":
       let paragraph = messageBox.childNodes[3].childNodes[1];
       paragraph.contentEditable = "true";
-      paragraph.addEventListener("keydown", function(event){
+      paragraph.addEventListener("keydown", function (event) {
         // event.preventDefault();
-        if (event.keyCode === 13 ){
+        if (event.keyCode === 13) {
           finishEditContent("paragraph", oldtxt, timestamp);
         }
       });
@@ -340,8 +361,8 @@ function editContent(type, timestamp) {
     case "absum":
       let abSummary = messageBox.childNodes[1].childNodes[1];
       abSummary.contentEditable = "true";
-      abSummary.addEventListener("keydown", function(event){
-        if (event.keyCode === 13 ){
+      abSummary.addEventListener("keydown", function (event) {
+        if (event.keyCode === 13) {
           finishEditContent("absum", oldtxt, timestamp);
         }
       });
@@ -375,7 +396,7 @@ function finishEditContent(type, oldtxt, timestamp) {
         // update paragraph and summary on all users
         rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(Date.now(), 'Finish edit message by '+messageBox.childNodes[0].childNodes[0].textContent+': ' + type + '-' + timestamp + '\n');
+        rc.addUserLog(Date.now(), 'Finish edit message by ' + messageBox.childNodes[0].childNodes[0].textContent + ': ' + type + '-' + timestamp + '\n');
       }
       else {
         // change icon
@@ -503,7 +524,7 @@ function displayUnitOfBox() {
   // highlight with search-word
   if (searchword == ""){
     highlighter.remove();
-  }else {
+  } else {
     highlighter.apply(searchword);
   }
 }
@@ -532,7 +553,8 @@ function addFavorite() {
       myKeyword.style.borderRadius = "5px";
       myKeyword.style.border = "1px solid black";
       myKeyword.style.display = "inline-block";
-      myKeyword.onclick = function() {
+      myKeyword.onclick = function () {
+        removeSummaryBox();
         let searchword = document.getElementById("search-word");
         searchword.value = this.textContent.slice(1);
         displayUnitOfBox();
@@ -744,7 +766,7 @@ function createMessageBox(name, timestamp) {
   seeFullText.style.backgroundColor = "transparent";
   seeFullText.style.marginTop = "5px";
   seeFullText.innerHTML = "<u>See full text</u>";
-  seeFullText.onclick = function() { showFullText(timestamp);};
+  seeFullText.onclick = function () { showFullText(timestamp); };
   paragraphBox.append(seeFullText);
 
   let paragraph = document.createElement("p");
@@ -777,7 +799,7 @@ function pinBox(timestamp) {
     messageBox.setAttribute("pinned", "true");
     newPin.setAttribute("id", "pin" + stringTime);
     newPin.href = "#";
-    newPin.onclick = function() { messageBox.scrollIntoView(true); };
+    newPin.onclick = function () { messageBox.scrollIntoView(true); };
     newPin.style.padding = "0px 2px 0px 2px";
     newPin.style.backgroundColor = "#ffffff";
     newPin.style.border = "0.1px solid #d4d4d4";
@@ -788,8 +810,8 @@ function pinBox(timestamp) {
     newPin.style.overflow = "auto";
     newPin.style.textAlign = "left";
     newPin.style.textDecoration = "none";
-    newPin.innerHTML = "[" + messageBox.childNodes[0].childNodes[0].childNodes[0].textContent + "] " 
-                      + messageBox.childNodes[3].childNodes[1].textContent.substr(0, 10) + "...";
+    newPin.innerHTML = "[" + messageBox.childNodes[0].childNodes[0].childNodes[0].textContent + "] "
+      + messageBox.childNodes[3].childNodes[1].textContent.substr(0, 10) + "...";
     dropdownPin.append(newPin);
     pinBtn.childNodes[0].style.color = "#000000";
   }
@@ -808,7 +830,7 @@ function pinBox(timestamp) {
 
 function showPinBoxes() {
   let pinClick = document.getElementById("dropdownPin");
-  if (pinClick.style.display === "none"){
+  if (pinClick.style.display === "none") {
     pinClick.style.display = "block";
   }
   else {
@@ -820,7 +842,7 @@ function showPinBoxes() {
 function showFullText(timestamp) {
   let messageBox = document.getElementById(timestamp.toString());
 
-  if (messageBox.childNodes[3].childNodes[1].style.display == ""){
+  if (messageBox.childNodes[3].childNodes[1].style.display == "") {
     rc.addUserLog(Date.now(), 'Click [Hide Full Text] Button -' + timestamp.toString() + '\n');
     messageBox.childNodes[3].childNodes[1].style.display = "none";
     messageBox.childNodes[3].childNodes[0].innerHTML = "<u>See full text</u>";
@@ -886,14 +908,13 @@ function confidenceElement(confidence) {
 // Original JavaScript code by Chirp Internet: chirpinternet.eu
 // Please acknowledge use of this code by including this header.
 
-function Hilitor(id, tag)
-{
+function Hilitor(id, tag) {
 
   // private variables
   var targetNode = document.getElementById(id) || document.body;
   var hiliteTag = tag || "MARK";
   var skipTags = new RegExp("^(?:" + hiliteTag + "|SCRIPT|FORM|SPAN)$");
-  var colors = ["#ff6"] 
+  var colors = ["#ff6"]
   var wordColor = [];
   var colorIdx = 0;
   var matchRegExp = "";
@@ -906,20 +927,18 @@ function Hilitor(id, tag)
   // characters used to break up the input string into words
   var breakRegExp = new RegExp('[^\\w\'-]+', "g");
 
-  this.setEndRegExp = function(regex) {
+  this.setEndRegExp = function (regex) {
     endRegExp = regex;
     return endRegExp;
   };
 
-  this.setBreakRegExp = function(regex) {
+  this.setBreakRegExp = function (regex) {
     breakRegExp = regex;
     return breakRegExp;
   };
 
-  this.setMatchType = function(type)
-  {
-    switch(type)
-    {
+  this.setMatchType = function (type) {
+    switch (type) {
       case "left":
         this.openLeft = false;
         this.openRight = true;
@@ -940,12 +959,11 @@ function Hilitor(id, tag)
     }
   };
 
-  this.setRegex = function(input)
-  {
+  this.setRegex = function (input) {
     // input = input.replace(endRegExp, "");
     // input = input.replace(breakRegExp, "|");
     // input = input.replace(/^\||\|$/g, "");
-    if(input) {
+    if (input) {
       // var re = "(" + input + ")";
       // if(!this.openLeft) {
       //   re = "\\b" + re;
@@ -953,15 +971,14 @@ function Hilitor(id, tag)
       // if(!this.openRight) {
       //   re = re + "\\b";
       // }
-      var re = "("+input+")"
+      var re = "(" + input + ")"
       matchRegExp = new RegExp(re, "i");
       return matchRegExp;
     }
     return false;
   };
 
-  this.getRegex = function()
-  {
+  this.getRegex = function () {
     var retval = matchRegExp.toString();
     retval = retval.replace(/(^\/(\\b)?|\(|\)|(\\b)?\/i$)/g, "");
     retval = retval.replace(/\|/g, " ");
@@ -969,19 +986,18 @@ function Hilitor(id, tag)
   };
 
   // recursively apply word highlighting
-  this.hiliteWords = function(node)
-  {
-    if(node === undefined || !node) return;
-    if(!matchRegExp) return;
-    if(skipTags.test(node.nodeName)) return;
+  this.hiliteWords = function (node) {
+    if (node === undefined || !node) return;
+    if (!matchRegExp) return;
+    if (skipTags.test(node.nodeName)) return;
 
-    if(node.hasChildNodes()) {
-      for(var i=0; i < node.childNodes.length; i++)
+    if (node.hasChildNodes()) {
+      for (var i = 0; i < node.childNodes.length; i++)
         this.hiliteWords(node.childNodes[i]);
     }
-    if(node.nodeType == 3) { // NODE_TEXT
-      if((nv = node.nodeValue) && (regs = matchRegExp.exec(nv))) {
-        if(!wordColor[regs[0].toLowerCase()]) {
+    if (node.nodeType == 3) { // NODE_TEXT
+      if ((nv = node.nodeValue) && (regs = matchRegExp.exec(nv))) {
+        if (!wordColor[regs[0].toLowerCase()]) {
           wordColor[regs[0].toLowerCase()] = colors[colorIdx++ % colors.length];
         }
         var match = document.createElement(hiliteTag);
@@ -997,10 +1013,9 @@ function Hilitor(id, tag)
   };
 
   // remove highlighting
-  this.remove = function()
-  {
+  this.remove = function () {
     var arr = document.getElementsByTagName(hiliteTag);
-    while(arr.length && (el = arr[0])) {
+    while (arr.length && (el = arr[0])) {
       var parent = el.parentNode;
       parent.replaceChild(el.firstChild, el);
       parent.normalize();
@@ -1008,13 +1023,12 @@ function Hilitor(id, tag)
   };
 
   // start highlighting at target node
-  this.apply = function(input)
-  {
+  this.apply = function (input) {
     this.remove();
-    if(input === undefined || !(input = input.replace(/(^\s+|\s+$)/g, ""))) {
+    if (input === undefined || !(input = input.replace(/(^\s+|\s+$)/g, ""))) {
       return;
     }
-    if(this.setRegex(input)) {
+    if (this.setRegex(input)) {
       this.hiliteWords(targetNode);
     }
     return matchRegExp;
