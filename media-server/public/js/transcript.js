@@ -111,6 +111,14 @@ function onUpdateSummary(type, content, timestamp) {
     pinBox(timestamp);
     return;
   }
+  else if (type === "addkey") {
+    addKeywordHelper(content, timestamp);
+    return;
+  }
+  else if (type === "delkey") {
+    removeKeywordHelper(content, timestamp);
+    return;
+  }
 
   console.log("ON UPDATESUMMARY - timestamp="+timestamp+" / content="+content);
   let messageBox = document.getElementById(timestamp);
@@ -152,6 +160,7 @@ function onTranscript(transcript, name, timestamp) {
   abSummaryBox.childNodes[0].textContent="[Transcript]"
   abSummaryBox.childNodes[1].textContent=transcript;
 
+  console.log("ON TRANSCRIPT content="+transcript);
   // Filtering with new message box
   displayUnitOfBox(); 
 }
@@ -213,20 +222,26 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
   let abSummaryBox = messageBox.childNodes[1];
   let keywordBox = messageBox.childNodes[2];
-  // let abSummaryEl = abSummaryBox.childNodes[0];
-  // abSummaryEl.textContent = "[Summary]\n" + summaryArr[0];
 
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   keywordMap[timestamp.toString()] = keywordList;
 
   for (keyword of keywordList) {
     var keywordBtn = document.createElement("p");
+    keywordBtn.setAttribute("id", timestamp.toString() + '@@@' + keyword);
     keywordBtn.innerHTML = "#" + keyword;
     keywordBtn.style.display = "inline-block";
     keywordBtn.style.fontSize = "small";
     keywordBtn.style.padding = "0px 5px 0px 3px";
     keywordBtn.style.border = "1px solid #6b787e";
     keywordBtn.style.borderRadius = "5px";
+    let delBtn = document.createElement("button");
+    delBtn.className = "fas fa-times";
+    delBtn.style.backgroundColor = "transparent";
+    delBtn.style.border = 0;
+    delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp) };
+    delBtn.style.display = "none";
+    keywordBtn.append(delBtn);
 
     if (favoriteKeywords.includes(keyword)) {
       keywordBtn.style.backgroundColor = "#fed7bf";
@@ -237,6 +252,21 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     keywordBtn.style.margin = "0px 5px 2px 0px";
     keywordBox.append(keywordBtn);
   }
+
+  // Add button for deleting keywords
+  var delKeywordBtn = document.createElement("button");
+  var delImage = document.createElement("i");
+  delImage.className = "fas fa-minus";
+  delImage.style.color = "black";
+  delKeywordBtn.style.backgroundColor = "transparent";
+  delKeywordBtn.style.border = 0;
+  delKeywordBtn.style.display = "inline-block";
+  delKeywordBtn.style.float = "right";
+  delKeywordBtn.setAttribute("state", "off");
+  delKeywordBtn.onclick = function () { delKeyword(timestamp, this); };
+  delKeywordBtn.append(delImage);
+  keywordBox.append(delKeywordBtn);
+
   // Add button for adding keywords
   var addKeywordBtn = document.createElement("button");
   var addImage = document.createElement("i");
@@ -246,7 +276,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   addKeywordBtn.style.border = 0;
   addKeywordBtn.style.display = "inline-block";
   addKeywordBtn.style.float = "right";
-  addKeywordBtn.onclick = function () { addKeyword(keywordBox); };
+  addKeywordBtn.onclick = function () { addKeyword(keywordBox, timestamp); };
   addKeywordBtn.append(addImage);
   keywordBox.append(addKeywordBtn);
 
@@ -286,7 +316,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 }
 
 // Helper function for adding new keywords
-function addKeyword(box) {
+function addKeyword(box, timestamp) {
   console.log("Add keyword for messagebox");
   var keyInput = document.createElement("input");
   keyInput.style.fontSize = "small";
@@ -294,24 +324,72 @@ function addKeyword(box) {
   keyInput.placeholder = "Enter new keyword";
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
-      var newKeyword = document.createElement("p");
-      newKeyword.innerHTML = "#" + keyInput.value;
-      newKeyword.style.display = "inline-block";
-      newKeyword.style.padding = "0px 3px 0px 3px";
-      newKeyword.style.border = "1px solid #6b787e";
-      newKeyword.style.borderRadius = "5px";
-      if (favoriteKeywords.includes(keyInput.value)) {
-        newKeyword.style.backgroundColor = "#fed7bf";
-      }
-      else {
-        newKeyword.style.backgroundColor = "transparent";
-      }
-      newKeyword.style.margin = "0px 5px 2px 0px";
+      rc.updateSummary("addkey", keyInput.value, timestamp);
       keyInput.remove();
-      box.append(newKeyword);
     }
   });
   box.append(keyInput);
+}
+
+// Helper function for adding a new keyword in message box
+function addKeywordHelper(keyword, timestamp) {
+  let messageBox = document.getElementById(timestamp.toString());
+  let keywordBox = messageBox.childNodes[2];
+  var newKeyword = document.createElement("p");
+  newKeyword.innerHTML = '#' + keyword;
+  newKeyword.setAttribute("id", timestamp.toString() + '@@@' + keyword);
+  let delBtn = document.createElement("button");
+  delBtn.className = "fas fa-times";
+  delBtn.style.backgroundColor = "transparent";
+  delBtn.style.border = 0;
+  delBtn.style.display = "none";
+  delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp) };
+  newKeyword.append(delBtn);
+  newKeyword.style.display = "inline-block";
+  newKeyword.style.padding = "0px 3px 0px 3px";
+  newKeyword.style.border = "1px solid #6b787e";
+  newKeyword.style.borderRadius = "5px";
+  newKeyword.style.margin = "0px 5px 2px 0px";
+
+  if (favoriteKeywords.includes(keyword)) {
+    newKeyword.style.backgroundColor = "#fed7bf";
+  }
+  else {
+    newKeyword.style.backgroundColor = "transparent";
+  }
+  keywordBox.append(newKeyword);
+  keywordMap[timestamp].push(keyword);
+}
+
+function delKeyword(timestamp, delKeywordBtn) {
+  let messageBox = document.getElementById(timestamp.toString());
+  let keywordBox = messageBox.childNodes[2];
+  let state = delKeywordBtn.getAttribute("state");
+  if (state === "off") {
+    for (key of keywordBox.childNodes) {
+      if (key.tagName === "P") {
+        key.childNodes[1].style.display = "";
+      }
+    }
+    delKeywordBtn.setAttribute("state", "on");
+  } else {
+    for (key of keywordBox.childNodes) {
+      if (key.tagName === "P") {
+        key.childNodes[1].style.display = "none";
+      }
+    }
+    delKeywordBtn.setAttribute("state", "off");
+  }
+}
+
+function removeKeyword(keywordBtn, timestamp) {
+  let keyword = keywordBtn.textContent.slice(1);
+  rc.updateSummary("delkey", keyword, timestamp);
+}
+
+function removeKeywordHelper(keyword, timestamp) {
+  let keywordBtn = document.getElementById(timestamp.toString() + '@@@' + keyword);
+  keywordBtn.remove();
 }
 
 function toEditableBg(p) {
