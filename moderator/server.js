@@ -38,6 +38,9 @@ io.on("connection", (socket) => {
     socket.name = name;
     console.log(`${name} joined ${room_id} on moderator server`);
 
+    // DESIGN: Reload past conversations if exist
+    clerks.get(socket.room_id).restoreParagraphs();
+
     registerSpeechHandler(io, socket);
   } else {
     socket.disconnect(true);

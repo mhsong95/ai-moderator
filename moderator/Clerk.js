@@ -6,6 +6,10 @@ const axios = require("axios");
 const { ConsoleLoggingListener } = require("microsoft-cognitiveservices-speech-sdk/distrib/lib/src/common.browser/Exports");
 const config = require("./config");
 
+// Read and write logs
+const fs = require("fs");
+const getLastLine = require('./fileTools.js').getLastLine
+
 // Maximum length of silence not to switch a paragraph.
 const SILENCE_LIMIT = 10 * 1000;
 
@@ -38,6 +42,7 @@ module.exports = class Clerk {
      * timestamp
      * - ms paragraph
      * - naver paragraph
+     * - summary result
      */
     this.paragraphs = {}
 
@@ -79,6 +84,31 @@ module.exports = class Clerk {
   //   }, SILENCE_LIMIT);
   // }
 
+  restoreParagraphs() {
+    const fileName = './logs/' + this.room_id + '.txt'
+
+    fs.access(fileName, fs.F_OK, (err) => {
+      if (err) {
+        console.log("No previous conversation")
+        return
+      }
+
+      // File exists
+      const minLineLength = 1
+      getLastLine(fileName, minLineLength)
+        .then((lastLine) => {
+          console.log(lastLine)
+          console.log(JSON.parse(lastLine))
+          let past_paragraphs = JSON.parse(lastLine);
+          this.io.sockets
+            .to(this.room_id)
+            .emit("restore", past_paragraphs);
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    })
+  }
 
   /**
    * TODO: add comment
@@ -88,7 +118,10 @@ module.exports = class Clerk {
    * @param {*} timestamp 
    */
   replaceParagraph(speakerName, transcript, timestamp) {
+    console.log("replaceParagraph: ", timestamp, transcript)
     this.paragraphs[timestamp]["naver"] = transcript;
+
+    this.addRoomLog();
 
     this.io.sockets
       .to(this.room_id)
@@ -135,7 +168,7 @@ module.exports = class Clerk {
    * DESIGN: maybe add log?
    */
   tempParagraph(speakerId, speakerName, transcript, timestamp) {
-    console.log("tempParagraph");
+    console.log("tempParagraph: ", timestamp, transcript);
 
     // Save transcript
     if (timestamp in this.paragraphs) {
@@ -149,7 +182,8 @@ module.exports = class Clerk {
         "speakerID": speakerId,
         "speakerName": speakerName,
         "ms": transcript,
-        "naver": ""
+        "naver": "",
+        "sum": {}
       }
     }
 
@@ -163,6 +197,7 @@ module.exports = class Clerk {
   publishTranscript(transcript, name, timestamp) {
     // console.log("publishTranscript")
     if (transcript.split(' ')[0].length == 0) return;
+    this.addRoomLog();
     this.io.sockets
       .to(this.room_id)
       .emit("transcript", transcript, name, timestamp);
@@ -229,6 +264,9 @@ module.exports = class Clerk {
           // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
           summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
         }
+
+        this.paragraphs[timestamp]["sum"] = { summaryArr: summaryArr, confArr: confArr }
+        this.addRoomLog();
 
         this.io.sockets
           .to(this.room_id)
@@ -370,5 +408,16 @@ module.exports = class Clerk {
         console.log("CATCH - requestSTT");
         console.log(e);
       });
+  }
+
+  /**
+   * TODO: add comment
+   */
+  addRoomLog() {
+    // Construct new log file for room
+    fs.appendFile('./logs/' + this.room_id + '.txt', JSON.stringify(this.paragraphs) + '\n', function (err) {
+      if (err) throw err;
+      console.log('Log is added successfully.');
+    });
   }
 };
