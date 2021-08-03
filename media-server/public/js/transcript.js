@@ -253,7 +253,7 @@ function onUpdateSummary(type, content, timestamp) {
   let keywordBox = messageBox.childNodes[2];
   for (key of keywordBox.childNodes) {
     if (key.tagName === "P") {
-      if (content.includes(key.innerHTML.slice(1))) {
+      if (!content.includes(key.innerHTML.slice(1))) {
         key.remove();
       }
     }
