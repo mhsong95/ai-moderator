@@ -350,15 +350,15 @@ module.exports = function (io, socket) {
   /**
    * TODO: Add comment
    */
-  socket.on("updateParagraph", (paragraph, timestamp, editor) => {
-    clerks.get(socket.room_id).updateParagraph(paragraph, timestamp, editor);
+  socket.on("updateParagraph", (editTimestamp, paragraph, timestamp, editor) => {
+    clerks.get(socket.room_id).updateParagraph(editTimestamp, paragraph, timestamp, editor);
   })
 
   /**
    * TODO: Add comment
    */
-  socket.on("updateSummary", (type, content, timestamp) => {
-    clerks.get(socket.room_id).updateSummary(type, content, timestamp);
+  socket.on("updateSummary", (editTimestamp, type, content, timestamp) => {
+    clerks.get(socket.room_id).updateSummary(editTimestamp, type, content, timestamp);
   })
 
   /**
@@ -412,7 +412,7 @@ module.exports = function (io, socket) {
       console.log("Save file log");
       console.log(audiofiles);
 
-      //DESIGN: Write new file log at server
+      // DESIGN: Write new file log at server
     }
   })
 

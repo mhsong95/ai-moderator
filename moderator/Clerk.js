@@ -43,6 +43,8 @@ module.exports = class Clerk {
      * - ms paragraph
      * - naver paragraph
      * - summary result
+     * - edit transcript log {timestamp: (editor, content, summary elements)}
+     * - edit summary log {timestamp: (editor, content)}
      */
     this.paragraphs = {}
 
@@ -56,33 +58,6 @@ module.exports = class Clerk {
     this.portCnt = portCnt
     this.requestCnt = 0
   }
-
-  /**
-   * Possibly clears switchTimeout if one exists.
-   */
-  // clearSwitchTimeout() {
-  //   if (this.switchTimeout !== null) {
-  //     clearTimeout(this.switchTimeout);
-  //     this.switchTimeout = null;
-  //   }
-  // }
-
-  /**
-   * Sets a timer that cuts the paragraph on timeout,
-   * and send request for a summary for that paragraph.
-   */
-  // startSwitchTimeout() {
-  //   this.clearSwitchTimeout();
-  //   this.switchTimeout = setTimeout(() => {
-  //     if (this.speakerId !== null) {
-  //       this.requestSummary();
-  //     }
-  //     this.speakerId = null;
-  //     this.speakerName = null;
-  //     this.paragraph = "";
-  //     this.switchTimeout = null;
-  //   }, SILENCE_LIMIT);
-  // }
 
   restoreParagraphs() {
     const fileName = './logs/' + this.room_id + '.txt'
@@ -183,7 +158,9 @@ module.exports = class Clerk {
         "speakerName": speakerName,
         "ms": transcript,
         "naver": "",
-        "sum": {}
+        "sum": {},
+        "editTrans": {},
+        "editSum": {},
       }
     }
 
@@ -209,14 +186,6 @@ module.exports = class Clerk {
    */
   requestSummary(speakerId, speakerName, paragraph, timestamp) {
     console.log("requestSummary");
-    // let paragraph = this.paragraph;
-    // let speakerId = this.speakerId;
-    // let speakerName = this.speakerName;
-    // let timestamp = this.timestamp;
-    // this.speakerId = null;
-    // this.speakerName = null;
-    // this.paragraph = "";
-    // this.switchTimeout = null;
 
     let host = this.summaryPort[this.requestCnt++ % this.portCnt]
 
@@ -265,6 +234,7 @@ module.exports = class Clerk {
           summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
         }
 
+        // Update room conversation log
         this.paragraphs[timestamp]["sum"] = { summaryArr: summaryArr, confArr: confArr }
         this.addRoomLog();
 
@@ -283,7 +253,7 @@ module.exports = class Clerk {
       });
   }
 
-  updateParagraph(paragraph, timestamp, editor) {
+  updateParagraph(editTimestamp, paragraph, timestamp, editor) {
     let host = this.summaryPort[this.requestCnt++ % this.portCnt]
 
     console.log("HOST: ", host)
@@ -328,6 +298,10 @@ module.exports = class Clerk {
           summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
         }
 
+        // Update room conversation log: content and summary 
+        this.paragraphs[timestamp]["editTrans"][editTimestamp] = { editor: editor, content: paragraph, sum: [summaryArr, confArr] };
+        this.addRoomLog();
+
         this.io.sockets
           .to(this.room_id)
           .emit("updateParagraph", paragraph, summaryArr, confArr, timestamp);
@@ -346,7 +320,13 @@ module.exports = class Clerk {
 
   }
 
-  updateSummary(type, content, timestamp) {
+  updateSummary(editTimestamp, type, content, timestamp) {
+    // DESIGN: Update room conversation log
+    if (type == "absum") {
+      this.paragraphs[timestamp]["editSum"][editTimestamp] = { content: content };
+      this.addRoomLog();
+    }
+
     this.io.sockets
       .to(this.room_id)
       .emit("updateSummary", type, content, timestamp);
