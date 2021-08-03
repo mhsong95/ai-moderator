@@ -393,6 +393,7 @@ function addKeywordHelper(keyword, timestamp) {
   let keywordBox = messageBox.childNodes[2];
   var newKeyword = document.createElement("p");
   newKeyword.innerHTML = '#' + keyword;
+  newKeyword.className = "keyword-btn";
   newKeyword.setAttribute("id", timestamp.toString() + '@@@' + keyword);
   let delBtn = document.createElement("button");
   delBtn.className = "fas fa-times";
@@ -414,7 +415,7 @@ function addKeywordHelper(keyword, timestamp) {
     newKeyword.style.backgroundColor = "transparent";
   }
   keywordBox.append(newKeyword);
-  keywordMap[timestamp].push(keyword);
+  keywordMap[timestamp.toString()].push(keyword);
 }
 
 function delKeyword(timestamp, delKeywordBtn) {
@@ -452,6 +453,7 @@ function addKeywordBlockHelper(timestamp, keyword) {
   let messageBox = getMessageBox(timestamp);
   let keywordBox = messageBox.childNodes[2];
   let keywordBtn = document.createElement("p");
+  keywordBtn.className = "keyword-btn";
   keywordBtn.setAttribute("id", timestamp.toString() + '@@@' + keyword);
   keywordBtn.innerHTML = "#" + keyword;
   keywordBtn.style.display = "inline-block";
@@ -667,10 +669,10 @@ function addFavorite() {
       myKeyword.style.borderRadius = "5px";
       myKeyword.style.border = "1px solid black";
       myKeyword.style.display = "inline-block";
+      checkBoxWithKey(keyInput.value);
       myKeyword.onclick = function () { searchFavorite(keyInput.value); };
       keyInput.remove();
       keywordList.append(myKeyword);
-      checkBoxWithKey(myKeyword.innerHTML.slice(1));
     }
   });
   keywordList.append(keyInput);
@@ -712,14 +714,10 @@ function checkBoxWithKey(keyword) {
   let messageBoxes = document.getElementsByClassName("message-box");
   for (var i = 0; i < messageBoxes.length; i++) {
     let messageBox = messageBoxes[i];
-    let timestamp = messageBox.getAttribute("id");
-    if ((timestamp in keywordMap) && keywordMap[timestamp].includes(keyword)) {
-      let keywordBox = messageBox.childNodes[2];
-      for (keywordBtn of keywordBox.childNodes) {
-        let keywordEx = keywordBtn.innerHTML.slice(1);
-        if (keywordEx === keyword) {
-          keywordBtn.style.backgroundColor = "#fed7bf";
-        }
+    let keywordBox = messageBox.childNodes[2];
+    for (keywordBtn of keywordBox.childNodes) {
+      if ((keywordBtn.className === "keyword-btn") && (keywordBtn.textContent.slice(1) === keyword)) {
+        keywordBtn.style.backgroundColor = "#fed7bf";
       }
     }
   }

@@ -127,7 +127,7 @@
 
         <div class="dropdown" style="display: block; margin-top: 5px; float: right;">
           <button style="border-radius: 5px; font-size: smaller;" onclick="showPinBoxes();">
-            <i class="fas fa-thumbtack"></i> Pinned <i class="fas fa-caret-down"></i>
+            <i class="fas fa-thumbtack"></i> 고정 <i class="fas fa-caret-down"></i>
           </button>
           <div id="dropdownPin" style="display: none; position: absolute; right: 0" class="dropdown-pin"></div>
         </div>
@@ -146,7 +146,7 @@
 
         <!--Add buttons for trending keyword-->
         <div id="keywords-list" style="margin-top: 5px;">
-          <p style="font-size:medium; display: inline-block; margin-bottom: 5px;"><strong>Trending: </strong></p>
+          <p style="font-size:medium; display: inline-block; margin-bottom: 5px;"><strong>실시간 인기: </strong></p>
           <button type="button" id="trending-1" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#1</button>
           <button type="button" id="trending-2" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#2</button>
           <button type="button" id="trending-3" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#3</button>
@@ -159,9 +159,9 @@
           <button type="button" id="trending-10" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#10</button>
         </div>
         <div id="favorites">
-          <p style="font-size: medium; display: inline-block; margin-bottom: 5px;"><strong>Favorites: </strong></p>
-          <button state="off" type="button" id="del-keyword" onclick="delFavorite();" style="float: right; font-size: smaller; margin-left: 5px; padding: 1px 3px 1px 3px; border-radius: 5px;" ><i class="fas fa-minus"></i> Del</button>
-          <button type="button" id="my-keyword" onclick="addFavorite();" style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px;" ><i class="fas fa-plus"></i> Add</button>
+          <p style="font-size: medium; display: inline-block; margin-bottom: 5px;"><strong>즐겨찾기: </strong></p>
+          <button state="off" type="button" id="del-keyword" onclick="delFavorite();" style="float: right; font-size: smaller; margin-left: 5px; padding: 1px 3px 1px 3px; border-radius: 5px;" ><i class="fas fa-minus"></i> 삭제</button>
+          <button type="button" id="my-keyword" onclick="addFavorite();" style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px;" ><i class="fas fa-plus"></i> 추가</button>
         </div>
       </div>
       <div id="messages" style="clear: both;"></div>
