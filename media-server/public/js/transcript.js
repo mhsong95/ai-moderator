@@ -51,6 +51,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   // For summary request on overall summary of favorite keywords
   if (timestamp === "summary-for-keyword") {
     console.log("SUMMARY-FOR-KEYWORD");
+    rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
     let summaryBox = document.getElementById("summary-for-keyword");
     let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
     extSummary = "";
@@ -196,14 +197,17 @@ function onUpdateSummary(type, content, timestamp) {
   // Use updateSummary function for pin, addkey, delkey
   if (type === "pin") {
     pinBox(timestamp);
+    rc.addUserLog(Date.now(), "PIN-BOX");
     return;
   }
   else if (type === "addkey") {
     addKeywordHelper(content, timestamp);
+    rc.addUserLog(Date.now(), "ADD-KEYWORD-MSGBOX");
     return;
   }
   else if (type === "delkey") {
     removeKeywordHelper(content, timestamp);
+    rc.addUserLog(Date.now(), "DEL-KEYWORD-MSGBOX");
     return;
   }
 
