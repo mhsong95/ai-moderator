@@ -335,8 +335,8 @@ class RoomClient {
                     videoGoogleStartBitrate: 1000
                 };
             }
-            console.log("produceTransport="+this.producerTransport+", closed()="+this.producerTransport._closed);
-            if (this.producerTransport._closed){
+            console.log("produceTransport=" + this.producerTransport + ", closed()=" + this.producerTransport._closed);
+            if (this.producerTransport._closed) {
                 await this.initTransports(this.device)
             }
             let producer = await this.producerTransport.produce(params)
@@ -705,7 +705,7 @@ class RoomClient {
                 } else {
                     if (audioElem) {
                         audioElem.muted = true;
-                        this.addUserLog(Date.now(), "Mute other's audio: "+mediaContainer.id+"\n");
+                        this.addUserLog(Date.now(), "Mute other's audio: " + mediaContainer.id + "\n");
                     }
                 }
 
@@ -720,7 +720,7 @@ class RoomClient {
                 } else {
                     if (audioElem) {
                         audioElem.muted = false;
-                        this.addUserLog(Date.now(), "Unmute other's audio: "+mediaContainer.id+"\n");
+                        this.addUserLog(Date.now(), "Unmute other's audio: " + mediaContainer.id + "\n");
                     }
                 }
 
@@ -734,15 +734,15 @@ class RoomClient {
         }
     }
 
-    updateParagraph(paragraph, timestamp, editor) {
+    updateParagraph(editTimestamp, paragraph, timestamp, editor) {
         console.log("rc.updateParagraph")
         console.log(editor)
-        moderatorSocket.emit("updateParagraph", paragraph, timestamp, editor);
+        moderatorSocket.emit("updateParagraph", editTimestamp, paragraph, timestamp, editor);
     }
 
-    updateSummary(type, content, timestamp) {
+    updateSummary(editTimestamp, type, content, timestamp) {
         console.log("rc.updateSummary")
-        moderatorSocket.emit("updateSummary", type, content, timestamp);
+        moderatorSocket.emit("updateSummary", editTimestamp, type, content, timestamp);
     }
 
     addUserLog(timestamp, text) {

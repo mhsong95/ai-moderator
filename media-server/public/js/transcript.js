@@ -113,32 +113,63 @@ function onRestore(past_paragraphs) {
     let messageBox = getMessageBox(timestamp);
     if (messageBox) continue;
 
-    // Restore pase paragraphs
-    messageBox = createMessageBox(past_paragraphs[timestamp]["speakerName"], timestamp);
+    let datas = past_paragraphs[timestamp];
 
-    let transcript;
-    if (past_paragraphs[timestamp]["naver"] != '') {
-      transcript = past_paragraphs[timestamp]["naver"]
+    // Restore pase paragraphs
+    messageBox = createMessageBox(datas["speakerName"], timestamp);
+
+    let transcript, summaryArr, confArr, name, hasSummary;
+    let newsum = '';
+
+    if (Object.keys(datas["editTrans"]).length === 0) {
+      if (["naver"] != '') {
+        transcript = datas["naver"]
+      }
+      else {
+        transcript = datas["ms"]
+      }
+
+      if (Object.keys(datas["sum"]).length === 0) hasSummary = false;
+      else {
+        hasSummary = true;
+        summaryArr = datas["sum"]["summaryArr"]
+        confArr = datas["sum"]["confArr"]
+        name = datas["speakerName"]
+      }
     }
     else {
-      transcript = past_paragraphs[timestamp]["ms"]
+      var lastKey = Object.keys(datas["editTrans"])[Object.keys(datas["editTrans"]).length - 1];
+      transcript = datas["editTrans"][lastKey]["content"]
+
+      hasSummary = true;
+      summaryArr = datas["editTrans"][lastKey]["sum"][0];
+      confArr = datas["editTrans"][lastKey]["sum"][1];
+      name = datas["speakerName"];
     }
+
+    if (Object.keys(datas["editSum"]).length !== 0) {
+      var lastKey = Object.keys(datas["editSum"])[Object.keys(datas["editSum"]).length - 1];
+      newsum = datas["editSum"][lastKey]["content"]
+    }
+
+
+    // DESIGN: Add considering edit logs!
 
     // Append the new transcript to the old paragraph.
     let paragraph = messageBox.childNodes[3].childNodes[1];
     paragraph.textContent = transcript;
 
-    if (Object.keys(past_paragraphs[timestamp]["sum"]).length === 0) {
+    if (hasSummary) {
+      onSummary(summaryArr, confArr, name, timestamp);
+    }
+    else {
       let abSummaryBox = messageBox.childNodes[1];
       abSummaryBox.childNodes[0].textContent = "[Transcript]"
       abSummaryBox.childNodes[1].textContent = transcript;
     }
-    else {
-      let summaryArr = past_paragraphs[timestamp]["sum"]["summaryArr"]
-      let confArr = past_paragraphs[timestamp]["sum"]["confArr"]
-      let name = past_paragraphs[timestamp]["speakerName"]
 
-      onSummary(summaryArr, confArr, name, timestamp);
+    if (newsum !== '') {
+      onUpdateSummary("absum", newsum, timestamp);
     }
 
     // Filtering with new message box
@@ -201,7 +232,7 @@ function onTranscript(transcript, name, timestamp) {
   abSummaryBox.childNodes[0].textContent = "[Transcript]"
   abSummaryBox.childNodes[1].textContent = transcript;
 
-  console.log("ON TRANSCRIPT content="+transcript);
+  console.log("ON TRANSCRIPT content=" + transcript);
   // Filtering with new message box
   displayUnitOfBox();
 }
@@ -234,7 +265,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
       newAlarm.style.fontSize = "small";
       newAlarm.style.marginBottom = "2px";
       newAlarm.textContent = "New message includes your favorite keyword!";
-      setTimeout(function() {
+      setTimeout(function () {
         newAlarm.parentNode.removeChild(newAlarm);
       }, 7000);
       rightDisplay.appendChild(newAlarm);
@@ -346,7 +377,7 @@ function addKeyword(box, timestamp) {
   keyInput.placeholder = "Enter new keyword";
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
-      rc.updateSummary("addkey", keyInput.value, timestamp);
+      rc.updateSummary(Date.now(), "addkey", keyInput.value, timestamp);
       keyInput.remove();
     }
   });
@@ -406,7 +437,7 @@ function delKeyword(timestamp, delKeywordBtn) {
 
 function removeKeyword(keywordBtn, timestamp) {
   let keyword = keywordBtn.textContent.slice(1);
-  rc.updateSummary("delkey", keyword, timestamp);
+  rc.updateSummary(Date.now(), "delkey", keyword, timestamp);
 }
 
 function removeKeywordHelper(keyword, timestamp) {
@@ -484,6 +515,8 @@ function finishEditContent(type, oldtxt, timestamp) {
   let messageBox = document.getElementById(timestamp);
   console.log(oldtxt)
 
+  let editTimestamp = Date.now();
+
   switch (type) {
     case "paragraph":
       let paragraph = messageBox.childNodes[3].childNodes[1];
@@ -493,9 +526,9 @@ function finishEditContent(type, oldtxt, timestamp) {
 
       if (oldtxt.valueOf() != paragraph.textContent.valueOf()) {
         // update paragraph and summary on all users
-        rc.updateParagraph(paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
+        rc.updateParagraph(editTimestamp, paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(Date.now(), 'Finish edit message by ' + messageBox.childNodes[0].childNodes[0].textContent + ': ' + type + '-' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'Finish edit message by ' + messageBox.childNodes[0].childNodes[0].textContent + ': ' + type + '-' + timestamp + '\n');
       }
       else {
         // change icon
@@ -505,7 +538,7 @@ function finishEditContent(type, oldtxt, timestamp) {
 
         paragraph.childNodes[1].onclick = function () { editContent(type, timestamp); };
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(Date.now(), 'Cancel edit message: ' + type + '-' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'Cancel edit message: ' + type + '-' + timestamp + '\n');
       }
       break;
     default:
@@ -517,13 +550,13 @@ function finishEditContent(type, oldtxt, timestamp) {
       summary.contentEditable = "false";
 
       if (oldtxt != summary.textContent) {
-        rc.updateSummary("absum", summary.textContent, timestamp)
-        rc.addUserLog(Date.now(), 'Finish edit message: ' + type + '-' + timestamp + '\n');
+        rc.updateSummary(editTimestamp, "absum", summary.textContent, timestamp)
+        rc.addUserLog(editTimestamp, 'Finish edit message: ' + type + '-' + timestamp + '\n');
       }
       else {
         toEditableIcon(summary.lastChild)
         summary.lastChild.onclick = function () { editContent(type, timestamp); };
-        rc.addUserLog(Date.now(), 'Cancel edit message: ' + type + '-' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'Cancel edit message: ' + type + '-' + timestamp + '\n');
       }
       break;
   }
@@ -686,7 +719,8 @@ function searchFavorite(keyword) {
   searchword.value = keyword;
   displayUnitOfBox();
   let newSummaryBox = createSummaryBox(keyword);
-  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
+  let editTimestamp = Date.now();
+  rc.updateParagraph(editTimestamp, keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
   newSummaryBox.scrollIntoView(true);
 }
 
