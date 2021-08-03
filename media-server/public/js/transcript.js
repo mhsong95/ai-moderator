@@ -61,7 +61,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
     return;
   }
   console.log("ON UPDATEPARAGRAPH - timestamp=" + timestamp);
-  let messageBox = document.getElementById(timestamp);
+  let messageBox = document.getElementById(timestamp.toString());
   let paragraph = messageBox.childNodes[3].childNodes[1];
   let abSummaryEl = messageBox.childNodes[1];
   let speaker = messageBox.childNodes[0].childNodes[0].childNodes[0].textContent; //messageBox.title.nametag.strong.textContent  
@@ -103,30 +103,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   let keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   keywordMap[timestamp.toString()] = keywordList;
   for (keyword of keywordList) {
-    var keywordBtn = document.createElement("p");
-    keywordBtn.setAttribute("id", timestamp.toString() + '@@@' + keyword);
-    keywordBtn.innerHTML = "#" + keyword;
-    keywordBtn.style.display = "inline-block";
-    keywordBtn.style.fontSize = "small";
-    keywordBtn.style.padding = "0px 5px 0px 3px";
-    keywordBtn.style.border = "1px solid #6b787e";
-    keywordBtn.style.borderRadius = "5px";
-    let delBtn = document.createElement("button");
-    delBtn.className = "fas fa-times";
-    delBtn.style.backgroundColor = "transparent";
-    delBtn.style.border = 0;
-    delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp) };
-    delBtn.style.display = "none";
-    keywordBtn.append(delBtn);
-
-    if (favoriteKeywords.includes(keyword)) {
-      keywordBtn.style.backgroundColor = "#fed7bf";
-    }
-    else {
-      keywordBtn.style.backgroundColor = "transparent";
-    }
-    keywordBtn.style.margin = "0px 5px 2px 0px";
-    keywordBox.append(keywordBtn);
+    addKeywordBlockHelper(timestamp, keyword);
   }
 
   addEditBtn(paragraph, "paragraph", timestamp);
@@ -216,7 +193,7 @@ function onRestore(past_paragraphs) {
 }
 
 function onUpdateSummary(type, content, timestamp) {
-  // Use updateSummary function for pin
+  // Use updateSummary function for pin, addkey, delkey
   if (type === "pin") {
     pinBox(timestamp);
     return;
@@ -231,7 +208,7 @@ function onUpdateSummary(type, content, timestamp) {
   }
 
   console.log("ON UPDATESUMMARY - timestamp=" + timestamp + " / content=" + content);
-  let messageBox = document.getElementById(timestamp);
+  let messageBox = document.getElementById(timestamp.toString());
   let summaryEl = null;
   let msg = 'New summary contents: ' + timestamp + '\n';
   if (type == "absum") {
@@ -322,35 +299,11 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
   let abSummaryBox = messageBox.childNodes[1];
   let keywordBox = messageBox.childNodes[2];
-
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   keywordMap[timestamp.toString()] = keywordList;
 
   for (keyword of keywordList) {
-    var keywordBtn = document.createElement("p");
-    keywordBtn.setAttribute("id", timestamp.toString() + '@@@' + keyword);
-    keywordBtn.innerHTML = "#" + keyword;
-    keywordBtn.style.display = "inline-block";
-    keywordBtn.style.fontSize = "small";
-    keywordBtn.style.padding = "0px 5px 0px 3px";
-    keywordBtn.style.border = "1px solid #6b787e";
-    keywordBtn.style.borderRadius = "5px";
-    let delBtn = document.createElement("button");
-    delBtn.className = "fas fa-times";
-    delBtn.style.backgroundColor = "transparent";
-    delBtn.style.border = 0;
-    delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp) };
-    delBtn.style.display = "none";
-    keywordBtn.append(delBtn);
-
-    if (favoriteKeywords.includes(keyword)) {
-      keywordBtn.style.backgroundColor = "#fed7bf";
-    }
-    else {
-      keywordBtn.style.backgroundColor = "transparent";
-    }
-    keywordBtn.style.margin = "0px 5px 2px 0px";
-    keywordBox.append(keywordBtn);
+    addKeywordBlockHelper(timestamp, keyword);
   }
 
   // Add button for deleting keywords
@@ -397,7 +350,6 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
-
   abSummaryBox.childNodes[0].textContent = "[요약]";
   abSummaryBox.childNodes[1].textContent = summaryArr[0];
 
@@ -492,6 +444,35 @@ function removeKeywordHelper(keyword, timestamp) {
   keywordBtn.remove();
 }
 
+function addKeywordBlockHelper(timestamp, keyword) {
+  let messageBox = getMessageBox(timestamp);
+  let keywordBox = messageBox.childNodes[2];
+  let keywordBtn = document.createElement("p");
+  keywordBtn.setAttribute("id", timestamp.toString() + '@@@' + keyword);
+  keywordBtn.innerHTML = "#" + keyword;
+  keywordBtn.style.display = "inline-block";
+  keywordBtn.style.fontSize = "small";
+  keywordBtn.style.padding = "0px 5px 0px 3px";
+  keywordBtn.style.border = "1px solid #6b787e";
+  keywordBtn.style.borderRadius = "5px";
+  let delBtn = document.createElement("button");
+  delBtn.className = "fas fa-times";
+  delBtn.style.backgroundColor = "transparent";
+  delBtn.style.border = 0;
+  delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp) };
+  delBtn.style.display = "none";
+  keywordBtn.append(delBtn);
+
+  if (favoriteKeywords.includes(keyword)) {
+    keywordBtn.style.backgroundColor = "#fed7bf";
+  }
+  else {
+    keywordBtn.style.backgroundColor = "transparent";
+  }
+  keywordBtn.style.margin = "0px 5px 2px 0px";
+  keywordBox.append(keywordBtn);
+}
+
 function toEditableBg(p) {
   p.style.background = "none";
 }
@@ -511,7 +492,7 @@ function toEditingIcon(btn) {
 }
 
 function editContent(type, timestamp) {
-  let messageBox = document.getElementById(timestamp);
+  let messageBox = document.getElementById(timestamp.toString());
   let oldtxt = null;
   switch (type) {
     case "paragraph":
@@ -559,7 +540,7 @@ function editContent(type, timestamp) {
 }
 
 function finishEditContent(type, oldtxt, timestamp) {
-  let messageBox = document.getElementById(timestamp);
+  let messageBox = document.getElementById(timestamp.toString());
   console.log(oldtxt)
 
   let editTimestamp = Date.now();
