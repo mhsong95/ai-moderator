@@ -250,6 +250,15 @@ function onUpdateSummary(type, content, timestamp) {
   summaryEl.childNodes[0].append(confidenceElem);
   summaryEl.childNodes[1].textContent = content;
 
+  let keywordBox = messageBox.childNodes[2];
+  for (key of keywordBox.childNodes) {
+    if (key.tagName === "P") {
+      if (content.includes(key.innerHTML.slice(1))) {
+        key.remove();
+      }
+    }
+  }
+
   rc.addUserLog(Date.now(), msg);
   addEditBtn(summaryEl.childNodes[1], type, timestamp);
 }
