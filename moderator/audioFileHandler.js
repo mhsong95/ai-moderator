@@ -149,7 +149,7 @@ module.exports = function (io, socket) {
       console.log("\n  Speech End Detected!!", socket.name);
       console.log(e)
 
-      processAudioSTT(e.privOffset);
+      processAudioSTT(Date.now());
     };
 
     // Event handler for speech started events.
@@ -159,7 +159,7 @@ module.exports = function (io, socket) {
       console.log("event log", e)
 
       // Save speech start timestamp
-      const startTime = curTimestamp + Math.round(e.privOffset / 10000);
+      const startTime = Date.now();
       console.log("start time", startTime);
 
       timestamps[curTimestamp]["curStart"] = startTime;
@@ -207,57 +207,30 @@ module.exports = function (io, socket) {
     }, streamingLimit);
   }
 
-  function processAudioSTT(privOffset) {
+  function processAudioSTT(timestamp) {
+    console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles);
     if (timestamps[curTimestamp]["curStart"] <= timestamps[curTimestamp]["prevEnd"]) {
       console.log("Already calculated section: ", timestamps[curTimestamp]["prevStart"]);
       return;
     }
+    console.log(audiofiles);
+    let whichAudio = audiofiles[audiofiles.length - 1];
+
+    if (recognizer) { socket.emit("restartRecord"); }
+
     audioInput = [];
     lastAudioInput = [];
 
     // Update timestamp
-    let prevEnd = curTimestamp + Math.round(privOffset / 10000);
+    let prevEnd = timestamp; //curTimestamp + Math.round(privOffset / 10000);
     let prevStart = timestamps[curTimestamp]["curStart"];
     let lastEnd = timestamps[curTimestamp]["prevEnd"];
     timestamps[curTimestamp]["curStart"] = lastEnd;
     timestamps[curTimestamp]["prevEnd"] = prevEnd;
     timestamps[curTimestamp]["prevStart"] = prevStart;
 
-    // Request naver STT from timestamp range
-    let candidates = [];
-    let prev = lastEnd;
-    var len = audiofiles.length;
-    console.log("Calculating candidates: ", curTimestamp, timestamps[curTimestamp]);
-    console.log("Audiofiles: ", audiofiles);
-
-    for (var i = 0; i < len; i++) {
-      var t = audiofiles[i];
-      if (t < curTimestamp) continue;
-      if (prevEnd < t) break;
-
-      if (prev < prevStart && prevStart < t) {
-        if (!candidates.includes(prev)) {
-          candidates.push(prev);
-        }
-        console.log("Candidate update 1: ", candidates, prev, t);
-      }
-      if (prevStart <= t && t < prevEnd) {
-        if (!candidates.includes(t)) {
-          candidates.push(t);
-        }
-        console.log("Candidate update 2: ", candidates, prev, t);
-      }
-      prev = t
-
-      if (t <= prevStart) {
-        if (!candidates.includes(t)) {
-          candidates.push(t);
-        }
-        console.log("Candidate update 3: ", candidates, prev, t);
-      }
-    }
-
-    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, prevStart, prevEnd, candidates);
+    console.log("whichAudio??? ", whichAudio);
+    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, prevStart, prevEnd, whichAudio);
   }
 
   // Closes recognition stream.
@@ -271,6 +244,7 @@ module.exports = function (io, socket) {
       // Stops continuous speech recognition.
       // DESIGN: Write end recognition log at server
       recognizer.stopContinuousRecognitionAsync();
+      recognizer = null;
 
       // // Run Naver STT if needed
       // processAudioSTT((Date.now() - curTimestamp) * 10000);

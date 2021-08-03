@@ -344,11 +344,13 @@ module.exports = class Clerk {
   //  * @param {*} isLast 
    */
   // TODO: remove userID if it is not used in `summarizer/server.py`
-  requestSTT(roomID, userId, user, startTimestamp, endTimestamp, audioFileList) {
+  requestSTT(roomID, userId, user, startTimestamp, endTimestamp, audioFile) {
     let host = this.summaryPort[this.requestCnt++ % this.portCnt]
 
     console.log("HOST: ", host)
     console.log("this.requestCnt: ", this.requestCnt)
+
+    console.log(audioFile)
 
     axios
       .post(
@@ -359,7 +361,7 @@ module.exports = class Clerk {
           user,
           startTimestamp,
           endTimestamp,
-          audioFileList
+          audioFile: audioFile
         },
         {
           headers: { 'Content-Type': 'multipart/form-data' }
