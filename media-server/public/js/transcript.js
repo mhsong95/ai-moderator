@@ -635,6 +635,9 @@ function displayUnitOfBox() {
   }
 }
 
+function scrollDown(){
+  messages.scrollTop = messages.scrollHeight;
+}
 //////////////////////////////////////////////
 /************* Helper functions *************/
 
