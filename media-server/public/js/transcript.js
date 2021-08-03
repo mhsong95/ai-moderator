@@ -28,7 +28,7 @@ moderatorSocket.on("updateSummary", onUpdateSummary);
 
 var notiAudio = new Audio('../img/notification.mp3')
 var keywordMap = {};
-var keywordParagraph;
+var keywordParagraph = "";
 var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
@@ -52,7 +52,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   if (timestamp === "summary-for-keyword") {
     console.log("SUMMARY-FOR-KEYWORD");
     let summaryBox = document.getElementById("summary-for-keyword");
-    let extSumm = summaryArr[1].split(". ");
+    let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
     extSummary = "";
     for (sentence of extSumm) {
       extSummary += "> " + sentence + "\n";
@@ -684,8 +684,9 @@ function searchFavorite(keyword) {
   removeSummaryBox();
   let searchword = document.getElementById("search-word");
   searchword.value = keyword;
+  displayUnitOfBox();
   let newSummaryBox = createSummaryBox(keyword);
-  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" +keyword);
+  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
   newSummaryBox.scrollIntoView(true);
 }
 
@@ -730,7 +731,7 @@ function createSummaryBox(keyword) {
   abSummaryBox.style.fontSize = "medium";
   abSummaryBox.style.marginLeft = "5px";
   abSummaryBox.style.marginTop = "1em";
-  abSummaryBox.style.fontStyle = "italic";
+  abSummaryBox.style.fontStyle = "strong";
   abSummaryBox.append(abSummary);
   summaryBox.append(abSummaryBox);
 

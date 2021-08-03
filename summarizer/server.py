@@ -383,16 +383,16 @@ def get_overall_summaries(text, keyword):
 
     # Generate Extractive summary with new sentences
     sentences = text.split(". ")
-    newText = ""
+    sentences_with_keyword = []
     for sentence in sentences:
         if keyword in sentence:
-            newText += sentence + ". "
-    pororo_ex_res = pororo_extractive_model(newText)
-    kobert_ex_res = kobert_summarizing_model(newText)
+            sentences_with_keyword.append(sentence)
+    pororo_ex_res = pororo_extractive_model('. '.join(sentences_with_keyword))
+    kobert_ex_res = kobert_summarizing_model('. '.join(sentences_with_keyword))
 
     # Pick first 5 sentences if there is an error while generating summaries
-    pororo_ex_res = pororo_ex_res if pororo_ex_res != "" else sentences[-5:]
-    kobert_ex_res = kobert_ex_res if kobert_ex_res != "" else sentences[-5:]
+    pororo_ex_res = pororo_ex_res if pororo_ex_res != "" else '. '.join(sentences_with_keyword[-5:])
+    kobert_ex_res = kobert_ex_res if kobert_ex_res != "" else '. '.join(sentences_with_keyword[-5:])
 
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
