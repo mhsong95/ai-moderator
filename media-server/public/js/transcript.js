@@ -683,8 +683,9 @@ function delFavorite() {
 function searchFavorite(keyword) {
   removeSummaryBox();
   let searchword = document.getElementById("search-word");
+  searchword.value = keyword;
   let newSummaryBox = createSummaryBox(keyword);
-  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + searchword.value);
+  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" +keyword);
   newSummaryBox.scrollIntoView(true);
 }
 
