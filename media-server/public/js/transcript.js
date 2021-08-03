@@ -590,68 +590,14 @@ function finishEditContent(type, oldtxt, timestamp) {
   }
 }
 
-////////// Display boxes with trending keywords ////////////
-function displayTrendingBox1() {
+// Display boxes with trending keywords
+function displayTrendingHelper(keywordBtn) {
   let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-1").textContent.slice(1);
+  searchword.value = keywordBtn.textContent.slice(1);
   removeSummaryBox();
   displayUnitOfBox();
 }
-function displayTrendingBox2() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-2").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-function displayTrendingBox3() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-3").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-function displayTrendingBox4() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-4").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-function displayTrendingBox5() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-5").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-function displayTrendingBox6() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-6").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-function displayTrendingBox7() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-7").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-function displayTrendingBox8() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-8").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-function displayTrendingBox9() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-9").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-function displayTrendingBox10() {
-  let searchword = document.getElementById("search-word");
-  searchword.value = document.getElementById("trending-10").textContent.slice(1);
-  removeSummaryBox();
-  displayUnitOfBox();
-}
-////////// Display boxes with trending keywords ////////////
+
 var highlighter = new Hilitor();
 
 function displayUnitOfBox() {
