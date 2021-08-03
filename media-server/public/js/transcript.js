@@ -365,7 +365,7 @@ function addKeywordHelper(keyword, timestamp) {
   delBtn.style.backgroundColor = "transparent";
   delBtn.style.border = 0;
   delBtn.style.display = "none";
-  delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp) };
+  delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp); };
   newKeyword.append(delBtn);
   newKeyword.style.display = "inline-block";
   newKeyword.style.padding = "0px 3px 0px 3px";
@@ -642,8 +642,9 @@ function addFavorite() {
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
       favoriteKeywords.push(keyInput.value);
-
       let myKeyword = document.createElement("button");
+      myKeyword.setAttribute("id", keyInput.value);
+      myKeyword.className = "favoriteKeyword";
       myKeyword.innerHTML = "#" + keyInput.value;
       myKeyword.style.fontSize = "smaller";
       myKeyword.style.padding = "1px 3px 1px 3px";
@@ -652,15 +653,7 @@ function addFavorite() {
       myKeyword.style.borderRadius = "5px";
       myKeyword.style.border = "1px solid black";
       myKeyword.style.display = "inline-block";
-      myKeyword.onclick = function () {
-        removeSummaryBox();
-        let searchword = document.getElementById("search-word");
-        searchword.value = this.textContent.slice(1);
-        displayUnitOfBox();
-        let newSummaryBox = createSummaryBox(keyInput.value);
-        rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + searchword.value);
-        newSummaryBox.scrollIntoView(true);
-      };
+      myKeyword.onclick = function () { searchFavorite(keyInput.value); };
       keyInput.remove();
       keywordList.append(myKeyword);
       checkBoxWithKey(myKeyword.innerHTML.slice(1));
@@ -669,10 +662,31 @@ function addFavorite() {
   keywordList.append(keyInput);
 }
 
-// Helper function for adding favorite keywords
-// function onClickAdd(keyword, )
+function delFavorite() {
+  let keys = document.getElementsByClassName("favoriteKeyword");
+  let delKey = document.getElementById("del-keyword");
+  if (delKey.getAttribute("state") === "off") {
+    for (key of keys) {
+      key.style.backgroundColor = "red";
+      key.onclick = function () { this.remove(); };
+    }
+    delKey.setAttribute("state", "on");
+  } else {
+    for (key of keys) {
+      key.style.backgroundColor = "#fed7bf";
+      key.onclick = function () { searchFavorite(key.innerHTML.slice(1)); };
+    }
+    delKey.setAttribute("state", "off");
+  }
+}
 
-// Helper function for deleting favortie keywords
+function searchFavorite(keyword) {
+  removeSummaryBox();
+  let searchword = document.getElementById("search-word");
+  let newSummaryBox = createSummaryBox(keyword);
+  rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + searchword.value);
+  newSummaryBox.scrollIntoView(true);
+}
 
 // Finds previous boxes containing the new keyword & colors it
 function checkBoxWithKey(keyword) {
