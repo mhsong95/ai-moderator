@@ -638,7 +638,7 @@ function displayUnitOfBox() {
 //////////////////////////////////////////////
 /************* Helper functions *************/
 
-// Add new following keywords
+// Type in new favorite keyword
 function addFavorite() {
   let keywordList = document.getElementById("favorites");
   var keyInput = document.createElement("input");
@@ -669,6 +669,7 @@ function addFavorite() {
   keywordList.append(keyInput);
 }
 
+// Delete favorite keyword
 function delFavorite() {
   let keys = document.getElementsByClassName("favoriteKeyword");
   let delKey = document.getElementById("del-keyword");
@@ -678,7 +679,8 @@ function delFavorite() {
       key.onclick = function () { this.remove(); };
     }
     delKey.setAttribute("state", "on");
-  } else {
+  }
+  else {
     for (key of keys) {
       key.style.backgroundColor = "#fed7bf";
       key.onclick = function () { searchFavorite(key.innerHTML.slice(1)); };
@@ -687,16 +689,15 @@ function delFavorite() {
   }
 }
 
+// Click favorite keyword button
 function searchFavorite(keyword) {
   removeSummaryBox();
   let searchword = document.getElementById("search-word");
   searchword.value = keyword;
   displayUnitOfBox();
-  // let newSummaryBox = createSummaryBox(keyword);
   createSummaryBox(keyword);
   let editTimestamp = Date.now();
   rc.updateParagraph(editTimestamp, keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
-  // newSummaryBox.scrollIntoView(true);
 }
 
 // Finds previous boxes containing the new keyword & colors it
