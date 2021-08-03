@@ -84,23 +84,29 @@ kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart
 kobart_tokenizer = get_kobart_tokenizer()
 
 def kobert_summarizing_model(input_txt):
-    sent = 3
-    encode = kobert_model.encode(input_txt)
-    summaries = kobert_model.generate(encode, sent)
-    summary = " ".join(summaries)
+    try :
+        sent = 3
+        encode = kobert_model.encode(input_txt)
+        summaries = kobert_model.generate(encode, sent)
+        summary = " ".join(summaries)
+    except:
+        return ""
 
     return summary
 
 def kobart_summarizing_model(input_txt):
-    text = input_txt.replace('\n', '')
-    input_ids = kobart_tokenizer.encode(text)
-    input_ids = torch.tensor(input_ids)
-    input_ids = input_ids.unsqueeze(0)
-    summary = kobart_model.generate(input_ids, eos_token_id=1, max_length=64, num_beams=5, early_stopping=True)
-    summary = kobart_tokenizer.decode(summary[0], skip_special_tokens=True)
+    try :
+        text = input_txt.replace('\n', '')
+        input_ids = kobart_tokenizer.encode(text)
+        input_ids = torch.tensor(input_ids)
+        input_ids = input_ids.unsqueeze(0)
+        summary = kobart_model.generate(input_ids, eos_token_id=1, max_length=64, num_beams=5, early_stopping=True)
+        summary = kobart_tokenizer.decode(summary[0], skip_special_tokens=True)
 
-    if len(summary) > len(input_txt):
-        print("INVALID:::", input_txt)
+        if len(summary) > len(input_txt):
+            print("INVALID:::", input_txt)
+            return ""
+    except:
         return ""
 
     return summary
@@ -112,14 +118,20 @@ summ_abstractive = Pororo(task="summarization", model="abstractive", lang="ko")
 summ_extractive = Pororo(task="summarization", model="extractive", lang="ko")
 
 def pororo_abstractive_model(input_txt):
-    summary = summ_abstractive(input_txt)
-    if len(summary) > len(input_txt):
-        print("INVALID:::", input_txt)
+    try :
+        summary = summ_abstractive(input_txt)
+        if len(summary) > len(input_txt):
+            print("INVALID:::", input_txt)
+            return ""
+    except:
         return ""
     return summary
 
 def pororo_extractive_model(input_txt):
-    summary = summ_extractive(input_txt)
+    try: 
+        summary = summ_extractive(input_txt)
+    except:
+        return ""
     return summary
 ################# Pororo ###########################################
 
@@ -332,7 +344,6 @@ def select_rep_summary(abs_summary1, abs_summary2, ext_summary1, ext_summary2):
     # SELECT Representation summary for each extractive, abstractive summmary
 
     abs_summary, abs_compare_summary = abs_summary1, abs_summary2
-    # abs_summary, abs_compare_summary = abs_summary2, abs_summary1
     ext_summary, ext_compare_summary = ext_summary1, ext_summary2
 
     if abs_summary == "" and abs_compare_summary != "":
@@ -345,51 +356,44 @@ def select_rep_summary(abs_summary1, abs_summary2, ext_summary1, ext_summary2):
 import re
 def get_summaries(text):
     print("get_summaries for text: "+text)
-    print(type(text))
     # DO NOT SUMMARIZE TEXT when text is short enough / JUST GET ABSTRACTIVE SUMMARY
     text_sentence_num = len(re.split('[.?!]', text)) 
 
     pororo_ab_res = pororo_abstractive_model(text)
-    print("pororo_ab_res:   "+ pororo_ab_res)
     pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
-    print("pororo_ex_res:   "+ pororo_ex_res)
-    try:
-        kobart_ab_res = kobart_summarizing_model(text)
-        print("kobart_ab_res:   "+ kobart_ab_res)
-    except:
-        print("EXCEPTION::::::::::::::::::::::kobart_ab_res")
-        kobart_ab_res = text  
-    try:
-        kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
-    except:
-        print("EXCEPTION::::::::::::::::::::::kobert_ex_res")
-        kobert_ex_res = text
-    print("Abstractive - 1", pororo_ab_res)
-    print("Abstractive - 2", kobart_ab_res)
-    
+    kobart_ab_res = kobart_summarizing_model(text)
+    kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
+
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
 def get_overall_summaries(text, keyword):
     print("get_overall_summaries for keyword: " + keyword)
+
     # Only need extractive summary
     text_sentence_num = len(re.split('[.?!]', text)) 
     pororo_ab_res, kobart_ab_res = text, text
 
-    try: 
-        pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
-        kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
-    except:
-        sentences = text.split(". ")
-        newText = ""
-        for sentence in sentences:
-            if keyword in sentence:
-                newText += sentence + ". "
-        try:
-            pororo_ex_res = pororo_extractive_model(newText)
-            kobert_ex_res = kobert_summarizing_model(newText)
-        except:
-            pororo_ex_res = sentences[-5:]
-            kobert_ex_res = sentences[-5:]
+    # Generate Extractive summary
+    pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
+    kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
+
+    # If all summaries generated successfully
+    if pororo_ex_res != "" and kobert_ex_res != "":
+        return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
+
+    # Generate Extractive summary with new sentences
+    sentences = text.split(". ")
+    newText = ""
+    for sentence in sentences:
+        if keyword in sentence:
+            newText += sentence + ". "
+    pororo_ex_res = pororo_extractive_model(newText)
+    kobert_ex_res = kobert_summarizing_model(newText)
+
+    # Pick first 5 sentences if there is an error while generating summaries
+    pororo_ex_res = pororo_ex_res if pororo_ex_res != "" else sentences[-5:]
+    kobert_ex_res = kobert_ex_res if kobert_ex_res != "" else sentences[-5:]
+
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
 class ClovaSpeechClient:
@@ -473,6 +477,11 @@ class echoHandler(BaseHTTPRequestHandler):
             else:
                 pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
                 
+            print("pororo_ab_res:   "+ pororo_ab_res)
+            print("pororo_ex_res:   "+ pororo_ex_res)
+            print("kobart_ab_res:   "+ kobart_ab_res)
+            print("kobert_ex_res:   "+ kobert_ex_res)
+
             # Extract combined keywords
             keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
             # Extract Top 10 trending keywords
@@ -481,12 +490,10 @@ class echoHandler(BaseHTTPRequestHandler):
             # Calculate confidence score
             abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
             if abs_summary == "":
-                abs_summary = text
-                ab_confidence_score = 1
+                abs_summary = text; ab_confidence_score = 1
             else :
                 ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList) 
                 
-            print("CONFIDENCE_SCORE", ab_confidence_score)
             ext_summary = ext_summary if ext_summary!= "" else text
 
             # Concatenate summaries, keywords, trending keywords
@@ -496,6 +503,7 @@ class echoHandler(BaseHTTPRequestHandler):
             res += "@@@@@CF@@@@@" + str(ab_confidence_score) 
 
             # Print results
+            print("CONFIDENCE_SCORE", ab_confidence_score)
             print('Abstractive:::\n%s' % abs_summary)
             print('Extractive:::\n%s' % ext_summary)
             print('Keywords:::')
