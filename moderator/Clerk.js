@@ -298,9 +298,11 @@ module.exports = class Clerk {
           summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
         }
 
-        // Update room conversation log: content and summary 
-        this.paragraphs[timestamp]["editTrans"][editTimestamp] = { editor: editor, content: paragraph, sum: [summaryArr, confArr] };
-        this.addRoomLog();
+        // Update room conversation log: content and summary
+        if (timestamp !== "summary-for-keyword") {
+          this.paragraphs[timestamp]["editTrans"][editTimestamp] = { editor: editor, content: paragraph, sum: [summaryArr, confArr] };
+          this.addRoomLog();
+        }
 
         this.io.sockets
           .to(this.room_id)

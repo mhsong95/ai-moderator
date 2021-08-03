@@ -68,6 +68,8 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
 
   paragraph.textContent = newParagraph;
 
+
+
   rc.addUserLog(Date.now(), 'New paragraph contents: ' + timestamp + '\n'
     + '                [Paragraph] ' + newParagraph + '\n'
     + '                [AbSummary] ' + summaryArr[0] + '\n');
@@ -87,9 +89,45 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   }
 
   // ADD summary text and confidence score to summary-box
-  abSummaryEl.childNodes[0].textContent = "[Summary]"
+  abSummaryEl.childNodes[0].textContent = "[요약]"
   abSummaryEl.childNodes[0].append(confidenceElem);
   abSummaryEl.childNodes[1].textContent = summaryArr[0];
+
+  // Update keyword
+  let keywordBox = messageBox.childNodes[2];
+  for (key of keywordBox.childNodes) {
+    if (key.tagName === "P") {
+      key.remove();
+    }
+  }
+  let keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
+  keywordMap[timestamp.toString()] = keywordList;
+  for (keyword of keywordList) {
+    var keywordBtn = document.createElement("p");
+    keywordBtn.setAttribute("id", timestamp.toString() + '@@@' + keyword);
+    keywordBtn.innerHTML = "#" + keyword;
+    keywordBtn.style.display = "inline-block";
+    keywordBtn.style.fontSize = "small";
+    keywordBtn.style.padding = "0px 5px 0px 3px";
+    keywordBtn.style.border = "1px solid #6b787e";
+    keywordBtn.style.borderRadius = "5px";
+    let delBtn = document.createElement("button");
+    delBtn.className = "fas fa-times";
+    delBtn.style.backgroundColor = "transparent";
+    delBtn.style.border = 0;
+    delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp) };
+    delBtn.style.display = "none";
+    keywordBtn.append(delBtn);
+
+    if (favoriteKeywords.includes(keyword)) {
+      keywordBtn.style.backgroundColor = "#fed7bf";
+    }
+    else {
+      keywordBtn.style.backgroundColor = "transparent";
+    }
+    keywordBtn.style.margin = "0px 5px 2px 0px";
+    keywordBox.append(keywordBtn);
+  }
 
   addEditBtn(paragraph, "paragraph", timestamp);
   addEditBtn(abSummaryEl.childNodes[1], "absum", timestamp);
@@ -164,7 +202,7 @@ function onRestore(past_paragraphs) {
     }
     else {
       let abSummaryBox = messageBox.childNodes[1];
-      abSummaryBox.childNodes[0].textContent = "[Transcript]"
+      abSummaryBox.childNodes[0].textContent = "[자막 생성 중...]"
       abSummaryBox.childNodes[1].textContent = transcript;
     }
 
@@ -208,7 +246,7 @@ function onUpdateSummary(type, content, timestamp) {
 
   summaryEl = messageBox.childNodes[1];
   let confidenceElem = confidenceElement(1); // if user change summary, confidence score would be 100 % 
-  summaryEl.childNodes[0].textContent = "[Summary]"
+  summaryEl.childNodes[0].textContent = "[요약]"
   summaryEl.childNodes[0].append(confidenceElem);
   summaryEl.childNodes[1].textContent = content;
 
@@ -229,7 +267,7 @@ function onTranscript(transcript, name, timestamp) {
   paragraph.textContent = transcript;
 
   let abSummaryBox = messageBox.childNodes[1];
-  abSummaryBox.childNodes[0].textContent = "[Transcript]"
+  abSummaryBox.childNodes[0].textContent = "[자막 생성 중...]"
   abSummaryBox.childNodes[1].textContent = transcript;
 
   console.log("ON TRANSCRIPT content=" + transcript);
@@ -257,7 +295,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   paragraph.style.display = "none";
 
   for (word of favoriteKeywords) {
-    if (paragraph.includes(word)) {
+    if (paragraph.textContent.includes(word)) {
       notiAudio.play();
       let rightDisplay = document.getElementById("display-choice");
       let newAlarm = document.createElement("p");
@@ -351,7 +389,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
 
-  abSummaryBox.childNodes[0].textContent = "[Summary]"
+  abSummaryBox.childNodes[0].textContent = "[요약]";
   abSummaryBox.childNodes[1].textContent = summaryArr[0];
 
   if (confArr[0] !== -1) {
@@ -718,10 +756,11 @@ function searchFavorite(keyword) {
   let searchword = document.getElementById("search-word");
   searchword.value = keyword;
   displayUnitOfBox();
-  let newSummaryBox = createSummaryBox(keyword);
+  // let newSummaryBox = createSummaryBox(keyword);
+  createSummaryBox(keyword);
   let editTimestamp = Date.now();
   rc.updateParagraph(editTimestamp, keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
-  newSummaryBox.scrollIntoView(true);
+  // newSummaryBox.scrollIntoView(true);
 }
 
 // Finds previous boxes containing the new keyword & colors it
