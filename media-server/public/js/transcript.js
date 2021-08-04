@@ -253,6 +253,10 @@ function onTranscript(transcript, name, timestamp) {
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
+  else if (transcript=="EMPTY RESPONSE!"){
+    messageBox.remove();
+    return;
+  }
 
   // Append the new transcript to the old paragraph.
   let paragraph = messageBox.childNodes[3].childNodes[1];
