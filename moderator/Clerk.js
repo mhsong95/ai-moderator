@@ -299,7 +299,8 @@ module.exports = class Clerk {
         }
 
         // Update room conversation log: content and summary
-        if (timestamp !== "summary-for-keyword") {
+        let checkTimeStamp = timestamp.split('@@@');
+        if (checkTimeStamp[0] !== "summary-for-keyword") {
           this.paragraphs[timestamp]["editTrans"][editTimestamp] = { editor: editor, content: paragraph, sum: [summaryArr, confArr] };
           this.addRoomLog();
         }

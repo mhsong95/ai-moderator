@@ -371,10 +371,11 @@ def get_overall_summaries(text, keyword):
 
     # Only need extractive summary
     text_sentence_num = len(re.split('[.?!]', text)) 
-    pororo_ab_res, kobart_ab_res, kobert_ex_res = text, text, text
+    pororo_ab_res, kobart_ab_res = text, text
 
     # Generate Extractive summary
     pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
+    kobert_ex_res = pororo_ex_res
     # kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
 
     # If all summaries generated successfully
@@ -393,11 +394,15 @@ def get_overall_summaries(text, keyword):
     for sentence in sentences:
         if keyword in sentence:
             sentences_with_keyword.append(sentence)
-    pororo_ex_res = pororo_extractive_model('. '.join(sentences_with_keyword))
+    
+    pororo_ex_res = '. '.join(sentences_with_keyword[-3:])
+    kobert_ex_res = '. '.join(sentences_with_keyword[-3:])
+
+    # pororo_ex_res = pororo_extractive_model('. '.join(sentences_with_keyword))
     # kobert_ex_res = kobert_summarizing_model('. '.join(sentences_with_keyword))
 
     # Pick first 5 sentences if there is an error while generating summaries
-    pororo_ex_res = pororo_ex_res if pororo_ex_res != "" else '. '.join(sentences_with_keyword[-5:])
+    # pororo_ex_res = pororo_ex_res if pororo_ex_res != "" else '. '.join(sentences_with_keyword[-5:])
     # kobert_ex_res = kobert_ex_res if kobert_ex_res != "" else '. '.join(sentences_with_keyword[-5:])
 
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
@@ -468,10 +473,11 @@ class echoHandler(BaseHTTPRequestHandler):
             print("REQUEST::::::SUMMARY")
             user_name = fields["user"]    # Only for overall summary request
             text = fields["content"]
+            infoList = user_name.split("@@@")
 
             # Check if request for an overall summary (fields["user"] == "OVERALL" + keyword)
-            if (user_name[:7] == "OVERALL"):
-                pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_overall_summaries(text, user_name[7:])
+            if (infoList[0] == "OVERALL"):
+                pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_overall_summaries(text, infoList[1])
             else:
                 pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
                 

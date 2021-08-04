@@ -240,7 +240,7 @@ module.exports = function (io, socket) {
       restartTimeout = null;
     }
 
-    if (pushStream) {
+    if (recognizer) {
       // Stops continuous speech recognition.
       // DESIGN: Write end recognition log at server
       recognizer.stopContinuousRecognitionAsync();

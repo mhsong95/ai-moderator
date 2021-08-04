@@ -49,18 +49,22 @@ window.addEventListener('scroll', function (event) {
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   // For summary request on overall summary of favorite keywords
-  if (timestamp === "summary-for-keyword") {
-    console.log("SUMMARY-FOR-KEYWORD");
-    rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
-    let summaryBox = document.getElementById("summary-for-keyword");
-    let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
-    extSummary = "";
-    for (sentence of extSumm) {
-      extSummary += "> " + sentence + "\n";
+  let check = timestamp.split('@@@');
+  if (check[0] === "summary-for-keyword") {
+    if (check[1] === user_name) {
+      console.log("SUMMARY-FOR-KEYWORD");
+      rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
+      let summaryBox = document.getElementById("summary-for-keyword");
+      let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
+      extSummary = "";
+      for (sentence of extSumm) {
+        extSummary += "> " + sentence + "\n";
+      }
+      summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
     }
-    summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
     return;
   }
+
   console.log("ON UPDATEPARAGRAPH - timestamp=" + timestamp);
   let messageBox = document.getElementById(timestamp.toString());
   let paragraph = messageBox.childNodes[3].childNodes[1];
@@ -68,8 +72,6 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   let speaker = messageBox.childNodes[0].childNodes[0].childNodes[0].textContent; //messageBox.title.nametag.strong.textContent  
 
   paragraph.textContent = newParagraph;
-
-
 
   rc.addUserLog(Date.now(), 'New paragraph contents: ' + timestamp + '\n'
     + '                [Paragraph] ' + newParagraph + '\n'
@@ -706,7 +708,7 @@ function searchFavorite(keyword) {
   displayUnitOfBox();
   createSummaryBox(keyword);
   let editTimestamp = Date.now();
-  rc.updateParagraph(editTimestamp, keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
+  rc.updateParagraph(editTimestamp, keywordParagraph, "summary-for-keyword@@@" + user_name, "OVERALL@@@" + keyword);
 }
 
 // Finds previous boxes containing the new keyword & colors it
