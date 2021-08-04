@@ -756,11 +756,6 @@ class RoomClient {
         }
     }
 
-    // addPinBox(timestamp){
-    //     console.log("rc.addPinBox")
-    //     moderatorSocket.emit("addPinBox", timestamp);
-    // }
-
     //////// GETTERS ////////
 
     isOpen() {

@@ -369,7 +369,7 @@ module.exports = class Clerk {
         }
       )
       .then((response) => {
-        console.log("requset success");
+        console.log("request success");
         let transcript;
         if (response.status === 200) {
           transcript = response.data;

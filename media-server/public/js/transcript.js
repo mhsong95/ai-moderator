@@ -26,7 +26,7 @@ moderatorSocket.on("summary", onSummary);
 moderatorSocket.on("updateParagraph", onUpdateParagraph);
 moderatorSocket.on("updateSummary", onUpdateSummary);
 
-var notiAudio = new Audio('../img/notification.mp3')
+var notiAudio = new Audio('../img/notification.mp3');
 var keywordMap = {};
 var keywordParagraph = "";
 var favoriteKeywords = [];
@@ -436,7 +436,7 @@ function delKeyword(timestamp, delKeywordBtn) {
     let delImage = document.createElement("i");
     delImage.className = "fas fa-minus";
     delImage.style.color = "black";
-    delImageBtn.innerHTML = "";
+    delKeywordBtn.innerHTML = "";
     delKeywordBtn.append(delImage);
     for (key of keywordBox.childNodes) {
       if (key.tagName === "P") {
@@ -765,7 +765,6 @@ function createSummaryBox(keyword) {
   summaryBox.append(abSummaryBox);
 
   messages.insertBefore(summaryBox, messages.firstChild);
-  // rc.updateParagraph(keywordParagraph, "summary-for-keyword", "OVERALL" + keyword);
   return summaryBox;
 }
 
@@ -871,7 +870,7 @@ function createMessageBox(name, timestamp) {
   pinBtn.style.float = "right";
   pinBtn.style.display = "inline-block";
   messageBox.setAttribute("pinned", "false");
-  pinBtn.onclick = function () { rc.updateSummary("pin", "pinBox", timestamp); };
+  pinBtn.onclick = function () { rc.updateSummary(Date.now(), "pin", "pinBox", timestamp); };
 
   title.append(pinBtn);
   messageBox.append(title);
@@ -966,11 +965,6 @@ function pinBox(timestamp) {
     pinBtn.childNodes[0].style.color = "#F2F3F4";
   }
 }
-
-// function onAddPinBox(timestamp) {
-//   console.log("onAddPinBox")
-//   pinBox(timestamp);
-// }
 
 function showPinBoxes() {
   let pinClick = document.getElementById("dropdownPin");
