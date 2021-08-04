@@ -19,7 +19,7 @@ speechConfig.speechRecognitionLanguage = "ko-KR";
 module.exports = function (io, socket) {
   // Variables for maintaining infinite stream of recognition.
   // ? TODO: remove streamLimit?
-  const streamingLimit = 30000; // streaming limit in ms.
+  const streamingLimit = 300000; // streaming limit in ms.
   let restartTimeout = null;
 
   // Variables for using real-time streaming

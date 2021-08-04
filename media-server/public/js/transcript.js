@@ -436,7 +436,7 @@ function delKeyword(timestamp, delKeywordBtn) {
     let delImage = document.createElement("i");
     delImage.className = "fas fa-minus";
     delImage.style.color = "black";
-    delImage.innerHTML = "";
+    delImageBtn.innerHTML = "";
     delKeywordBtn.append(delImage);
     for (key of keywordBox.childNodes) {
       if (key.tagName === "P") {
