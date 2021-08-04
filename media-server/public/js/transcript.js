@@ -425,6 +425,7 @@ function delKeyword(timestamp, delKeywordBtn) {
   let keywordBox = messageBox.childNodes[2];
   let state = delKeywordBtn.getAttribute("state");
   if (state === "off") {
+    delKeywordBtn.innerHTML = "완료";
     for (key of keywordBox.childNodes) {
       if (key.tagName === "P") {
         key.childNodes[1].style.display = "";
@@ -432,6 +433,11 @@ function delKeyword(timestamp, delKeywordBtn) {
     }
     delKeywordBtn.setAttribute("state", "on");
   } else {
+    let delImage = document.createElement("i");
+    delImage.className = "fas fa-minus";
+    delImage.style.color = "black";
+    delImage.innerHTML = "";
+    delKeywordBtn.append(delImage);
     for (key of keywordBox.childNodes) {
       if (key.tagName === "P") {
         key.childNodes[1].style.display = "none";
@@ -656,7 +662,6 @@ function addFavorite() {
   keyInput.style.fontSize = "small";
   keyInput.style.margin = "0px 5px 0px 0px";
   keyInput.placeholder = "Enter new keyword";
-  keyInput.focus();
 
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
