@@ -649,7 +649,7 @@ function displayUnitOfBox() {
   }
 }
 
-function scrollDown(){
+function scrollDown() {
   messages.scrollTop = messages.scrollHeight;
 }
 //////////////////////////////////////////////
@@ -926,7 +926,17 @@ function createMessageBox(name, timestamp) {
   messageBox.append(paragraphBox);
 
   // Finally append the box to 'messages' area
-  messages.appendChild(messageBox);
+  let lastchild = true;
+  for (box of messages.childNodes) {
+    if (Number(box.id) > timestamp) {
+      messages.insertBefore(messageBox, box);
+      lastchild = false;
+      break;
+    }
+  }
+  if (lastchild) {
+    messages.appendChild(messageBox);
+  }
   return messageBox;
 }
 
