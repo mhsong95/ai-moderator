@@ -19,18 +19,14 @@ speechConfig.speechRecognitionLanguage = "ko-KR";
 module.exports = function (io, socket) {
   // Variables for maintaining infinite stream of recognition.
   // ? TODO: remove streamLimit?
-  const streamingLimit = 300000; // streaming limit in ms.
+  const streamingLimit = 30000; // streaming limit in ms.
   let restartTimeout = null;
 
   // Variables for using real-time streaming
   let restartCounter = 0;
   let audioInput = [];
   let lastAudioInput = [];
-  let resultEndTime = 0;
-  let isFinalEndTime = 0;
-  let finalRequestEndTime = 0;
   let newStream = true;
-  let bridgingOffset = 0;
 
   // Variables for using Microsoft Azure STT service
   let pushStream = null;
@@ -66,16 +62,7 @@ module.exports = function (io, socket) {
    */
   const speechCallback = (data) => {
     let clerk = clerks.get(socket.room_id);
-
-    // TODO: remove[debug]
-    console.log("speechCallbask offset/duration");
-    console.log(Math.round(data.offset / 10000)); // Offset of recognized speech in 100 nano second incements.
-    console.log(Math.round(data.duration / 10000)); // Duration of recognized speech in 100 nano second incements.
-
-    // Convert API result end time from seconds + nanoseconds to milliseconds
-    resultEndTime =
-      Math.round(data.offset / 10000) +
-      Math.round(data.duration / 10000);
+    audioInput = [];
 
     /**
      * Calculate correct time (considering restarts)
@@ -83,24 +70,15 @@ module.exports = function (io, socket) {
      * ? DESIGN: remove corrected time
      * Invariant: unit is milisecond
      */
-    // const correctedTime =
-    //   resultEndTime - bridgingOffset + streamingLimit * restartCounter;
 
     let transcript = data.text;
     let timestamp = timestamps[curTimestamp]["curStart"];
-
-    // Paragraph switch timer should be reset when someone starts talking.
-    // ? Consider remove this?
-    // clerk.clearSwitchTimeout();
-    // clerk.startSwitchTimeout();
 
     // Clerk accumulates these full sentences ("final" results)
     console.log(`${timestamp}(${socket.name}): ${transcript}`);
 
     // Update temporary messagebox
     clerk.tempParagraph(socket.id, socket.name, transcript, timestamp);
-
-    isFinalEndTime = resultEndTime;
   };
 
   /**
@@ -245,10 +223,8 @@ module.exports = function (io, socket) {
       // DESIGN: Write end recognition log at server
       recognizer.stopContinuousRecognitionAsync();
       recognizer = null;
-
-      // // Run Naver STT if needed
-      // processAudioSTT((Date.now() - curTimestamp) * 10000);
     }
+    lastAudioInput = [];
     console.log(`Recognition from ${socket.name} ended.`);
   }
 
@@ -256,12 +232,6 @@ module.exports = function (io, socket) {
   function restartStream() {
     stopStream();
 
-    if (resultEndTime > 0) {
-      finalRequestEndTime = isFinalEndTime;
-    }
-    resultEndTime = 0;
-
-    lastAudioInput = [];
     lastAudioInput = audioInput;
 
     restartCounter++;
@@ -277,31 +247,14 @@ module.exports = function (io, socket) {
    */
   const audioInputStreamTransform = new Writable({
     write(chunk, encoding, next) {
-      // Send audio input chunks if recognition stream restarts.
-      if (newStream && lastAudioInput.length !== 0) {
-        console.log("RESTART HANDLING")
-        // Approximate duration of each chunk
-        const chunkTime = streamingLimit / lastAudioInput.length;
-        if (chunkTime !== 0) {
-          if (bridgingOffset < 0) {
-            bridgingOffset = 0;
-          }
-          if (bridgingOffset > finalRequestEndTime) {
-            bridgingOffset = finalRequestEndTime;
-          }
-          const chunksFromMS = Math.floor(
-            (finalRequestEndTime - bridgingOffset) / chunkTime
-          );
-          bridgingOffset = Math.floor(
-            (lastAudioInput.length - chunksFromMS) * chunkTime
-          );
-
-          for (let i = chunksFromMS; i < lastAudioInput.length; i++) {
-            pushStream.write(lastAudioInput[i]);
-          }
+      if (newStream && lastAudioInput.length !== 0){
+        console.log("RESTART - restore lastAudioInput: ", lastAudioInput.length)
+        for (let i = 0; i < lastAudioInput.length; i++) {
+          pushStream.write(lastAudioInput[i]);
         }
-        newStream = false;
+        lastAudioInput = [];
       }
+      newStream = false;
 
       // Store audio input for next restart.
       audioInput.push(chunk);
