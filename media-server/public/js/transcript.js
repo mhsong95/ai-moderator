@@ -656,6 +656,7 @@ function addFavorite() {
   keyInput.style.fontSize = "small";
   keyInput.style.margin = "0px 5px 0px 0px";
   keyInput.placeholder = "Enter new keyword";
+  keyInput.focus();
 
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
@@ -685,6 +686,7 @@ function delFavorite() {
   let keys = document.getElementsByClassName("favoriteKeyword");
   let delKey = document.getElementById("del-keyword");
   if (delKey.getAttribute("state") === "off") {
+    delKey.textContent = "완료";
     for (key of keys) {
       key.style.backgroundColor = "red";
       key.onclick = function () { this.remove(); };
@@ -692,6 +694,11 @@ function delFavorite() {
     delKey.setAttribute("state", "on");
   }
   else {
+    let delImage = document.createElement("i");
+    delImage.className = "fas fa-minus";
+    delKey.innerHTML = "";
+    delKey.append(delImage);
+    delKey.innerHTML += "삭제";
     for (key of keys) {
       key.style.backgroundColor = "#fed7bf";
       key.onclick = function () { searchFavorite(key.innerHTML.slice(1)); };
