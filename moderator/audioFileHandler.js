@@ -13,22 +13,10 @@ const fs = require("fs");
 // Microsoft Azure Speech
 const sdk = require("microsoft-cognitiveservices-speech-sdk");
 const { subKey, servReg } = require("./config");
-const { start } = require("repl");
 const speechConfig = sdk.SpeechConfig.fromSubscription(subKey, servReg);
 speechConfig.speechRecognitionLanguage = "ko-KR";
 
 module.exports = function (io, socket) {
-  // Variables for maintaining infinite stream of recognition.
-  // ? TODO: remove streamLimit?
-  const streamingLimit = 300000; // streaming limit in ms.
-  let restartTimeout = null;
-
-  // Variables for using real-time streaming
-  let restartCounter = 0;
-  let audioInput = [];
-  let lastAudioInput = [];
-  let newStream = true;
-
   // Variables for using Microsoft Azure STT service
   let pushStream = null;
   let audioConfig = null;
@@ -64,7 +52,6 @@ module.exports = function (io, socket) {
    */
   const speechCallback = (data) => {
     let clerk = clerks.get(socket.room_id);
-    audioInput = [];
 
     let transcript = data.text;
     let timestamp = timestamps[curTimestamp]["curStart"];
@@ -80,9 +67,6 @@ module.exports = function (io, socket) {
    * TODO: add comment
    */
   function startStream() {
-    // Clear current audioInput (buffered audio)
-    audioInput = [];
-
     // Create audioConfig for get audio input for stream
     pushStream = sdk.AudioInputStream.createPushStream();
     audioConfig = sdk.AudioConfig.fromStreamInput(
@@ -150,16 +134,12 @@ module.exports = function (io, socket) {
         console.log(`"CANCELED: ErrorDetails=${e.errorDetails}`);
         console.log("CANCELED: Did you update the subscription info?");
       }
-      audioInput = [];
-      lastAudioInput = [];
     };
 
     // Event handler for session stopped events.
     // DESIGN: Write session stopped log at server
     recognizer.sessionStopped = (s, e) => {
       console.log("\n    Session stopped event.");
-      audioInput = [];
-      lastAudioInput = [];
     };
 
     // Starts speech recognition, until stopContinuousRecognitionAsync() is called.
@@ -175,11 +155,6 @@ module.exports = function (io, socket) {
         recognizer.close();
       }
     );
-
-    // Restart stream when it is about to exceed streamingLimit.
-    restartTimeout = setTimeout(() => {
-      restartStream();
-    }, streamingLimit);
   }
 
   function processAudioSTT(timestamp) {
@@ -198,9 +173,6 @@ module.exports = function (io, socket) {
 
     if (recognizer) { socket.emit("restartRecord"); }
 
-    audioInput = [];
-    lastAudioInput = [];
-
     // Update timestamp
     let prevEnd = timestamp; //curTimestamp + Math.round(privOffset / 10000);
     let prevStart = timestamps[curTimestamp]["curStart"];
@@ -215,37 +187,16 @@ module.exports = function (io, socket) {
 
   // Closes recognition stream.
   function stopStream() {
-    if (restartTimeout) {
-      clearTimeout(restartTimeout);
-      restartTimeout = null;
-    }
-
     if (recognizer) {
       // Stops continuous speech recognition.
       // DESIGN: Write end recognition log at server
       recognizer.stopContinuousRecognitionAsync();
       recognizer = null;
     }
-    lastAudioInput = [];
 
     startCnt = audiofiles.length;
 
     console.log(`Recognition from ${socket.name} ended.`);
-  }
-
-  // Restarts recognition stream
-  function restartStream() {
-    stopStream();
-
-    if (audioInput.length !== 0) {
-      lastAudioInput = audioInput;
-      newStream = true;
-    }
-
-    restartCounter++;
-    console.log(`${streamingLimit * restartCounter}: RESTARTING REQUEST`);
-
-    startStream();
   }
 
   /** 
@@ -254,18 +205,6 @@ module.exports = function (io, socket) {
    */
   const audioInputStreamTransform = new Writable({
     write(chunk, encoding, next) {
-      if (newStream && lastAudioInput.length !== 0) {
-        console.log("RESTART - restore lastAudioInput: ", lastAudioInput.length)
-        for (let i = 0; i < lastAudioInput.length; i++) {
-          pushStream.write(lastAudioInput[i]);
-        }
-        lastAudioInput = [];
-      }
-      newStream = false;
-
-      // Store audio input for next restart.
-      audioInput.push(chunk);
-
       if (pushStream) {
         pushStream.write(chunk);
       }
