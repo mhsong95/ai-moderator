@@ -366,24 +366,17 @@ def get_summaries(text):
 
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
+sentences_with_keyword = []
 def get_overall_summaries(text, keyword):
     print("get_overall_summaries for keyword: " + keyword)
 
     # Only need extractive summary
-    text_sentence_num = len(re.split('[.?!]', text)) 
-    pororo_ab_res, kobart_ab_res = text, text
+    text_sentence_num = len(re.split('[.?!]', text))
+    pororo_ab_res, kobart_ab_res = "empty text", "empty text"
 
     # Generate Extractive summary
     pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
-    kobert_ex_res = pororo_ex_res
-    # kobert_ex_res = kobert_summarizing_model(text) if text_sentence_num > 3 else text
-
-    # If all summaries generated successfully
-    # if pororo_ex_res != "" and kobert_ex_res != "":
-    #     limit = 3
-    #     if len(pororo_ex_res.split(". ")) > limit and kobert_ex_res != "":
-    #         pororo_ex_res = kobert_ex_res[:limit]
-    #     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
+    kobert_ex_res = "empty text"
 
     if len(pororo_ex_res.split(". ")) < 4:
         return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
@@ -397,13 +390,6 @@ def get_overall_summaries(text, keyword):
     
     pororo_ex_res = '. '.join(sentences_with_keyword[-3:])
     kobert_ex_res = '. '.join(sentences_with_keyword[-3:])
-
-    # pororo_ex_res = pororo_extractive_model('. '.join(sentences_with_keyword))
-    # kobert_ex_res = kobert_summarizing_model('. '.join(sentences_with_keyword))
-
-    # Pick first 5 sentences if there is an error while generating summaries
-    # pororo_ex_res = pororo_ex_res if pororo_ex_res != "" else '. '.join(sentences_with_keyword[-5:])
-    # kobert_ex_res = kobert_ex_res if kobert_ex_res != "" else '. '.join(sentences_with_keyword[-5:])
 
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 

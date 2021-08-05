@@ -8,7 +8,8 @@ const config = require("./config");
 
 // Read and write logs
 const fs = require("fs");
-const getLastLine = require('./fileTools.js').getLastLine
+const getLastLine = require('./fileTools.js').getLastLine;
+const { time } = require("console");
 
 // Maximum length of silence not to switch a paragraph.
 const SILENCE_LIMIT = 10 * 1000;
@@ -161,9 +162,9 @@ module.exports = class Clerk {
         "sum": {},
         "editTrans": {},
         "editSum": {},
+        "pinned": false,
       }
     }
-
     // Show message box
     this.publishTranscript(this.paragraphs[timestamp]["ms"], speakerName, timestamp);
   }
@@ -329,7 +330,14 @@ module.exports = class Clerk {
       this.paragraphs[timestamp]["editSum"][editTimestamp] = { content: content };
       this.addRoomLog();
     }
-
+    else if (type == "pin") {
+      if (this.paragraphs[timestamp]["pinned"]) {
+        this.paragraphs[timestamp]["pinned"] = false;
+      }
+      else {
+        this.paragraphs[timestamp]["pinned"] = true;
+      }
+    }
     this.io.sockets
       .to(this.room_id)
       .emit("updateSummary", type, content, timestamp);

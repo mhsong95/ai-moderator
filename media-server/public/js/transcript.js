@@ -190,6 +190,11 @@ function onRestore(past_paragraphs) {
       onUpdateSummary("absum", newsum, timestamp);
     }
 
+    // Restore pinned message box
+    if (datas["pinned"]) {
+      pinBox(timestamp);
+    }
+
     // Filtering with new message box
     displayUnitOfBox();
   }
