@@ -95,7 +95,7 @@ module.exports = class Clerk {
    */
   replaceParagraph(speakerName, transcript, timestamp) {
     console.log("replaceParagraph: ", timestamp, transcript)
-    if (transcript=='') {transcript = "EMPTY RESPONSE!"}
+    if (transcript == '') { transcript = "EMPTY RESPONSE!" }
     this.paragraphs[timestamp]["naver"] = transcript;
 
     this.addRoomLog();
@@ -103,6 +103,15 @@ module.exports = class Clerk {
     this.io.sockets
       .to(this.room_id)
       .emit("transcript", transcript, speakerName, timestamp);
+  }
+
+  /**
+   * TODO: leave comment
+   */
+  removeMsg(timestamp) {
+    this.io.sockets
+      .to(this.room_id)
+      .emit("removeMsg", timestamp);
   }
 
   /**

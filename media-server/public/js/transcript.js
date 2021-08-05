@@ -20,6 +20,7 @@ const SureMessage_Othercolor = "rgba(40, 167, 70, 0.219)"
 
 moderatorSocket.on("restore", onRestore);
 moderatorSocket.on("transcript", onTranscript);
+moderatorSocket.on("removeMsg", onRemoveMsg);
 // moderatorSocket.on("replaceTranscript", onReplaceTranscript);
 moderatorSocket.on("summary", onSummary);
 
@@ -249,6 +250,12 @@ function onUpdateSummary(type, content, timestamp) {
 
   rc.addUserLog(Date.now(), msg);
   addEditBtn(summaryEl.childNodes[1], type, timestamp);
+}
+
+function onRemoveMsg(timestamp){
+  console.log("ON RemoveMsg - timestamp = ", timestamp);
+  let messageBox = getMessageBox(timestamp);
+  messageBox.remove();
 }
 
 // Event listener on individual transcript arrival.
