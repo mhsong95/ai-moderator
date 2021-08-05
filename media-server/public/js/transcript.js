@@ -70,7 +70,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
       let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
       extSummary = "";
       for (sentence of extSumm) {
-        extSummary += "> " + sentence + "\n";
+        extSummary += "> \"" + sentence + "\"\n";
       }
       summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
     }
@@ -333,6 +333,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   let abSummaryBox = messageBox.childNodes[1];
   let keywordBox = messageBox.childNodes[2];
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
+  keywordList = keywordList.filter(item => item);
   keywordMap[timestamp.toString()] = keywordList;
 
   for (keyword of keywordList) {
@@ -778,7 +779,7 @@ function createSummaryBox(keyword) {
   let title = document.createElement("div");
   let nametag = document.createElement("span");
   let strong = document.createElement("strong");
-  strong.textContent = "Key Sentences for #" + keyword;
+  strong.textContent = "[ #" + keyword + " 에 관한 주요문장]";
   nametag.className = "nametag";
   nametag.append(strong);
   title.append(nametag);
@@ -786,12 +787,11 @@ function createSummaryBox(keyword) {
 
   // summaryBox.childNodes[1]: Includes abstract summary
   let abSummaryBox = document.createElement("div");
-  let abSummary = document.createElement("p");
+  let abSummary = document.createElement("strong");
   abSummary.textContent = "Processing overall summary...";
   abSummaryBox.style.fontSize = "medium";
   abSummaryBox.style.marginLeft = "5px";
   abSummaryBox.style.marginTop = "1em";
-  abSummaryBox.style.fontStyle = "strong";
   abSummaryBox.append(abSummary);
   summaryBox.append(abSummaryBox);
 
