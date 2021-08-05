@@ -414,6 +414,7 @@ function addKeyword(box, timestamp) {
     }
   });
   box.append(keyInput);
+  keyInput.focus();
 }
 
 // Helper function for adding a new keyword in message box
@@ -713,6 +714,7 @@ function addFavorite() {
     }
   });
   keywordList.append(keyInput);
+  keyInput.focus();
 }
 
 // Delete favorite keyword
