@@ -166,7 +166,8 @@ module.exports = function (io, socket) {
     console.log(audiofiles);
     if(audiofiles.length < startCnt) {
       console.log("Not valid transcript!");
-      // DESIGN: REMOVE MESSAGE BOX
+      
+      clerks.get(socket.room_id).removeMsg(timestamps[curTimestamp]["curStart"]);
       return;
     }
     let whichAudio = audiofiles[audiofiles.length - 1];
