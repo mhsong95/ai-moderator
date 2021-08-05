@@ -94,6 +94,7 @@ module.exports = class Clerk {
    */
   replaceParagraph(speakerName, transcript, timestamp) {
     console.log("replaceParagraph: ", timestamp, transcript)
+    if (transcript=='') {transcript = "EMPTY RESPONSE!"}
     this.paragraphs[timestamp]["naver"] = transcript;
 
     this.addRoomLog();
