@@ -973,7 +973,7 @@ function pinBox(timestamp) {
     newPin.style.textAlign = "left";
     newPin.style.textDecoration = "none";
     newPin.innerHTML = "[" + messageBox.childNodes[0].childNodes[0].childNodes[0].textContent + "] "
-      + messageBox.childNodes[3].childNodes[1].textContent.substr(0, 10) + "...";
+      + messageBox.childNodes[1].childNodes[1].textContent.substr(0, 10) + "...";
     dropdownPin.append(newPin);
     pinBtn.childNodes[0].style.color = "#000000";
   }
