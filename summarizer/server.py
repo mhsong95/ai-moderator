@@ -249,13 +249,15 @@ def get_rouge_score(summary1, summary2):
     return mean(F1_rouge)
 
 ## GOOGLE ENCODER
-import tensorflow as tf
+# import tensorflow as tf
 import tensorflow_hub as hub
 import numpy as np
 from absl import logging
 
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
+
+# config_tf = tf.ConfigProto()
 
 import sentencepiece as spm
 import matplotlib.pyplot as plt

@@ -33,6 +33,17 @@ var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
 
+// Logging Window Focus ON/OFF
+window.addEventListener('blur', function () {
+  console.log("WINDOW FOCUS OFF - timestamp=" + Date.now());
+  rc.addUserLog(Date.now(), "WINDOW FOCUS OFF");
+});
+
+window.addEventListener('focus', function () {
+  console.log("WINDOW FOCUS ON - timestamp=" + Date.now());
+  rc.addUserLog(Date.now(), "WINDOW FOCUS ON");
+});
+
 // Logging Scroll Event
 window.addEventListener('scroll', function (event) {
   window.clearTimeout(isScrolling); // Clear our timeout throughout the scroll
@@ -652,7 +663,9 @@ function displayUnitOfBox() {
 
   // highlight with search-word
   if (searchword == "") {
-    highlighter.remove();
+    if (highlighter) {
+      highlighter.remove();
+    }
   } else {
     highlighter.apply(searchword);
   }
