@@ -13,6 +13,7 @@ const fs = require("fs");
 // Microsoft Azure Speech
 const sdk = require("microsoft-cognitiveservices-speech-sdk");
 const { subKey, servReg } = require("./config");
+const { start } = require("repl");
 const speechConfig = sdk.SpeechConfig.fromSubscription(subKey, servReg);
 speechConfig.speechRecognitionLanguage = "ko-KR";
 
@@ -54,6 +55,7 @@ module.exports = function (io, socket) {
    * value: filename(string) used to access file
    */
   let audiofiles = [];
+  let startCnt = 0;
 
   //* Send audio stream into microsoft STT server
   /**
@@ -63,13 +65,6 @@ module.exports = function (io, socket) {
   const speechCallback = (data) => {
     let clerk = clerks.get(socket.room_id);
     audioInput = [];
-
-    /**
-     * Calculate correct time (considering restarts)
-     * based on offset from audio sent twice
-     * ? DESIGN: remove corrected time
-     * Invariant: unit is milisecond
-     */
 
     let transcript = data.text;
     let timestamp = timestamps[curTimestamp]["curStart"];
@@ -138,9 +133,11 @@ module.exports = function (io, socket) {
 
       // Save speech start timestamp
       const startTime = Date.now();
-      console.log("start time", startTime);
 
       timestamps[curTimestamp]["curStart"] = startTime;
+      startCnt++;
+
+      console.log("start time", startTime, startCnt);
     };
 
     // The event canceled signals that an error occurred during recognition.
@@ -186,12 +183,17 @@ module.exports = function (io, socket) {
   }
 
   function processAudioSTT(timestamp) {
-    console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles);
+    console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles, startCnt);
     if (timestamps[curTimestamp]["curStart"] <= timestamps[curTimestamp]["prevEnd"]) {
       console.log("Already calculated section: ", timestamps[curTimestamp]["prevStart"]);
       return;
     }
     console.log(audiofiles);
+    if(audiofiles.length < startCnt) {
+      console.log("Not valid transcript!");
+      // DESIGN: REMOVE MESSAGE BOX
+      return;
+    }
     let whichAudio = audiofiles[audiofiles.length - 1];
 
     if (recognizer) { socket.emit("restartRecord"); }
@@ -225,6 +227,9 @@ module.exports = function (io, socket) {
       recognizer = null;
     }
     lastAudioInput = [];
+
+    startCnt = audiofiles.length;
+
     console.log(`Recognition from ${socket.name} ended.`);
   }
 
@@ -232,12 +237,14 @@ module.exports = function (io, socket) {
   function restartStream() {
     stopStream();
 
-    lastAudioInput = audioInput;
+    if (audioInput.length !== 0) {
+      lastAudioInput = audioInput;
+      newStream = true;
+    }
 
     restartCounter++;
     console.log(`${streamingLimit * restartCounter}: RESTARTING REQUEST`);
 
-    newStream = true;
     startStream();
   }
 
@@ -247,7 +254,7 @@ module.exports = function (io, socket) {
    */
   const audioInputStreamTransform = new Writable({
     write(chunk, encoding, next) {
-      if (newStream && lastAudioInput.length !== 0){
+      if (newStream && lastAudioInput.length !== 0) {
         console.log("RESTART - restore lastAudioInput: ", lastAudioInput.length)
         for (let i = 0; i < lastAudioInput.length; i++) {
           pushStream.write(lastAudioInput[i]);
@@ -336,8 +343,7 @@ module.exports = function (io, socket) {
       audiofiles.push(timestamp);
 
       //TODO: remove[debug]
-      console.log("Save file log");
-      console.log(audiofiles);
+      console.log("Save file log (audiofiles, startCnt) ", audiofiles, startCnt);
 
       // DESIGN: Write new file log at server
     }

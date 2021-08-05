@@ -381,14 +381,6 @@ module.exports = class Clerk {
 
         // Conduct summarizer request
         this.requestSummary(userId, user, transcript, startTimestamp);
-
-        // // new speaker :: new to switch to a new paragraph
-        // if (isNew) {
-        //   this.switchParagraph(userID, user, transcript, timestamp, isLast);
-        // }
-        // else {
-        //   this.appendTranscript(transcript, isLast);
-        // }
       })
       .catch((e) => {
         console.log("CATCH - requestSTT");
