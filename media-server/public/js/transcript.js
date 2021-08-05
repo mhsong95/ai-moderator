@@ -258,6 +258,10 @@ function onTranscript(transcript, name, timestamp) {
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
+  else if (transcript=="EMPTY RESPONSE!"){
+    messageBox.remove();
+    return;
+  }
 
   // Append the new transcript to the old paragraph.
   let paragraph = messageBox.childNodes[3].childNodes[1];
@@ -654,7 +658,7 @@ function displayUnitOfBox() {
   }
 }
 
-function scrollDown(){
+function scrollDown() {
   messages.scrollTop = messages.scrollHeight;
 }
 //////////////////////////////////////////////
@@ -931,7 +935,17 @@ function createMessageBox(name, timestamp) {
   messageBox.append(paragraphBox);
 
   // Finally append the box to 'messages' area
-  messages.appendChild(messageBox);
+  let lastchild = true;
+  for (box of messages.childNodes) {
+    if (Number(box.id) > timestamp) {
+      messages.insertBefore(messageBox, box);
+      lastchild = false;
+      break;
+    }
+  }
+  if (lastchild) {
+    messages.appendChild(messageBox);
+  }
   return messageBox;
 }
 
