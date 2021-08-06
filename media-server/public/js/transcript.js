@@ -252,10 +252,12 @@ function onUpdateSummary(type, content, timestamp) {
   addEditBtn(summaryEl.childNodes[1], type, timestamp);
 }
 
-function onRemoveMsg(timestamp){
+function onRemoveMsg(timestamp) {
   console.log("ON RemoveMsg - timestamp = ", timestamp);
   let messageBox = getMessageBox(timestamp);
-  messageBox.remove();
+  if (messageBox) {
+    messageBox.remove();
+  }
 }
 
 // Event listener on individual transcript arrival.
@@ -265,7 +267,7 @@ function onTranscript(transcript, name, timestamp) {
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
   }
-  else if (transcript=="EMPTY RESPONSE!"){
+  else if (transcript == "EMPTY RESPONSE!") {
     messageBox.remove();
     return;
   }

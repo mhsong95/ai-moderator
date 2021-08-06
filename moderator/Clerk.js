@@ -98,6 +98,12 @@ module.exports = class Clerk {
     if (transcript == '') { transcript = "EMPTY RESPONSE!" }
     this.paragraphs[timestamp]["naver"] = transcript;
 
+    if (transcript == "EMPTY RESPONSE!") {
+      this.io.sockets
+        .to(this.room_id)
+        .removeMsg(timestamp);
+    }
+
     this.addRoomLog();
 
     this.io.sockets
