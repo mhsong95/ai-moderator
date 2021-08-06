@@ -61,22 +61,21 @@ window.addEventListener('scroll', function (event) {
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   // For summary request on overall summary of favorite keywords
-  if (typeof check === "string") {
-    let check = timestamp.split('@@@');
-    if (check[0] === "summary-for-keyword") {
-      if (check[1] === user_name) {
-        console.log("SUMMARY-FOR-KEYWORD");
-        rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
-        let summaryBox = document.getElementById("summary-for-keyword");
-        let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
-        extSummary = "";
-        for (sentence of extSumm) {
-          extSummary += "> \"" + sentence + "\"\n";
-        }
-        summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
+  
+  let check = timestamp.toString().split('@@@');
+  if (check[0] === "summary-for-keyword") {
+    if (check[1] === user_name) { 
+      console.log("SUMMARY-FOR-KEYWORD");
+      rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
+      let summaryBox = document.getElementById("summary-for-keyword");
+      let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
+      extSummary = "";
+      for (sentence of extSumm) {
+        extSummary += "> \"" + sentence + "\"\n";
       }
-      return;
+      summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
     }
+    return;
   }
 
   console.log("ON UPDATEPARAGRAPH - timestamp=" + timestamp);
@@ -118,6 +117,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
     }
   }
   let keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
+  keywordList = keywordList.filter(item => item);
   keywordMap[timestamp.toString()] = keywordList;
 
   for (keyword of keywordList) {
@@ -729,7 +729,10 @@ function delFavorite() {
     delKey.textContent = "완료";
     for (key of keys) {
       key.style.backgroundColor = "red";
-      key.onclick = function () { this.remove(); };
+      key.onclick = function () {
+        this.remove();
+        rc.addUserLog(Date.now(), "DELETE-FAVORITE="+this.textContent.slice(1));
+      };
     }
     delKey.setAttribute("state", "on");
   }
@@ -976,6 +979,8 @@ function createMessageBox(name, timestamp) {
 
 // Pins message box
 function pinBox(timestamp) {
+  
+
   let stringTime = timestamp.toString();
   let messageBox = document.getElementById(stringTime);
   let pinBtn = messageBox.childNodes[0].childNodes[2];
