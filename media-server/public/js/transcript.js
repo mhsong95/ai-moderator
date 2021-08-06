@@ -61,20 +61,22 @@ window.addEventListener('scroll', function (event) {
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   // For summary request on overall summary of favorite keywords
-  let check = timestamp.split('@@@');
-  if (check[0] === "summary-for-keyword") {
-    if (check[1] === user_name) {
-      console.log("SUMMARY-FOR-KEYWORD");
-      rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
-      let summaryBox = document.getElementById("summary-for-keyword");
-      let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
-      extSummary = "";
-      for (sentence of extSumm) {
-        extSummary += "> \"" + sentence + "\"\n";
+  if (typeof check === "string") {
+    let check = timestamp.split('@@@');
+    if (check[0] === "summary-for-keyword") {
+      if (check[1] === user_name) {
+        console.log("SUMMARY-FOR-KEYWORD");
+        rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
+        let summaryBox = document.getElementById("summary-for-keyword");
+        let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
+        extSummary = "";
+        for (sentence of extSumm) {
+          extSummary += "> \"" + sentence + "\"\n";
+        }
+        summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
       }
-      summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
+      return;
     }
-    return;
   }
 
   console.log("ON UPDATEPARAGRAPH - timestamp=" + timestamp);
@@ -117,6 +119,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   }
   let keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   keywordMap[timestamp.toString()] = keywordList;
+
   for (keyword of keywordList) {
     addKeywordBlockHelper(timestamp, keyword);
   }
