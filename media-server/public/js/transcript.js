@@ -34,6 +34,17 @@ var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
 
+// Logging Window Focus ON/OFF
+window.addEventListener('blur', function () {
+  console.log("WINDOW FOCUS OFF - timestamp=" + Date.now());
+  rc.addUserLog(Date.now(), "WINDOW FOCUS OFF");
+});
+
+window.addEventListener('focus', function () {
+  console.log("WINDOW FOCUS ON - timestamp=" + Date.now());
+  rc.addUserLog(Date.now(), "WINDOW FOCUS ON");
+});
+
 // Logging Scroll Event
 window.addEventListener('scroll', function (event) {
   window.clearTimeout(isScrolling); // Clear our timeout throughout the scroll
@@ -50,20 +61,22 @@ window.addEventListener('scroll', function (event) {
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   // For summary request on overall summary of favorite keywords
-  let check = timestamp.split('@@@');
-  if (check[0] === "summary-for-keyword") {
-    if (check[1] === user_name) {
-      console.log("SUMMARY-FOR-KEYWORD");
-      rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
-      let summaryBox = document.getElementById("summary-for-keyword");
-      let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
-      extSummary = "";
-      for (sentence of extSumm) {
-        extSummary += "> " + sentence + "\n";
+  if (typeof check === "string") {
+    let check = timestamp.split('@@@');
+    if (check[0] === "summary-for-keyword") {
+      if (check[1] === user_name) {
+        console.log("SUMMARY-FOR-KEYWORD");
+        rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
+        let summaryBox = document.getElementById("summary-for-keyword");
+        let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
+        extSummary = "";
+        for (sentence of extSumm) {
+          extSummary += "> \"" + sentence + "\"\n";
+        }
+        summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
       }
-      summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
+      return;
     }
-    return;
   }
 
   console.log("ON UPDATEPARAGRAPH - timestamp=" + timestamp);
@@ -106,6 +119,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   }
   let keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
   keywordMap[timestamp.toString()] = keywordList;
+
   for (keyword of keywordList) {
     addKeywordBlockHelper(timestamp, keyword);
   }
@@ -324,6 +338,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   let abSummaryBox = messageBox.childNodes[1];
   let keywordBox = messageBox.childNodes[2];
   var keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
+  keywordList = keywordList.filter(item => item);
   keywordMap[timestamp.toString()] = keywordList;
 
   for (keyword of keywordList) {
@@ -405,6 +420,7 @@ function addKeyword(box, timestamp) {
     }
   });
   box.append(keyInput);
+  keyInput.focus();
 }
 
 // Helper function for adding a new keyword in message box
@@ -661,7 +677,9 @@ function displayUnitOfBox() {
 
   // highlight with search-word
   if (searchword == "") {
-    highlighter.remove();
+    if (highlighter) {
+      highlighter.remove();
+    }
   } else {
     highlighter.apply(searchword);
   }
@@ -702,6 +720,7 @@ function addFavorite() {
     }
   });
   keywordList.append(keyInput);
+  keyInput.focus();
 }
 
 // Delete favorite keyword
@@ -765,7 +784,7 @@ function createSummaryBox(keyword) {
   let title = document.createElement("div");
   let nametag = document.createElement("span");
   let strong = document.createElement("strong");
-  strong.textContent = "Key Sentences for #" + keyword;
+  strong.textContent = "[ #" + keyword + " 에 관한 주요문장]";
   nametag.className = "nametag";
   nametag.append(strong);
   title.append(nametag);
@@ -773,12 +792,11 @@ function createSummaryBox(keyword) {
 
   // summaryBox.childNodes[1]: Includes abstract summary
   let abSummaryBox = document.createElement("div");
-  let abSummary = document.createElement("p");
+  let abSummary = document.createElement("strong");
   abSummary.textContent = "Processing overall summary...";
   abSummaryBox.style.fontSize = "medium";
   abSummaryBox.style.marginLeft = "5px";
   abSummaryBox.style.marginTop = "1em";
-  abSummaryBox.style.fontStyle = "strong";
   abSummaryBox.append(abSummary);
   summaryBox.append(abSummaryBox);
 

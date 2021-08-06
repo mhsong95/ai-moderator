@@ -249,13 +249,15 @@ def get_rouge_score(summary1, summary2):
     return mean(F1_rouge)
 
 ## GOOGLE ENCODER
-import tensorflow as tf
+# import tensorflow as tf
 import tensorflow_hub as hub
 import numpy as np
 from absl import logging
 
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
+config_tf = tf.ConfigProto()
+config_tf.gpu_options.allow_growth = True
 
 import sentencepiece as spm
 import matplotlib.pyplot as plt
@@ -271,7 +273,7 @@ encodings = hub_module(
         indices=input_placeholder.indices,
         dense_shape=input_placeholder.dense_shape))
 
-with tf.Session() as sess:
+with tf.Session(config=config_tf) as sess:
   spm_path = sess.run(hub_module(signature="spm_path"))
 
 sp = spm.SentencePieceProcessor()
@@ -288,7 +290,7 @@ def process_to_IDs_in_sparse_format(sp, sentences):
 
 def get_google_universal_score(summary1, summary2):
     messages = [summary1, summary2]
-    with tf.Session() as session:
+    with tf.Session(config=config_tf) as session:
         session.run(tf.global_variables_initializer())
         session.run(tf.tables_initializer())
         values, indices, dense_shape = process_to_IDs_in_sparse_format(sp,messages)
@@ -376,7 +378,7 @@ def get_overall_summaries(text, keyword):
 
     # Generate Extractive summary
     pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
-    kobert_ex_res = "empty text"
+    kobert_ex_res = pororo_ex_res
 
     if len(pororo_ex_res.split(". ")) < 4:
         return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
