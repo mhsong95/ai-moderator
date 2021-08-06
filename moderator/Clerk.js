@@ -65,7 +65,32 @@ module.exports = class Clerk {
 
     fs.access(fileName, fs.F_OK, (err) => {
       if (err) {
-        console.log("No previous conversation")
+        console.log("No previous conversation");
+
+        // read Default-Conversation
+        const defaultfileName = './logs/Default-Conversation.txt'
+        fs.access(defaultfileName, fs.F_OK, (err) => {
+          if (err) {
+            console.log("No default conversation")
+            return
+          }
+     
+          // File exists
+          const minLineLength = 1
+          getLastLine(defaultfileName, minLineLength)
+            .then((lastLine) => {
+              let past_paragraphs = JSON.parse(lastLine);
+              this.paragraphs = past_paragraphs;
+              this.io.sockets
+                  .to(this.room_id)
+                  .emit("restore", this.paragraphs);
+              this.addRoomLog();
+            })
+            .catch((err) => {
+              console.error(err)
+            })
+        });
+
         return
       }
 
@@ -76,9 +101,10 @@ module.exports = class Clerk {
           console.log(lastLine)
           console.log(JSON.parse(lastLine))
           let past_paragraphs = JSON.parse(lastLine);
+          this.paragraphs = past_paragraphs;
           this.io.sockets
             .to(this.room_id)
-            .emit("restore", past_paragraphs);
+            .emit("restore", this.paragraphs);
         })
         .catch((err) => {
           console.error(err)
