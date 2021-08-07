@@ -9,27 +9,30 @@
             <img src="img/pic1_top.png" width="1200px">
         </div>
         <div id="subtask-answers" style="width: 650px; margin-left: 280px; padding: 10px 10px 10px 10px; text-align:center; font-size: large; border: 2px solid black; border-radius: 5px; background-color: lightgray;">
-            <input type="checkbox" name="check_ans" value="선글라스">선글라스
-            <input type="checkbox" name="check_ans" value="망원경">망원경
-            <input type="checkbox" name="check_ans" value="돛단배">돛단배
-            <input type="checkbox" name="check_ans" value="풍선">풍선
-            <input type="checkbox" name="check_ans" value="왕관">왕관
-            <input type="checkbox" name="check_ans" value="모자">모자
-            <input type="checkbox" name="check_ans" value="카메라">카메라
-            <input type="checkbox" name="check_ans" value="열기구">열기구
-            <input type="checkbox" name="check_ans" value="나침반">나침반
+            <input type="checkbox" name="check_ans" id="선글라스" value="선글라스">선글라스
+            <input type="checkbox" name="check_ans" id="망원경" value="망원경">망원경
+            <input type="checkbox" name="check_ans" id="돛단배" value="돛단배">돛단배
+            <input type="checkbox" name="check_ans" id="풍선" value="풍선">풍선
+            <input type="checkbox" name="check_ans" id="왕관" value="왕관">왕관
+            <input type="checkbox" name="check_ans" id="모자" value="모자">모자
+            <input type="checkbox" name="check_ans" id="카메라" value="카메라">카메라
+            <input type="checkbox" name="check_ans" id="열기구" value="열기구">열기구
+            <input type="checkbox" name="check_ans" id="나침반" value="나침반">나침반
             <br><br>
-            <input type="checkbox" name="check_ans" value="자동차">자동차
-            <input type="checkbox" name="check_ans" value="솜사탕">솜사탕
-            <input type="checkbox" name="check_ans" value="신발">신발
-            <input type="checkbox" name="check_ans" value="지도">지도
-            <input type="checkbox" name="check_ans" value="독수리">독수리
-            <input type="checkbox" name="check_ans" value="소파">소파
-            <input type="checkbox" name="check_ans" value="지팡이">지팡이
-            <input type="checkbox" name="check_ans" value="시계">시계
-            <input type="checkbox" name="check_ans" value="비행기">비행기
+            <input type="checkbox" name="check_ans" id="자동차" value="자동차">자동차
+            <input type="checkbox" name="check_ans" id="솜사탕" value="솜사탕">솜사탕
+            <input type="checkbox" name="check_ans" id="신발" value="신발">신발
+            <input type="checkbox" name="check_ans" id="지도" value="지도">지도
+            <input type="checkbox" name="check_ans" id="독수리" value="독수리">독수리
+            <input type="checkbox" name="check_ans" id="소파" value="소파">소파
+            <input type="checkbox" name="check_ans" id="지팡이" value="지팡이">지팡이
+            <input type="checkbox" name="check_ans" id="시계" value="시계">시계
+            <input type="checkbox" name="check_ans" id="비행기" value="비행기">비행기
         </div>
-        <button type="button" onclick="onSubmit();">
+        <button type="button" style="display: inline-block; font-size: larger; margin-top: 10px; margin-left: 500px" onclick="onSave();">
+            임시저장
+        </button>
+        <button type="button" style="display: inline-block; font-size: larger; margin-top: 10px; margin-left: 10px" onclick="onSubmit();">
             제출
         </button>
 
@@ -46,20 +49,18 @@
                 window.opener.onSubmitAnswer(ans);
                 window.close();
             }
-            // $('#submitButton').click( function() {
-            //     window.opener.onSubmitAnswer();
-                // window.close();
-                // let checkBoxes = document.getElementsByName("check_ans");
-                // let tmp = [];
-                // for (box of checkBoxes) {
-                //     if (box.getAttribute("checked")) {
-                //         tmp.push(box.value);
-                //     }
-                // }
-                // let ans = '@#@'.join(tmp);
-                // window.opener.onSubmitAnswer(ans);
-                // window.close();
-            // });
+            
+            function onSave() {
+                let checkBoxes = document.getElementsByTagName("input");
+                var tmp = [];
+                for (box of checkBoxes) {
+                    if (box.checked) {
+                        tmp.push(box.value);
+                    }
+                }
+                window.opener.onSaveAnswer(tmp);
+                window.close();
+            }
         </script>
     </body>
 </html>

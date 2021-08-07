@@ -35,6 +35,7 @@ let scrollPos = 0;
 var isScrolling;
 var subtaskPopup;
 var subtaskTryCnt = 1;
+let tempAnswers = [];
 
 // Open popup for map
 function openMap() {
@@ -44,6 +45,12 @@ function openMap() {
 // Open popup for subtask
 function openSubtask() {
   subtaskPopup = window.open("../subtask.html", "_blank", "location=yes,toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=800");
+  subtaskPopup.onload = function () {
+    for (ans of tempAnswers) {
+      let checkBox = subtaskPopup.document.getElementById(ans);
+      checkBox.checked = true;
+    }
+  }
 }
 
 // Submit answers for subtask
@@ -51,6 +58,14 @@ function onSubmitAnswer(answers) {
   rc.addUserLog(Date.now(), "SUBTASK ANSWER_TRY" + subtaskTryCnt + "=" + answers);
   console.log('SUBTASK ANSWER_TRY' + subtaskTryCnt + '=' + answers);
   subtaskTryCnt++;
+  tempAnswers = [];
+}
+
+// Save answers temporarily
+function onSaveAnswer(answers) {
+  rc.addUserLog(Date.now(), "SAVE TEMP ANSWERS");
+  console.log("SAVE TEMP ANSWERS");
+  tempAnswers = answers;
 }
 
 // Logging Window Focus ON/OFF
