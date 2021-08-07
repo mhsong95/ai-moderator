@@ -33,6 +33,25 @@ var keywordParagraph = "";
 var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
+var subtaskPopup;
+var subtaskTryCnt = 1;
+
+// Open popup for map
+function openMap() {
+  window.open("../map.html", "_blank", "location=yes,toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=800");
+}
+
+// Open popup for subtask
+function openSubtask() {
+  subtaskPopup = window.open("../subtask.html", "_blank", "location=yes,toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=800");
+}
+
+// Submit answers for subtask
+function onSubmitAnswer(answers) {
+  rc.addUserLog(Date.now(), "SUBTASK ANSWER_TRY" + subtaskTryCnt + "=" + answers);
+  console.log('SUBTASK ANSWER_TRY' + subtaskTryCnt + '=' + answers);
+  subtaskTryCnt++;
+}
 
 // Logging Window Focus ON/OFF
 window.addEventListener('blur', function () {

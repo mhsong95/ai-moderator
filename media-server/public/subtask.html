@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+    </head>
+    <body>
+        <div id="subtask">
+            <p style="font-size: large; font-weight: bold;">[숨은그림찾기] 아래 그림을 보고, 숨어 있는 모형을 모두 선택해주세요.</p>
+            <img src="img/pic1_top.png" width="1200px">
+        </div>
+        <div id="subtask-answers" style="width: 650px; margin-left: 280px; padding: 10px 10px 10px 10px; text-align:center; font-size: large; border: 2px solid black; border-radius: 5px; background-color: lightgray;">
+            <input type="checkbox" name="check_ans" value="선글라스">선글라스
+            <input type="checkbox" name="check_ans" value="망원경">망원경
+            <input type="checkbox" name="check_ans" value="돛단배">돛단배
+            <input type="checkbox" name="check_ans" value="풍선">풍선
+            <input type="checkbox" name="check_ans" value="왕관">왕관
+            <input type="checkbox" name="check_ans" value="모자">모자
+            <input type="checkbox" name="check_ans" value="카메라">카메라
+            <input type="checkbox" name="check_ans" value="열기구">열기구
+            <input type="checkbox" name="check_ans" value="나침반">나침반
+            <br><br>
+            <input type="checkbox" name="check_ans" value="자동차">자동차
+            <input type="checkbox" name="check_ans" value="솜사탕">솜사탕
+            <input type="checkbox" name="check_ans" value="신발">신발
+            <input type="checkbox" name="check_ans" value="지도">지도
+            <input type="checkbox" name="check_ans" value="독수리">독수리
+            <input type="checkbox" name="check_ans" value="소파">소파
+            <input type="checkbox" name="check_ans" value="지팡이">지팡이
+            <input type="checkbox" name="check_ans" value="시계">시계
+            <input type="checkbox" name="check_ans" value="비행기">비행기
+        </div>
+        <button type="button" onclick="onSubmit();">
+            제출
+        </button>
+
+        <script>
+            function onSubmit() {
+                let checkBoxes = document.getElementsByTagName("input");
+                var tmp = [];
+                for (box of checkBoxes) {
+                    if (box.checked) {
+                        tmp.push(box.value);
+                    }
+                }
+                let ans = tmp.join('-');
+                window.opener.onSubmitAnswer(ans);
+                window.close();
+            }
+            // $('#submitButton').click( function() {
+            //     window.opener.onSubmitAnswer();
+                // window.close();
+                // let checkBoxes = document.getElementsByName("check_ans");
+                // let tmp = [];
+                // for (box of checkBoxes) {
+                //     if (box.getAttribute("checked")) {
+                //         tmp.push(box.value);
+                //     }
+                // }
+                // let ans = '@#@'.join(tmp);
+                // window.opener.onSubmitAnswer(ans);
+                // window.close();
+            // });
+        </script>
+    </body>
+</html>
+
+
+
+
+
+
