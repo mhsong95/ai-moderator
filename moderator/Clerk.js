@@ -129,7 +129,7 @@ module.exports = class Clerk {
     if (transcript == "EMPTY RESPONSE!") {
       this.io.sockets
         .to(this.room_id)
-        .removeMsg(timestamp);
+        .emit("removeMsg", timestamp);
     }
 
     this.addRoomLog();

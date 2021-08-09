@@ -27,9 +27,8 @@ module.exports = function (io, socket) {
    * 
    * key: timestamp from "startRecognition" socket message
    * value: { "init": time when `startContinuousRecognitionAsync` function started,
-   *          "prevStart": previous start recognition timestamp, 
-   *          "prevEnd": previous end recognition timestamp, 
-   *          "curStart": current start recognition timestamp }
+   *          "startLogs": start recognition timestamps, 
+   *          "endLogs": end recognition timestamps }
    */
   let timestamps = {};
 
@@ -43,7 +42,18 @@ module.exports = function (io, socket) {
    * value: filename(string) used to access file
    */
   let audiofiles = [];
-  let startCnt = 0;
+
+  /**
+   * @param {String} type "startLogs" or "endLogs"
+   * @returns Last element of corresponding type in timestamps[curTimestamp]
+   */
+  function getLastTimestamp(type) {
+    let len = timestamps[curTimestamp][type].length
+    if (len == 0) {
+      return 0
+    }
+    return timestamps[curTimestamp][type][len - 1]
+  }
 
   //* Send audio stream into microsoft STT server
   /**
@@ -54,7 +64,7 @@ module.exports = function (io, socket) {
     let clerk = clerks.get(socket.room_id);
 
     let transcript = data.text;
-    let timestamp = timestamps[curTimestamp]["curStart"];
+    let timestamp = getLastTimestamp("startLogs");
 
     // Clerk accumulates these full sentences ("final" results)
     console.log(`${timestamp}(${socket.name}): ${transcript}`);
@@ -112,16 +122,13 @@ module.exports = function (io, socket) {
     // Event handler for speech started events.
     // DESIGN: Write speech start detected log at server
     recognizer.speechStartDetected = (s, e) => {
-      console.log("\n  Speech Start Detected!! ", socket.name);
-      console.log("event log", e)
-
       // Save speech start timestamp
       const startTime = Date.now();
 
-      timestamps[curTimestamp]["curStart"] = startTime;
-      startCnt++;
+      timestamps[curTimestamp]["startLogs"].push(startTime);
 
-      console.log("start time", startTime, startCnt);
+      console.log("\n  Speech Start Detected!!\n from ", socket.name, "\n startTime: ", startTime);
+      console.log("event log", e);
     };
 
     // The event canceled signals that an error occurred during recognition.
@@ -158,16 +165,21 @@ module.exports = function (io, socket) {
   }
 
   function processAudioSTT(timestamp) {
-    console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles, startCnt);
-    if (timestamps[curTimestamp]["curStart"] <= timestamps[curTimestamp]["prevEnd"]) {
-      console.log("Already calculated section: ", timestamps[curTimestamp]["prevStart"]);
+    console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles);
+
+    // DESIGN: recalculate here
+    if (getLastTimestamp("startLogs") <= getLastTimestamp("endLogs")) {
+      console.log("Already calculated section: ", getLastTimestamp("startLogs"));
       return;
     }
-    console.log(audiofiles);
-    if(audiofiles.length < startCnt) {
-      console.log("Not valid transcript!");
-      
-      clerks.get(socket.room_id).removeMsg(timestamps[curTimestamp]["curStart"]);
+
+    // DESIGN: startCnt removed!!
+    if (audiofiles.length !== timestamps[curTimestamp]["startLogs"].length) {
+      console.log("audiofile length does not fit with startLog length!");
+      console.log(audiofiles);
+      console.log(timestamps[curTimestamp]["startLogs"]);
+
+      clerks.get(socket.room_id).removeMsg(getLastTimestamp("startLogs"));
       return;
     }
     let whichAudio = audiofiles[audiofiles.length - 1];
@@ -175,15 +187,10 @@ module.exports = function (io, socket) {
     if (recognizer) { socket.emit("restartRecord"); }
 
     // Update timestamp
-    let prevEnd = timestamp; //curTimestamp + Math.round(privOffset / 10000);
-    let prevStart = timestamps[curTimestamp]["curStart"];
-    let lastEnd = timestamps[curTimestamp]["prevEnd"];
-    timestamps[curTimestamp]["curStart"] = lastEnd;
-    timestamps[curTimestamp]["prevEnd"] = prevEnd;
-    timestamps[curTimestamp]["prevStart"] = prevStart;
+    timestamps[curTimestamp]["endLogs"].push(timestamp);
 
     console.log("whichAudio??? ", whichAudio);
-    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, prevStart, prevEnd, whichAudio);
+    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), getLastTimestamp("endLogs"), whichAudio);
   }
 
   // Closes recognition stream.
@@ -194,8 +201,6 @@ module.exports = function (io, socket) {
       recognizer.stopContinuousRecognitionAsync();
       recognizer = null;
     }
-
-    startCnt = audiofiles.length;
 
     console.log(`Recognition from ${socket.name} ended.`);
   }
@@ -244,8 +249,10 @@ module.exports = function (io, socket) {
     );
 
     // Leave timestamp log for further use
-    timestamps[timestamp] = { "init": 0, "prevStart": 0, "prevEnd": 0, "curStart": 0 };
+    // PIN: timestamp def
+    timestamps[timestamp] = { "init": 0, "startLogs": [], "endLogs": [] }
     curTimestamp = timestamp;
+    audiofiles = [];
 
     // Start ms STT service
     startStream();
@@ -283,7 +290,7 @@ module.exports = function (io, socket) {
       audiofiles.push(timestamp);
 
       //TODO: remove[debug]
-      console.log("Save file log (audiofiles, startCnt) ", audiofiles, startCnt);
+      console.log("Save file log (audiofiles) ", audiofiles);
 
       // DESIGN: Write new file log at server
     }
