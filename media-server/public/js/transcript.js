@@ -37,12 +37,12 @@ var isScrolling;
 // Logging Window Focus ON/OFF
 window.addEventListener('blur', function () {
   console.log("WINDOW FOCUS OFF - timestamp=" + Date.now());
-  rc.addUserLog(Date.now(), "WINDOW FOCUS OFF");
+  rc.addUserLog(Date.now(), "WINDOW-FOCUS-OFF");
 });
 
 window.addEventListener('focus', function () {
   console.log("WINDOW FOCUS ON - timestamp=" + Date.now());
-  rc.addUserLog(Date.now(), "WINDOW FOCUS ON");
+  rc.addUserLog(Date.now(), "WINDOW-FOCUS-ON");
 });
 
 // Logging Scroll Event
@@ -50,10 +50,10 @@ window.addEventListener('scroll', function (event) {
   window.clearTimeout(isScrolling); // Clear our timeout throughout the scroll
   isScrolling = setTimeout(function () { // Set a timeout to run after scrolling ends
     if ((document.body.getBoundingClientRect()).top > scrollPos) {
-      rc.addUserLog(Date.now(), "SCROLL UP");
+      rc.addUserLog(Date.now(), "SCROLL-UP");
     }
     else {
-      rc.addUserLog(Date.now(), "SCROLL DOWN");
+      rc.addUserLog(Date.now(), "SCROLL-DOWN");
     }
     scrollPos = (document.body.getBoundingClientRect()).top;
   }, 66);
@@ -64,7 +64,6 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   let check = timestamp.split('@@@');
   if (check[0] === "summary-for-keyword") {
     if (check[1] === user_name) {
-      console.log("SUMMARY-FOR-KEYWORD");
       rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
       let summaryBox = document.getElementById("summary-for-keyword");
       let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
@@ -77,7 +76,6 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
     return;
   }
 
-  console.log("ON UPDATEPARAGRAPH - timestamp=" + timestamp);
   let messageBox = document.getElementById(timestamp.toString());
   let paragraph = messageBox.childNodes[3].childNodes[1];
   let abSummaryEl = messageBox.childNodes[1];
@@ -85,9 +83,9 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
 
   paragraph.textContent = newParagraph;
 
-  rc.addUserLog(Date.now(), 'New paragraph contents: ' + timestamp + '\n'
-    + '                [Paragraph] ' + newParagraph + '\n'
-    + '                [AbSummary] ' + summaryArr[0] + '\n');
+  rc.addUserLog(Date.now(), 'ADD-NEW-MESSAGEBOX-TIMESTAMP=' + timestamp + '\n'
+    + '                PARAGRAPH=' + newParagraph + '\n'
+    + '                SUMMARY=' + summaryArr[0] + '\n');
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
@@ -129,7 +127,7 @@ function addEditBtn(area, type, timestamp) {
   let editBtn1 = document.createElement("span");
   editBtn1.className = "edit-btn";
   editBtn1.id = "edit-" + type + "-" + timestamp;
-  editBtn1.onclick = function () { editContent(type, timestamp); rc.addUserLog(Date.now(), 'Start edit message: ' + type + '-' + timestamp + '\n'); };
+  editBtn1.onclick = function () { editContent(type, timestamp); rc.addUserLog(Date.now(), 'START-EDIT-MESSAGE-TYPE=' + type + ',TIMESTAMP=' + timestamp + '\n'); };
   let pen1 = document.createElement("i");
   pen1.className = "fas fa-pen";
   editBtn1.append(pen1);
@@ -216,17 +214,17 @@ function onUpdateSummary(type, content, timestamp) {
   // Use updateSummary function for pin, addkey, delkey
   if (type === "pin") {
     pinBox(timestamp);
-    rc.addUserLog(Date.now(), "PIN-BOX");
+    // rc.addUserLog(Date.now(), "PIN-BOX");
     return;
   }
   else if (type === "addkey") {
     addKeywordHelper(content, timestamp);
-    rc.addUserLog(Date.now(), "ADD-KEYWORD-MSGBOX");
+    // rc.addUserLog(Date.now(), "ADD-KEYWORD-MSGBOX");
     return;
   }
   else if (type === "delkey") {
     removeKeywordHelper(content, timestamp);
-    rc.addUserLog(Date.now(), "DEL-KEYWORD-MSGBOX");
+    // rc.addUserLog(Date.now(), "DEL-KEYWORD-MSGBOX");
     return;
   }
 
@@ -420,6 +418,7 @@ function addKeyword(box, timestamp) {
 
 // Helper function for adding a new keyword in message box
 function addKeywordHelper(keyword, timestamp) {
+  rc.addUserLog(Date.now(), "ADD-KEYWORD-MSGBOX="+keyword);
   let messageBox = document.getElementById(timestamp.toString());
   let keywordBox = messageBox.childNodes[2];
   var newKeyword = document.createElement("p");
@@ -450,6 +449,7 @@ function addKeywordHelper(keyword, timestamp) {
 }
 
 function delKeyword(timestamp, delKeywordBtn) {
+  rc.addUserLog(Date.now(), "DELETE-KEYWORD-MSGBOX="+keyword);
   let messageBox = document.getElementById(timestamp.toString());
   let keywordBox = messageBox.childNodes[2];
   let state = delKeywordBtn.getAttribute("state");
@@ -599,7 +599,7 @@ function finishEditContent(type, oldtxt, timestamp) {
         // update paragraph and summary on all users
         rc.updateParagraph(editTimestamp, paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(editTimestamp, 'Finish edit message by ' + messageBox.childNodes[0].childNodes[0].textContent + ': ' + type + '-' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-MESSAGE=' + messageBox.childNodes[0].childNodes[0].textContent + ',TYPE=' + type + ',TIMESTAMP=' + timestamp + ',OLDMESSAGE='+oldtxt.value.textContent+'\n');
       }
       else {
         // change icon
@@ -609,7 +609,7 @@ function finishEditContent(type, oldtxt, timestamp) {
 
         paragraph.childNodes[1].onclick = function () { editContent(type, timestamp); };
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(editTimestamp, 'Cancel edit message: ' + type + '-' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'CANCLE-EDIT-MESSAGE-TYPE=' + type + ',TIMESTAMP=' + timestamp + '\n');
       }
       break;
     default:
@@ -622,12 +622,12 @@ function finishEditContent(type, oldtxt, timestamp) {
 
       if (oldtxt != summary.textContent) {
         rc.updateSummary(editTimestamp, "absum", summary.textContent, timestamp)
-        rc.addUserLog(editTimestamp, 'Finish edit message: ' + type + '-' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-SUMMARY='+summary.textContent+",TYPE=" + type + ',TIMESTAMP=' + timestamp + ",OLDSUMMARY="+summary.textContent+'\n');
       }
       else {
         toEditableIcon(summary.lastChild)
         summary.lastChild.onclick = function () { editContent(type, timestamp); };
-        rc.addUserLog(editTimestamp, 'Cancel edit message: ' + type + '-' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'CANCLE-EDIT-SUMMARY-TYPE=' + type + ',TIMESTAMP=' + timestamp + '\n');
       }
       break;
   }
@@ -649,7 +649,7 @@ function displayUnitOfBox() {
   let paragraphs = document.getElementsByClassName("paragraph");
 
   if (searchword != "") {
-    rc.addUserLog(Date.now(), 'Search Word= ' + searchword + '\n');
+    rc.addUserLog(Date.now(), 'SEARCH-WORD=' + searchword + '\n');
   }
   if (favoriteKeywords.includes(searchword)) {
     keywordParagraph = "";
@@ -696,6 +696,7 @@ function addFavorite() {
 
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
+      rc.addUserLog(Date.now(), "ADD-FAVORITE="+keyInput.value.textContent);
       favoriteKeywords.push(keyInput.value);
       let myKeyword = document.createElement("button");
       myKeyword.setAttribute("id", keyInput.value);
@@ -752,6 +753,7 @@ function searchFavorite(keyword) {
   displayUnitOfBox();
   createSummaryBox(keyword);
   let editTimestamp = Date.now();
+  rc.addUserLog(Date.now(), "SEARCH-FAVORITE="+keyword.textContent);
   rc.updateParagraph(editTimestamp, keywordParagraph, "summary-for-keyword@@@" + user_name, "OVERALL@@@" + keyword);
 }
 
@@ -980,6 +982,7 @@ function pinBox(timestamp) {
   let newPin = document.createElement("a");
 
   if (messageBox.getAttribute("pinned") === "false") {
+    rc.addUserLog(Date.now(), "PIN-BOX-TIMESTAMP="+stringTime);
     messageBox.setAttribute("pinned", "true");
     newPin.setAttribute("id", "pin" + stringTime);
     newPin.href = "#";
@@ -1000,6 +1003,7 @@ function pinBox(timestamp) {
     pinBtn.childNodes[0].style.color = "#000000";
   }
   else {
+    rc.addUserLog(Date.now(), "UNPIN-BOX-TIMESTAMP="+stringTime);
     messageBox.setAttribute("pinned", "false");
     let delPin = document.getElementById("pin" + stringTime);
     delPin.remove();
@@ -1022,12 +1026,12 @@ function showFullText(timestamp) {
   let messageBox = document.getElementById(timestamp.toString());
 
   if (messageBox.childNodes[3].childNodes[1].style.display == "") {
-    rc.addUserLog(Date.now(), 'Click [Hide Full Text] Button -' + timestamp.toString() + '\n');
+    rc.addUserLog(Date.now(), 'CLICK-HIDE-FULL-TEXT-BUTTON=' + timestamp.toString() + '\n');
     messageBox.childNodes[3].childNodes[1].style.display = "none";
     messageBox.childNodes[3].childNodes[0].innerHTML = "<u>See full text</u>";
   }
   else {
-    rc.addUserLog(Date.now(), 'Click [See Full Text] BUTTON -' + timestamp.toString() + '\n');
+    rc.addUserLog(Date.now(), 'CLICK-SEE-FULL-TEXT-BUTTON=' + timestamp.toString() + '\n');
     messageBox.childNodes[3].childNodes[1].style.display = "";
     messageBox.childNodes[3].childNodes[0].innerHTML = "<u>Hide full text</u>";
   }
