@@ -24,6 +24,8 @@ for (i = 0; i < portCnt; i++) {
   // console.log(summaryHosts);
 }
 
+let keyword_trends = {};
+
 module.exports = class Clerk {
   constructor (io, room_id) {
     this.io = io;
@@ -273,8 +275,39 @@ module.exports = class Clerk {
           const confidence_score = parseFloat(summary.split("@@@@@CF@@@@@")[1]);
           confArr[0] = confidence_score;
 
-          // summaryArr: [Abstractive, Extractive, Keywords, Trending Keywords]
+          // summaryArr: [Abstractive, Extractive, Keywords]
           summaryArr = summary_text.split("@@@@@AB@@@@@EX@@@@@");
+
+          // Calculate trending keywords
+          let top10_trending = [];
+          var trending_sort = [];
+          let new_keywords = summaryArr[2].split('@@@@@CD@@@@@AX@@@@@');
+          for (var key in keyword_trends) {
+            keyword_trends[key] *= 0.8;
+          }
+          let i = 5;
+          for (key of new_keywords) {
+            if (key in keyword_trends) {
+              keyword_trends[key] += i;
+            }
+            else {
+              keyword_trends[key] = i;
+            }
+            i--;
+          }
+          for (var key in keyword_trends) {
+            trending_sort.push([key, keyword_trends[key]]);
+          }
+          trending_sort.sort(function(a, b) {
+            return b[1] - a[1];
+          });
+          for (key of trending_sort.slice(0, 5)) {
+            if (key[1] > 3) {
+              top10_trending.push(key[0]);
+            }
+          }
+          // summaryArr[3]: Trending keywords
+          summaryArr.push(top10_trending.join('@@@@@CD@@@@@AX@@@@@'));
         }
 
         // Update room conversation log

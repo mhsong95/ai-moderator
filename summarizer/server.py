@@ -213,24 +213,24 @@ def combined_keyword_extractor(text, po_abs, po_ext, ko_abs, ko_ext):
         res_keywords.append(keyword)
     return res_keywords
 
-keyword_trends = {}
-def get_trending_keyword(new_keywords):
-    top10_trending = []
-    for key in keyword_trends:
-        keyword_trends[key] *= 0.8
-    i = 5
-    for keyword in new_keywords:
-        if keyword in keyword_trends:
-            keyword_trends[keyword] += i
-        else:
-            keyword_trends[keyword] = i
-        i -= 1
+# keyword_trends = {}
+# def get_trending_keyword(new_keywords):
+#     top10_trending = []
+#     for key in keyword_trends:
+#         keyword_trends[key] *= 0.8
+#     i = 5
+#     for keyword in new_keywords:
+#         if keyword in keyword_trends:
+#             keyword_trends[keyword] += i
+#         else:
+#             keyword_trends[keyword] = i
+#         i -= 1
     
-    for word, score in sorted(keyword_trends.items(), key=lambda x:x[1], reverse=True)[:10]:
-        # Set the lower bound for trending keywords
-        if score > 3:
-            top10_trending.append(word)
-    return top10_trending
+#     for word, score in sorted(keyword_trends.items(), key=lambda x:x[1], reverse=True)[:10]:
+#         # Set the lower bound for trending keywords
+#         if score > 3:
+#             top10_trending.append(word)
+#     return top10_trending
     
 ### Keyword extraction ###
 
@@ -477,7 +477,7 @@ class echoHandler(BaseHTTPRequestHandler):
             # Extract combined keywords
             keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
             # Extract Top 10 trending keywords
-            top10_trending = get_trending_keyword(keywordList)
+            # top10_trending = get_trending_keyword(keywordList)
 
             # Calculate confidence score
             abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
@@ -490,8 +490,9 @@ class echoHandler(BaseHTTPRequestHandler):
 
             # Concatenate summaries, keywords, trending keywords
             keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
-            trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
-            res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
+            # trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
+            # res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
+            res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString])
             res += "@@@@@CF@@@@@" + str(ab_confidence_score) 
 
             # Print results
@@ -501,11 +502,11 @@ class echoHandler(BaseHTTPRequestHandler):
             print('Keywords:::')
             for keyword in keywordList:
                 print("#%s " % keyword, end="")
-            print('\nTrending Keywords:::')
-            n = 1
-            for keyword in top10_trending:
-                print("%d. %s " % (n, keyword), end="")
-                n += 1
+            # print('\nTrending Keywords:::')
+            # n = 1
+            # for keyword in top10_trending:
+            #     print("%d. %s " % (n, keyword), end="")
+            #     n += 1
             print()
 
         self.send_response(200)
