@@ -13,6 +13,7 @@ const fs = require("fs");
 // Microsoft Azure Speech
 const sdk = require("microsoft-cognitiveservices-speech-sdk");
 const { subKey, servReg } = require("./config");
+const { time } = require("console");
 const speechConfig = sdk.SpeechConfig.fromSubscription(subKey, servReg);
 speechConfig.speechRecognitionLanguage = "ko-KR";
 
@@ -34,6 +35,13 @@ module.exports = function (io, socket) {
 
   // Current timestamp section for MS STT
   let curTimestamp = 0;
+
+  // Current record timestamp
+  let curRecordTimestamp = 0;
+  let lastStopTimestamp = 0;
+
+  // Mark speech already end
+  let speechEnd = true;
 
   /**
    * Audio file lists from each user
@@ -67,11 +75,32 @@ module.exports = function (io, socket) {
     let timestamp = getLastTimestamp("startLogs");
 
     // Clerk accumulates these full sentences ("final" results)
-    console.log(`${timestamp}(${socket.name}): ${transcript}`);
+    console.log(`${new Date(Number(timestamp))}(${socket.name}): ${transcript}`);
+
+    restartRecord(false);
 
     // Update temporary messagebox
     clerk.tempParagraph(socket.id, socket.name, transcript, timestamp);
   };
+
+  function restartRecord(isLast) {
+    console.log("(audioFileHandler.js) restartRecord - islast: ", isLast);
+    // DESIGN: start new recording signal - mark this timestamp
+    let startTimestamp = Date.now();
+    socket.emit("startNewRecord", startTimestamp);
+
+    // DESIGN: stop recording signal - mark this timestamp
+    let stopTimestamp = Date.now();
+    socket.emit("stopCurrentRecord");
+
+    // DESIGN: send temp Naver STT request
+    // DESIGN: recalculate getLastTimestamp part and whichAudio
+    // DESIGN: REMOVE LAST `curRecordTimestamp`
+    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), curRecordTimestamp, lastStopTimestamp, isLast);
+
+    curRecordTimestamp = startTimestamp;
+    lastStopTimestamp = stopTimestamp;
+  }
 
   /**
    * TODO: add comment
@@ -114,9 +143,15 @@ module.exports = function (io, socket) {
     // DESIGN: Write speech end detected log at server
     recognizer.speechEndDetected = (s, e) => {
       console.log("\n  Speech End Detected!!", socket.name);
-      console.log(e)
+      // console.log(e)
 
-      processAudioSTT(Date.now());
+      if (speechEnd) {
+        console.log("Already processed speech!")
+        return;
+      }
+      speechEnd = true;
+
+      restartRecord(true);
     };
 
     // Event handler for speech started events.
@@ -126,6 +161,7 @@ module.exports = function (io, socket) {
       const startTime = Date.now();
 
       timestamps[curTimestamp]["startLogs"].push(startTime);
+      speechEnd = false;
 
       console.log("\n  Speech Start Detected!!\n from ", socket.name, "\n startTime: ", startTime);
       console.log("event log", e);
@@ -167,13 +203,11 @@ module.exports = function (io, socket) {
   function processAudioSTT(timestamp) {
     console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles);
 
-    // DESIGN: recalculate here
     if (getLastTimestamp("startLogs") <= getLastTimestamp("endLogs")) {
       console.log("Already calculated section: ", getLastTimestamp("startLogs"));
       return;
     }
 
-    // DESIGN: startCnt removed!!
     if (audiofiles.length !== timestamps[curTimestamp]["startLogs"].length) {
       console.log("audiofile length does not fit with startLog length!");
       console.log(audiofiles);
@@ -199,8 +233,18 @@ module.exports = function (io, socket) {
       // Stops continuous speech recognition.
       // DESIGN: Write end recognition log at server
       recognizer.stopContinuousRecognitionAsync();
-      recognizer = null;
     }
+
+    // Initialize values
+    pushStream = null;
+    audioConfig = null;
+    recognizer = null;
+    timestamps = {};
+    curTimestamp = 0;
+    curRecordTimestamp = 0;
+    lastStopTimestamp = 0;
+    speechEnd = true;
+    audiofiles = [];
 
     console.log(`Recognition from ${socket.name} ended.`);
   }
@@ -289,8 +333,12 @@ module.exports = function (io, socket) {
     if (!audiofiles.includes(timestamp)) {
       audiofiles.push(timestamp);
 
+      if (curRecordTimestamp == 0) {
+        curRecordTimestamp = timestamp
+      }
+
       //TODO: remove[debug]
-      console.log("Save file log (audiofiles) ", audiofiles);
+      console.log("Save file log (audiofiles last/cnt) ", timestamp, audiofiles.length);
 
       // DESIGN: Write new file log at server
     }

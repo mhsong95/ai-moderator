@@ -76,7 +76,7 @@ module.exports = class Clerk {
             console.log("No default conversation")
             return
           }
-     
+
           // File exists
           const minLineLength = 1
           getLastLine(defaultfileName, minLineLength)
@@ -84,8 +84,8 @@ module.exports = class Clerk {
               let past_paragraphs = JSON.parse(lastLine);
               this.paragraphs = past_paragraphs;
               this.io.sockets
-                  .to(this.room_id)
-                  .emit("restore", this.paragraphs);
+                .to(this.room_id)
+                .emit("restore", this.paragraphs);
               this.addRoomLog();
             })
             .catch((err) => {
@@ -194,7 +194,7 @@ module.exports = class Clerk {
     if (timestamp in this.paragraphs) {
       console.log("add transcript to existing msgbox")
       this.paragraphs[timestamp]["ms"] = this.paragraphs[timestamp]["ms"] + " " + transcript;
-      console.log(this.paragraphs)
+      console.log(timestamp, this.paragraphs[timestamp]);
     }
     else {
       console.log("add new msgbox")
@@ -400,7 +400,6 @@ module.exports = class Clerk {
   }
 
   updateSummary(editTimestamp, type, content, timestamp) {
-    // DESIGN: Update room conversation log
     if (type == "absum") {
       this.paragraphs[timestamp]["editSum"][editTimestamp] = { content: content };
       this.addRoomLog();
@@ -420,21 +419,16 @@ module.exports = class Clerk {
 
   /**
    * TODO: add comment
-  //  * @param {*} roomID 
-  //  * @param {*} userID 
-  //  * @param {*} user 
-  //  * @param {*} timestamp 
-  //  * @param {*} isNew 
-  //  * @param {*} isLast 
+   * request temp stt
    */
   // TODO: remove userID if it is not used in `summarizer/server.py`
-  requestSTT(roomID, userId, user, startTimestamp, endTimestamp, audioFile) {
+  requestSTT(roomID, userId, user, speechStart, trimStart, trimEnd, isLast) {
     let host = this.summaryPort[this.requestCnt++ % this.portCnt]
 
+    console.log("-----requestSTT-----")
     console.log("HOST: ", host)
     console.log("this.requestCnt: ", this.requestCnt)
-
-    console.log(audioFile)
+    console.log("speechStart timestamp: ", new Date(Number(speechStart)))
 
     axios
       .post(
@@ -443,9 +437,8 @@ module.exports = class Clerk {
           type: "requestSTT",
           roomID,
           user,
-          startTimestamp,
-          endTimestamp,
-          audioFile: audioFile
+          startTimestamp: trimStart,
+          endTimestamp: trimEnd,
         },
         {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -458,11 +451,23 @@ module.exports = class Clerk {
           transcript = response.data;
         }
 
-        // Update message box transcript
-        this.replaceParagraph(user, transcript, startTimestamp);
+        // DESIGN: UPDATE naver STT log
+        let curNaver = this.paragraphs[speechStart]["naver"];
+        let newNaver = curNaver;
+        if (transcript !== '') {
+          newNaver = ( curNaver !== '') ?  curNaver+ " " + transcript : transcript;
+          this.paragraphs[speechStart]["naver"] = newNaver
+        }
+        console.log("Update naver STT log: ", newNaver)
 
-        // Conduct summarizer request
-        this.requestSummary(userId, user, transcript, startTimestamp);
+        // DESIGN: IF ISLAST -> run this part with full paragraph
+        if (isLast) {
+          // Update message box transcript
+          this.replaceParagraph(user, newNaver, speechStart);
+
+          // Conduct summarizer request
+          this.requestSummary(userId, user, newNaver, speechStart);
+        }
       })
       .catch((e) => {
         console.log("CATCH - requestSTT");
