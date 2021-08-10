@@ -4,232 +4,245 @@
     <head>
     </head>
     <body>
-        <div id="map_day1" style="border: 5px solid black; background-color: #EAE9DF;">
-            <p style="text-align: center; font-size: x-large; font-weight: bold;">[ Map: Day 1 ]</p>
+        <div id="map_day1">
+            <p style="text-align: center; font-size: x-large; font-weight: bold; margin-bottom: 0px;">[ 1일차: 명동 ]</p>
             <div display="block" style="margin-top: 10px; margin-left: auto; margin-right: auto; width: fit-content;">
-                <img style="width: 700px;" src="/img/day1-map.png">
-            </div>
-            
-        </div>
-
-        <div style="margin: 10px 10px 10px 10px; float: left; width: fit-content;">
-            <iframe id="iframe-1" style="width:400px; height: 1300px; border: 2px solid black; border-radius: 5px; margin-top: 10px;" src="https://pcmap.place.naver.com/restaurant/32770171/menu/list" title="homepage"></iframe>
-
-            <div display="inline-block" style="float: left; margin-top: 10px; width: 250px; background-color: #fbf0fd;">
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">1. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">애성회관</button></span> (한우곰탕)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 월-금 10:00~21:00<br>토요일 10:00~20:00<br>가격: ₩ 8,000 ~ ₩ 60,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">2. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">대성골뱅이치킨</button></span> (치킨)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 14:30~22:00<br>가격: ₩ 19,000 ~ ₩ 27,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">3. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">남도식당</button></span> (추어탕)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~20:30<br>가격: ₩ 10,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">4. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">호수집</button></span> (닭볶음탕)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:00<br>(Break time 14:00~17:00)<br>가격: ₩ 9,000 ~ ₩ 23,000 </p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">5. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">무궁화</button></span> (한정식 코스)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:00<br>(Break time 14:30~18:00)<br>가격: ₩ 140,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">6. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">루브리카</button></span> (양식 레스토랑)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:30<br>(Break time 14:30~18:00)<br>가격: ₩ 10,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">7. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">황소막창구이</button></span> (소막창)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 05:30~22:30 (토요일 휴무)<br>가격: ₩ 13,000 ~ ₩ 16,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">8. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">고수레</button></span> (소막창)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~22:00<br>(Break time 15:00~17:00)<br>가격: ₩ 9,000 ~ ₩ 11,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">9. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">더백푸드트럭</button></span> (소막창)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~22:00<br>(Break time 14:30~18:00)<br>가격: ₩ 8,800 ~ ₩ 98,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">10. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage(this.textContent);">제로컴플렉스</button></span> (소막창)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 12:00~23:00<br>(Break time 15:00~18:00)<br>가격: ₩ 75,000</p>
-                </div>
+                <img style="width: 700px; border: 5px solid grey;" src="/img/day1-map.png">
             </div>
         </div>
 
-        <div display="inline-block" style="margin: 10px 10px 10px 30px; float: left; width: fit-content;">
-            <iframe id="iframe-2" style="width:400px; height: 1300px; border: 2px solid black; border-radius: 5px; margin-top: 10px;" src="https://pcmap.place.naver.com/place/11784657/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559504223" title="homepage"></iframe>
-
-            <div display="inline-block" style="float:left; margin-top: 10px; width: 250px; background-color: #e9fff9;">
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">1. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">서울역사박물관</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 매일 09:00~18:00</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">2. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">덕수궁</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">입장료 1천원<br>운영시간: 매일 09:00~18:00 (월 휴궁)<br>상설행사: 11:00, 14:00, 15:30</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">3. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">서울시립미술관</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 평일 10:00~20:00 / 주말 10:00~19:00</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">4. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">서울광장</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 평일 09:00~21:00 / 주말 09:00~18:00</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px; font-size: large;">5. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">명동거리</button></span></p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-top: 5px; font-size: large;">6. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">서울글로벌문화센터체험</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 10:00~19:00 (월, 공휴일 휴관)</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-bottom: 5px; margin-top: 5px;">7. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">명동대성당</button></span></p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">8. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">남산골한옥마을</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 09:00~20:00 / 4~10월 09:00~21:00</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">9. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">숭례문</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 09:00~18:00 / 6~8월 09:00~18:30</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">10. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">남대문시장</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 00:00~23:00 (일 휴무)</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">11. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">문화역서울 284</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 10:00~19:00 (수 3시간 연장)</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">12. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">남산공원</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">케이블카 성인: 왕복 9500원, 편도 7000원<br>운영시간: 10:00~23:00</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">13. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_2(this.textContent);">남산서울타워</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">전망대 입장료: 대인 16,000원<br>운영시간: 10:00~23:00 / 토 10:00~24:00</p>
+        <!--Info for Day 1-->
+        <div id="day1" style="width: 1000px; height: fit-content; display: grid; grid-template-columns: 1fr 1fr 2fr; grid-template-rows: 1fr;">
+            <div style="margin: 10px 0px 10px 10px; float: left; width: 100%;">
+                <div display="inline-block" style="float: left; width: 250px; height: 1300px; background-color: #fbf0fd; border: 1px solid grey;">
+                    <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
+                        <p>[ 음식점 ] </p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">1. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">애성회관</button></span> (한우곰탕)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 월-금 10:00~21:00<br>토요일 10:00~20:00<br>가격: ₩ 8,000 ~ ₩ 60,000</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">2. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">대성골뱅이치킨</button></span> (치킨)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 14:30~22:00<br>가격: ₩ 19,000 ~ ₩ 27,000</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">3. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">남도식당</button></span> (추어탕)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~20:30<br>가격: ₩ 10,000</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">4. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">호수집</button></span> (닭볶음탕)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:00<br>(Break time 14:00~17:00)<br>가격: ₩ 9,000 ~ ₩ 23,000 </p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">5. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">무궁화</button></span> (한정식 코스)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:00<br>(Break time 14:30~18:00)<br>가격: ₩ 140,000</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">6. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">루브리카</button></span> (양식 레스토랑)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:30<br>(Break time 14:30~18:00)<br>가격: ₩ 10,000</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">7. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">황소막창구이</button></span> (소막창)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 05:30~22:30 (토요일 휴무)<br>가격: ₩ 13,000 ~ ₩ 16,000</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">8. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">고수레</button></span> (소막창)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~22:00<br>(Break time 15:00~17:00)<br>가격: ₩ 9,000 ~ ₩ 11,000</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">9. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">더백푸드트럭</button></span> (소막창)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~22:00<br>(Break time 14:30~18:00)<br>가격: ₩ 8,800 ~ ₩ 98,000</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">10. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">제로컴플렉스</button></span> (소막창)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 12:00~23:00<br>(Break time 15:00~18:00)<br>가격: ₩ 75,000</p>
+                    </div>
                 </div>
             </div>
+
+            <div display="inline-block" style="margin: 10px 0px 10px 0px; float: left; width: 100%;">
+                <div display="inline-block" style="float:left; width: 250px; height: 1300px; background-color: #e9fff9; border: 1px solid grey;">
+                    <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
+                        <p>[ 관광지 ]</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">1. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">서울역사박물관</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 매일 09:00~18:00</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">2. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">덕수궁</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">입장료 1천원<br>운영시간: 매일 09:00~18:00 (월 휴궁)<br>상설행사: 11:00, 14:00, 15:30</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">3. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">서울시립미술관</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 평일 10:00~20:00 / 주말 10:00~19:00</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">4. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">서울광장</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 평일 09:00~21:00 / 주말 09:00~18:00</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px; font-size: large;">5. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">명동거리</button></span></p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; margin-top: 5px; font-size: large;">6. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">서울글로벌문화센터체험</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 10:00~19:00 (월, 공휴일 휴관)</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-bottom: 5px; margin-top: 5px;">7. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">명동대성당</button></span></p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">8. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">남산골한옥마을</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 09:00~20:00 / 4~10월 09:00~21:00</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">9. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">숭례문</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 09:00~18:00 / 6~8월 09:00~18:30</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">10. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">남대문시장</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 00:00~23:00 (일 휴무)</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">11. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">문화역서울 284</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 10:00~19:00 (수 3시간 연장)</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">12. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">남산공원</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">케이블카 성인: 왕복 9500원, 편도 7000원<br>운영시간: 10:00~23:00</p>
+                    </div>
+                    <div style="border: 1px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">13. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">남산서울타워</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">전망대 입장료: 대인 16,000원<br>운영시간: 10:00~23:00 / 토 10:00~24:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <iframe id="iframe-1" style="width:100%; height: 1300px; border: 2px solid black; border-radius: 5px; margin-top: 10px;" src="https://pcmap.place.naver.com/restaurant/32770171/menu/list" title="homepage"></iframe>    
         </div>
 
-        <div display="block" id="map_day2" style="clear: both; border: 5px solid black; background-color: #EAE9DF;">
-            <p style="text-align: center; font-size: x-large; font-weight: bold;">[ Map: Day 2 ]</p>
+        <div display="block" id="map_day2" style="clear: both; margin-top: 20px;">
+            <p style="text-align: center; font-size: x-large; font-weight: bold; margin-bottom: 0px;">[ 2일차: 강남 ]</p>
             <div display="block" style="margin-top: 10px; margin-left: auto; margin-right: auto; width: fit-content;">
-                <img width="700px" src="/img/day2-map.png">
+                <img style="width: 700px; border: 5px solid grey;" src="/img/day2-map.png">
             </div>
         </div>
 
-        <div style="margin: 10px 10px 10px 10px; float: left; width: fit-content;">
-            <iframe id="iframe-3" style="width:400px; height: 1300px; border: 2px solid black; border-radius: 5px; margin-top: 10px;" src="https://pcmap.place.naver.com/restaurant/32770171/menu/list" title="homepage"></iframe>
-
-            <div display="inline-block" style="float: left; margin-top: 10px; width: 250px; background-color: #fbf0fd;">
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">1. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">미즈컨테이너</button></span> (파스타)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~21:30<br>가격: ₩ 9,800 ~ ₩ 155,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">2. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">도림</button></span> (중식)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 12:00~22:00<br>(Break time 15:00~18:00)<br>가격: ₩ 22,000 ~ ₩ 98,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">3. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">을밀대</button></span> (평양냉면)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~21:30<br>가격: ₩ 12,000 ~ ₩ 16,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">4. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">한아람정육식당</button></span> (정육식당)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~23:30<br>가격: ₩ 12,000 ~ ₩ 47,000 </p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">5. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">화진포 막국수</button></span> (동치미 막국수)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~21:00<br>가격: ₩ 8,000 ~ ₩ 14,000 </p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">6. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">라미옥</button></span> (한우곰탕)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~22:00<br>가격: ₩ 13,000 ~ ₩ 49,000 </p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">7. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">산들해</button></span> (한정식)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~21:00<br>(Break time 15:30~17:30)<br>가격: ₩ 16,000 </p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">8. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">하동관</button></span> (곰탕, 수육)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 평일 09:30~20:00 / 주말 09:30~19:00<br>(Break time 14:30~16:00)<br>가격: ₩ 13,000 ~ ₩ 30,000</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">9. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">광화문미진</button></span> (낙지메밀정식)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~22:00<br>가격: ₩ 11,000 ~ ₩ 20,000 </p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">10. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_3(this.textContent);">고봉삼계탕</button></span> (삼계탕)</p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~21:00<br>가격: ₩ 15,000 ~ ₩ 17,000 </p>
-                </div>
-            </div>
-        </div>
-
-        <div display="inline-block" style="margin: 10px 10px 10px 30px; float: left; width: fit-content;">
-            <iframe id="iframe-4" style="width:400px; height: 1300px; border: 2px solid black; border-radius: 5px; margin-top: 10px;" src="https://pcmap.place.naver.com/place/13416876/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571322086" title="homepage"></iframe>
-
-            <div display="inline-block" style="float:left; margin-top: 10px; width: 250px; background-color: #e9fff9;">
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">1. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">잠실한강공원</button></span></p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">2. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">잠실종합운동장</button></span></p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">3. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">석촌호수</button></span></p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">4. <span><button type="button" style="background-color: transparent; font-size: medium;" onclick="seePage_4(this.textContent);">롯데월드/롯데월드타워/롯데몰</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">
-                        <span><button type="button" style="background-color: transparent; font-size: medium;" onclick="seePage_4(this.textContent);">롯데월드</button></span><br>운영시간: 평일 09:00~22:00 / 주말 09:30~23:00<br>
-                        자유이용권: 1Day ₩ 59,000 / 4시 이후 ₩ 48,000
-                    </p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">
-                        <span><button type="button" style="background-color: transparent; font-size: medium;" onclick="seePage_4(this.textContent);">롯데월드 민속박물관</button></span><br>운영시간: 11:00~19:00<br>
-                        입장료: 소인 ₩ 2,000 / 청소년 ₩ 3,000 / 성인 ₩ 5,000
-                    </p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-bottom: 5px; margin-top: 5px; font-size: large;">5. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">몽촌토성</button></span></p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">6. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">올림픽공원</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 05:00~22:00</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">7. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">몽촌역사관</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 09:00~18:00 (월 휴관)</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">8. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">대중음악전시관</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 10:00~19:00 (월,화 휴관)</p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; font-size: large; margin-top: 5px;">9. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">코엑스</button></span></p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">
-                        <span><button type="button" style="background-color: transparent; font-size: medium;" onclick="seePage_4(this.textContent);">스타필드 코엑스몰</button></span><br>운영시간: 10:30~21:00
-                    </p>
-                    <p style="margin-left: 5px; margin-bottom: 5px;">
-                        <span><button type="button" style="background-color: transparent; font-size: medium;" onclick="seePage_4(this.textContent);">코엑스 아쿠아리움</button></span><br>운영시간: 10:00~21:00<br>
-                        입장료: 어린이 ₩ 24,000 / 성인, 청소년 ₩ 28,000
-                    </p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">10. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">봉은사</button></span></p>
-                </div>
-                <div style="border: 2px solid grey;">
-                    <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">11. <span><button type="button" style="background-color: transparent; font-size: large;" onclick="seePage_4(this.textContent);">한국문화의집</button></span></p>
+        <!--Info for Day 2-->
+        <div id="day2" style="width: 1000px; height: fit-content; display: grid; grid-template-columns: 1fr 1fr 2fr; grid-template-rows: 1fr;">
+            <div style="margin: 10px 0px 10px 10px; float: left; width: 100%;">
+                <div display="inline-block" style="float: left; width: 250px; height: 1200px; background-color: #fbf0fd; border: 1px solid grey;">
+                    <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
+                        <p>[ 음식점 ] </p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">1. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">미즈컨테이너</button></span> (파스타)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~21:30<br>가격: ₩ 9,800 ~ ₩ 155,000</p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">2. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">도림</button></span> (중식)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 12:00~22:00<br>(Break time 15:00~18:00)<br>가격: ₩ 22,000 ~ ₩ 98,000</p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">3. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">을밀대</button></span> (평양냉면)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~21:30<br>가격: ₩ 12,000 ~ ₩ 16,000</p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">4. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">한아람정육식당</button></span> (정육식당)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~23:30<br>가격: ₩ 12,000 ~ ₩ 47,000 </p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">5. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">화진포 막국수</button></span> (동치미 막국수)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~21:00<br>가격: ₩ 8,000 ~ ₩ 14,000 </p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">6. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">라미옥</button></span> (한우곰탕)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~22:00<br>가격: ₩ 13,000 ~ ₩ 49,000 </p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">7. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">산들해</button></span> (한정식)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~21:00<br>(Break time 15:30~17:30)<br>가격: ₩ 16,000 </p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">8. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">하동관</button></span> (곰탕, 수육)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 평일 09:30~20:00 / 주말 09:30~19:00<br>(Break time 14:30~16:00)<br>가격: ₩ 13,000 ~ ₩ 30,000</p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">9. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">광화문미진</button></span> (낙지메밀정식)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~22:00<br>가격: ₩ 11,000 ~ ₩ 20,000 </p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">10. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">고봉삼계탕</button></span> (삼계탕)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~21:00<br>가격: ₩ 15,000 ~ ₩ 17,000 </p>
+                    </div>
                 </div>
             </div>
+
+            <div display="inline-block" style="margin: 10px 0px 10px 0px; float: left; width: 100%;">
+                <div display="inline-block" style="float:left; width: 250px; height: 1200px; background-color: #e9fff9; border: 1px solid grey;">
+                    <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
+                        <p>[ 관광지 ]</p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">1. <span><button class="clickBtn" type="button" onclick="seePage_2(this.textContent);">잠실한강공원</button></span></p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">2. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">잠실종합운동장</button></span></p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">3. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">석촌호수</button></span></p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">4. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">롯데월드/롯데월드타워/롯데몰</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">
+                            <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">롯데월드</button></span><br>운영시간: 평일 09:00~22:00 / 주말 09:30~23:00<br>
+                            자유이용권: 1Day ₩ 59,000 / 4시 이후 ₩ 48,000
+                        </p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">
+                            <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">롯데월드 민속박물관</button></span><br>운영시간: 11:00~19:00<br>
+                            입장료: 소인 ₩ 2,000 / 청소년 ₩ 3,000 / 성인 ₩ 5,000
+                        </p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; margin-bottom: 5px; margin-top: 5px; font-size: large;">5. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">몽촌토성</button></span></p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">6. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">올림픽공원</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 05:00~22:00</p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">7. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">몽촌역사관</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 09:00~18:00 (월 휴관)</p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">8. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">대중음악전시관</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 10:00~19:00 (월,화 휴관)</p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; font-size: large; margin-top: 5px;">9. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">코엑스</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">
+                            <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">스타필드 코엑스몰</button></span><br>운영시간: 10:30~21:00
+                        </p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">
+                            <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">코엑스 아쿠아리움</button></span><br>운영시간: 10:00~21:00<br>
+                            입장료: 어린이 ₩ 24,000 / 성인, 청소년 ₩ 28,000
+                        </p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">10. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">봉은사</button></span></p>
+                    </div>
+                    <div style="border: 2px solid grey;">
+                        <p style="margin-left: 5px; margin-bottom: 5px; font-size: large; margin-top: 5px;">11. <span><button type="button" class="clickBtn" onclick="seePage_2(this.textContent);">한국문화의집</button></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <iframe id="iframe-2" style="width:100%; height: 1200px; border: 2px solid black; border-radius: 5px; margin-top: 10px;" src="https://pcmap.place.naver.com/restaurant/975834908/menu/list" title="homepage"></iframe>    
         </div>
 
         <script>
-            let foodPlace = { "애성회관": "https://pcmap.place.naver.com/restaurant/32770171/menu/list",
+            let places_day1 = { "애성회관": "https://pcmap.place.naver.com/restaurant/32770171/menu/list",
                             "대성골뱅이치킨": "https://pcmap.place.naver.com/restaurant/13475829/menu/list",
                             "남도식당": "https://pcmap.place.naver.com/restaurant/13078828/menu/list",
                             "호수집": "https://pcmap.place.naver.com/restaurant/37581971/menu/list",
@@ -238,22 +251,8 @@
                             "황소막창구이": "https://pcmap.place.naver.com/restaurant/1799022210/menu/list",
                             "고수레": "https://blog.naver.com/stepartnet/222182634890",
                             "더백푸드트럭": "https://m.store.naver.com/restaurants/36473368/tabs/menus/yogiyo/list?more=false&entry=bmp&pcmap=1",
-                            "제로컴플렉스": "https://pcmap.place.naver.com/restaurant/32762172/menu/list"
-                            };
-
-            let foodPlace_2 = { "미즈컨테이너": "https://pcmap.place.naver.com/restaurant/975834908/menu/list",
-                                "도림": "https://pcmap.place.naver.com/restaurant/18456560/menu/list",
-                                "을밀대": "https://pcmap.place.naver.com/restaurant/1676700042/menu/list",
-                                "한아람정육식당": "https://pcmap.place.naver.com/restaurant/248397751/menu/list",
-                                "회진포 막국수": "https://pcmap.place.naver.com/restaurant/19873545/menu/list",
-                                "라미옥": "https://pcmap.place.naver.com/restaurant/1142435232/menu/list",
-                                "산들해": "https://pcmap.place.naver.com/restaurant/19769266/menu/list",
-                                "하동관": "https://pcmap.place.naver.com/restaurant/36112273/menu/list",
-                                "광화문미진": "https://m.booking.naver.com/order/bizes/418334/items/3604875?theme=place&service-target=map-pc&refererCode=menutab&area=bmp",
-                                "고봉삼계탕": "https://pcmap.place.naver.com/restaurant/1029380546/menu/list"
-                            };
-            
-            let visitPlace = { "서울역사박물관": "https://pcmap.place.naver.com/place/11784657/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559504223",
+                            "제로컴플렉스": "https://pcmap.place.naver.com/restaurant/32762172/menu/list",
+                            "서울역사박물관": "https://pcmap.place.naver.com/place/11784657/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559504223",
                             "덕수궁": "https://pcmap.place.naver.com/place/11571730/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559886025",
                             "서울시립미술관": "https://pcmap.place.naver.com/place/12125053/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559904231",
                             "서울광장": "https://pcmap.place.naver.com/place/11796247/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559918699",
@@ -268,7 +267,17 @@
                             "남산서울타워": "https://pcmap.place.naver.com/place/38345004/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560077172"
                             };
 
-            let visitPlace_2 = { "잠실한강공원": "https://pcmap.place.naver.com/place/13416876/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571322086",
+            let places_day2 = { "미즈컨테이너": "https://pcmap.place.naver.com/restaurant/975834908/menu/list",
+                                "도림": "https://pcmap.place.naver.com/restaurant/18456560/menu/list",
+                                "을밀대": "https://pcmap.place.naver.com/restaurant/1676700042/menu/list",
+                                "한아람정육식당": "https://pcmap.place.naver.com/restaurant/248397751/menu/list",
+                                "회진포 막국수": "https://pcmap.place.naver.com/restaurant/19873545/menu/list",
+                                "라미옥": "https://pcmap.place.naver.com/restaurant/1142435232/menu/list",
+                                "산들해": "https://pcmap.place.naver.com/restaurant/19769266/menu/list",
+                                "하동관": "https://pcmap.place.naver.com/restaurant/36112273/menu/list",
+                                "광화문미진": "https://m.booking.naver.com/order/bizes/418334/items/3604875?theme=place&service-target=map-pc&refererCode=menutab&area=bmp",
+                                "고봉삼계탕": "https://pcmap.place.naver.com/restaurant/1029380546/menu/list",
+                                "잠실한강공원": "https://pcmap.place.naver.com/place/13416876/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571322086",
                                 "잠실종합운동장": "https://pcmap.place.naver.com/place/11622958/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571357621",
                                 "석촌호수": "https://pcmap.place.naver.com/place/13491520/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571375019",
                                 "롯데월드/롯데월드타워/롯데몰": "https://pcmap.place.naver.com/place/35306752/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571399857",
@@ -287,26 +296,24 @@
 
             function seePage(place) {
                 let iframe = document.getElementById("iframe-1");
-                iframe.setAttribute("src", foodPlace[place]);
+                iframe.setAttribute("src", places_day1[place]);
             }
             function seePage_2(place) {
                 let iframe = document.getElementById("iframe-2");
-                iframe.setAttribute("src", visitPlace[place]);
-            }
-            function seePage_3(place) {
-                let iframe = document.getElementById("iframe-3");
-                iframe.setAttribute("src", foodPlace_2[place]);
-            }
-            function seePage_4(place) {
-                let iframe = document.getElementById("iframe-4");
-                iframe.setAttribute("src", visitPlace_2[place]);
+                iframe.setAttribute("src", places_day2[place]);
             }
 
         </script>
+
+        <style>
+            .clickBtn {
+                background-color: white;
+                font-size: large;
+                border-radius: 5px;
+                border: 1px solid black;
+            }
+
+
+        </style>
     </body>
 </html>
-
-
-
-
-

@@ -42,6 +42,16 @@
         <video id="local-video" autoplay inline></video>
       </div> -->
 
+      <!--Map-->
+      <!-- <iframe style="border: 1px solid grey; margin: 10px 0px 0px 5px; width: 100%; height: 80%;" src="../map.html"></iframe> -->
+      <div class="tab">
+        <button class="tablinks" onclick="showMap('../img/day1-map.png');">1일차<br>(명동)</button>
+        <button class="tablinks" onclick="showMap('../img/day2-map.png');">2일차<br>(강남)</button>
+      </div>
+      <div id="map-view" class="tabcontent">
+        <img id="map-image" style="width: 100%; height: 100%" src="../img/day1-map.png">
+      </div>
+
       <!-- Bottom Navbar Buttons -->
       <nav class="navbar navbar-expand-lg fixed-bottom">
         <div id="media-control" class="container-fluid btn-toolbar d-grid gap-2 d-md-block" role="toolbar">
@@ -172,12 +182,19 @@
       </button>
 
       <button type="button" onclick="openSubtask();" style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
-        Subtask 풀기
+        설문 풀기
       </button>
       <button type="button" onclick="openMap();" style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
         지도 보기
       </button>
 
+      <script>
+        function showMap(src) {
+          let mapContent = document.getElementById('map-image');
+          mapContent.src = src;
+        }
+
+      </script>
   </body>
 
   <footer>

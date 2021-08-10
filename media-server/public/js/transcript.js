@@ -39,12 +39,12 @@ let tempAnswers = [];
 
 // Open popup for map
 function openMap() {
-  window.open("../map.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1400,height=900");
+  window.open("../map.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=900");
 }
 
 // Open popup for subtask
 function openSubtask() {
-  subtaskPopup = window.open("../subtask.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=800");
+  subtaskPopup = window.open("https://docs.google.com/forms/d/e/1FAIpQLSeQptC17BLX6hoLtuPuFfBdBWZ85rEAeVQEQUx4WtIbV3NlGw/viewform", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=800");
   subtaskPopup.onload = function () {
     for (ans of tempAnswers) {
       let checkBox = subtaskPopup.document.getElementById(ans);
