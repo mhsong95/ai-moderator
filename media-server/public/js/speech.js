@@ -58,7 +58,6 @@ let AudioStreamer = {
 
   stopRecording: function () {
     moderatorSocket.emit("endRecognition");
-    closeAll();
   },
 };
 
@@ -70,6 +69,10 @@ let newTimestamp = 0;
 moderatorSocket.on("startNewRecord", (timestamp) => {
   // Use `MediaRecorder` to record webm file for Naver STT
   console.log("START NEW RECORD: ", timestamp, new Date(Number(timestamp)));
+  if (!stream) {
+    console.log("(speech.js - 'startNewRecord') No stream!!");
+    return;
+  }
   newMediaRecorder = new MediaRecorder(stream);
   newMediaRecorder.start(1000); // 1000 - the number of milliseconds to record into each Blob
   newTimestamp = timestamp;
@@ -147,8 +150,7 @@ rc.on(RoomClient.EVENTS.startAudio, () => {
 
 rc.on(RoomClient.EVENTS.stopAudio, () => {
   AudioStreamer.stopRecording();
-  producer_id = null;
-  track = null;
+  closeAll();
 });
 
 //* Helper functions
@@ -211,4 +213,8 @@ function closeAll() {
     mediaRecorder.stop();
     mediaRecorder = null;
   }
+
+  producer_id = null;
+  track = null;
+  stream = null;
 }

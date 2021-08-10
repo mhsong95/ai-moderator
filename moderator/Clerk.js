@@ -3,16 +3,12 @@
 // Clerk also interacts with the summary server.
 
 const axios = require("axios");
-const { ConsoleLoggingListener } = require("microsoft-cognitiveservices-speech-sdk/distrib/lib/src/common.browser/Exports");
 const config = require("./config");
 
 // Read and write logs
 const fs = require("fs");
 const getLastLine = require('./fileTools.js').getLastLine;
 const { time } = require("console");
-
-// Maximum length of silence not to switch a paragraph.
-const SILENCE_LIMIT = 10 * 1000;
 
 const summaryHost = config.summaryHost;
 const summaryPorts = config.summaryPorts;
@@ -121,22 +117,67 @@ module.exports = class Clerk {
    * @param {*} transcript 
    * @param {*} timestamp 
    */
-  replaceParagraph(speakerName, transcript, timestamp) {
-    console.log("replaceParagraph: ", timestamp, transcript)
-    if (transcript == '') { transcript = "EMPTY RESPONSE!" }
-    this.paragraphs[timestamp]["naver"] = transcript;
+  getReplaceTranscript(timestamp) {
+    let naverTrans = this.paragraphs[timestamp]["naver"];
+    let msTrans = this.paragraphs[timestamp]["ms"];
 
-    if (transcript == "EMPTY RESPONSE!") {
+    if (!msTrans.length) {
       this.io.sockets
         .to(this.room_id)
         .emit("removeMsg", timestamp);
+      return;
     }
 
-    this.addRoomLog();
+    let replaceTranscript = naverTrans.join(' ');
+    let appendLen = msTrans.length - naverTrans.length;
 
-    this.io.sockets
-      .to(this.room_id)
-      .emit("transcript", transcript, speakerName, timestamp);
+    for (let i = 0; i < appendLen; i++) {
+      replaceTranscript += ' ' + msTrans[naverTrans.length + i];
+    }
+
+    return replaceTranscript
+  }
+
+  /**
+   * TODO: ADD comment
+   * MS STT에서 return 된 transcript를 임시로 messagebox에 표시
+   * 
+   * DESIGN: maybe add log?
+   */
+  tempParagraph(speakerId, speakerName, transcript, timestamp) {
+    console.log("tempParagraph: ", timestamp, transcript);
+
+    // Save transcript
+    if (timestamp in this.paragraphs) {
+      console.log("add transcript to existing msgbox")
+      this.paragraphs[timestamp]["ms"].push(transcript);
+      console.log(timestamp, this.paragraphs[timestamp]);
+    }
+    else {
+      console.log("add new msgbox")
+      this.paragraphs[timestamp] = {
+        "speakerID": speakerId,
+        "speakerName": speakerName,
+        "ms": [transcript],
+        "naver": [],
+        "sum": {},
+        "editTrans": {},
+        "editSum": {},
+        "pinned": false,
+      }
+    }
+
+    let replaceTranscript = this.getReplaceTranscript(timestamp);
+    // Show message box
+    this.publishTranscript(replaceTranscript, speakerName, timestamp);
+  }
+
+  replaceParagraph(speakerName, timestamp) {
+    console.log("replaceParagraph: ", speakerName, timestamp);
+
+    let replaceTranscript = this.getReplaceTranscript(timestamp);
+    // Show message box
+    this.publishTranscript(replaceTranscript, speakerName, timestamp);
   }
 
   /**
@@ -179,38 +220,6 @@ module.exports = class Clerk {
     if (isLast) {
       this.requestSummary();
     }
-  }
-
-  /**
-   * TODO: ADD comment
-   * MS STT에서 return 된 transcript를 임시로 messagebox에 표시
-   * 
-   * DESIGN: maybe add log?
-   */
-  tempParagraph(speakerId, speakerName, transcript, timestamp) {
-    console.log("tempParagraph: ", timestamp, transcript);
-
-    // Save transcript
-    if (timestamp in this.paragraphs) {
-      console.log("add transcript to existing msgbox")
-      this.paragraphs[timestamp]["ms"] = this.paragraphs[timestamp]["ms"] + " " + transcript;
-      console.log(timestamp, this.paragraphs[timestamp]);
-    }
-    else {
-      console.log("add new msgbox")
-      this.paragraphs[timestamp] = {
-        "speakerID": speakerId,
-        "speakerName": speakerName,
-        "ms": transcript,
-        "naver": "",
-        "sum": {},
-        "editTrans": {},
-        "editSum": {},
-        "pinned": false,
-      }
-    }
-    // Show message box
-    this.publishTranscript(this.paragraphs[timestamp]["ms"], speakerName, timestamp);
   }
 
   /**
@@ -429,6 +438,7 @@ module.exports = class Clerk {
     console.log("HOST: ", host)
     console.log("this.requestCnt: ", this.requestCnt)
     console.log("speechStart timestamp: ", new Date(Number(speechStart)))
+    console.log("-----request Start-----");
 
     axios
       .post(
@@ -452,21 +462,21 @@ module.exports = class Clerk {
         }
 
         // DESIGN: UPDATE naver STT log
-        let curNaver = this.paragraphs[speechStart]["naver"];
-        let newNaver = curNaver;
-        if (transcript !== '') {
-          newNaver = ( curNaver !== '') ?  curNaver+ " " + transcript : transcript;
-          this.paragraphs[speechStart]["naver"] = newNaver
+        if (transcript) {
+          this.paragraphs[speechStart]["naver"].push(transcript);
+          console.log("(Clerk.js - requestSTT) transcript: ", transcript);
+        } else {
+          let invalidSTT = this.paragraphs[speechStart]["ms"].splice(this.paragraphs[speechStart]["naver"].length, 1);
+          console.log("(Clerk.js - requestSTT) Remove invalidSTT: ", invalidSTT);
         }
-        console.log("Update naver STT log: ", newNaver)
+        console.log("Update naver STT log: ", this.paragraphs[speechStart]["naver"].join(' '))
 
-        // DESIGN: IF ISLAST -> run this part with full paragraph
+        // Update message box transcript
+        this.replaceParagraph(user, speechStart);
+
         if (isLast) {
-          // Update message box transcript
-          this.replaceParagraph(user, newNaver, speechStart);
-
           // Conduct summarizer request
-          this.requestSummary(userId, user, newNaver, speechStart);
+          this.requestSummary(userId, user, this.paragraphs[speechStart]["naver"].join(' '), speechStart);
         }
       })
       .catch((e) => {

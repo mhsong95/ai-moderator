@@ -85,17 +85,15 @@ module.exports = function (io, socket) {
 
   function restartRecord(isLast) {
     console.log("(audioFileHandler.js) restartRecord - islast: ", isLast);
-    // DESIGN: start new recording signal - mark this timestamp
+    // start new recording signal
     let startTimestamp = Date.now();
     socket.emit("startNewRecord", startTimestamp);
 
-    // DESIGN: stop recording signal - mark this timestamp
+    // stop recording signal
     let stopTimestamp = Date.now();
     socket.emit("stopCurrentRecord");
 
-    // DESIGN: send temp Naver STT request
-    // DESIGN: recalculate getLastTimestamp part and whichAudio
-    // DESIGN: REMOVE LAST `curRecordTimestamp`
+    // send temp Naver STT request
     clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), curRecordTimestamp, lastStopTimestamp, isLast);
 
     curRecordTimestamp = startTimestamp;
