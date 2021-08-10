@@ -95,10 +95,10 @@ window.addEventListener('scroll', function (event) {
 
 function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   // For summary request on overall summary of favorite keywords
-  
+
   let check = timestamp.toString().split('@@@');
   if (check[0] === "summary-for-keyword") {
-    if (check[1] === user_name) { 
+    if (check[1] === user_name) {
       console.log("SUMMARY-FOR-KEYWORD");
       rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
       let summaryBox = document.getElementById("summary-for-keyword");
@@ -189,11 +189,11 @@ function onRestore(past_paragraphs) {
     let newsum = '';
 
     if (Object.keys(datas["editTrans"]).length === 0) {
-      if (["naver"] != '') {
-        transcript = datas["naver"]
+      if (datas["naver"].length) {
+        transcript = datas["naver"].join(' ')
       }
       else {
-        transcript = datas["ms"]
+        transcript = datas["ms"].join(' ')
       }
 
       if (Object.keys(datas["sum"]).length === 0) hasSummary = false;
@@ -314,10 +314,6 @@ function onTranscript(transcript, name, timestamp) {
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
-  }
-  else if (transcript == "EMPTY RESPONSE!") {
-    messageBox.remove();
-    return;
   }
 
   // Append the new transcript to the old paragraph.
@@ -767,7 +763,7 @@ function delFavorite() {
       key.style.backgroundColor = "red";
       key.onclick = function () {
         this.remove();
-        rc.addUserLog(Date.now(), "DELETE-FAVORITE="+this.textContent.slice(1));
+        rc.addUserLog(Date.now(), "DELETE-FAVORITE=" + this.textContent.slice(1));
       };
     }
     delKey.setAttribute("state", "on");
@@ -1015,7 +1011,7 @@ function createMessageBox(name, timestamp) {
 
 // Pins message box
 function pinBox(timestamp) {
-  
+
 
   let stringTime = timestamp.toString();
   let messageBox = document.getElementById(stringTime);

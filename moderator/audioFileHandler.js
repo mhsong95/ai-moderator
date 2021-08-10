@@ -13,6 +13,7 @@ const fs = require("fs");
 // Microsoft Azure Speech
 const sdk = require("microsoft-cognitiveservices-speech-sdk");
 const { subKey, servReg } = require("./config");
+const { time } = require("console");
 const speechConfig = sdk.SpeechConfig.fromSubscription(subKey, servReg);
 speechConfig.speechRecognitionLanguage = "ko-KR";
 
@@ -27,14 +28,20 @@ module.exports = function (io, socket) {
    * 
    * key: timestamp from "startRecognition" socket message
    * value: { "init": time when `startContinuousRecognitionAsync` function started,
-   *          "prevStart": previous start recognition timestamp, 
-   *          "prevEnd": previous end recognition timestamp, 
-   *          "curStart": current start recognition timestamp }
+   *          "startLogs": start recognition timestamps, 
+   *          "endLogs": end recognition timestamps }
    */
   let timestamps = {};
 
   // Current timestamp section for MS STT
   let curTimestamp = 0;
+
+  // Current record timestamp
+  let curRecordTimestamp = 0;
+  let lastStopTimestamp = 0;
+
+  // Mark speech already end
+  let speechEnd = true;
 
   /**
    * Audio file lists from each user
@@ -43,7 +50,18 @@ module.exports = function (io, socket) {
    * value: filename(string) used to access file
    */
   let audiofiles = [];
-  let startCnt = 0;
+
+  /**
+   * @param {String} type "startLogs" or "endLogs"
+   * @returns Last element of corresponding type in timestamps[curTimestamp]
+   */
+  function getLastTimestamp(type) {
+    let len = timestamps[curTimestamp][type].length
+    if (len == 0) {
+      return 0
+    }
+    return timestamps[curTimestamp][type][len - 1]
+  }
 
   //* Send audio stream into microsoft STT server
   /**
@@ -54,14 +72,33 @@ module.exports = function (io, socket) {
     let clerk = clerks.get(socket.room_id);
 
     let transcript = data.text;
-    let timestamp = timestamps[curTimestamp]["curStart"];
+    let timestamp = getLastTimestamp("startLogs");
 
     // Clerk accumulates these full sentences ("final" results)
-    console.log(`${timestamp}(${socket.name}): ${transcript}`);
+    console.log(`${new Date(Number(timestamp))}(${socket.name}): ${transcript}`);
+
+    restartRecord(false);
 
     // Update temporary messagebox
     clerk.tempParagraph(socket.id, socket.name, transcript, timestamp);
   };
+
+  function restartRecord(isLast) {
+    console.log("(audioFileHandler.js) restartRecord - islast: ", isLast);
+    // start new recording signal
+    let startTimestamp = Date.now();
+    socket.emit("startNewRecord", startTimestamp);
+
+    // stop recording signal
+    let stopTimestamp = Date.now();
+    socket.emit("stopCurrentRecord");
+
+    // send temp Naver STT request
+    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), curRecordTimestamp, lastStopTimestamp, isLast);
+
+    curRecordTimestamp = startTimestamp;
+    lastStopTimestamp = stopTimestamp;
+  }
 
   /**
    * TODO: add comment
@@ -104,24 +141,32 @@ module.exports = function (io, socket) {
     // DESIGN: Write speech end detected log at server
     recognizer.speechEndDetected = (s, e) => {
       console.log("\n  Speech End Detected!!", socket.name);
-      console.log(e)
+      // console.log(e)
 
-      processAudioSTT(Date.now());
+      if (speechEnd) {
+        console.log("Already processed speech!")
+        return;
+      }
+      speechEnd = true;
+
+      restartRecord(true);
     };
 
     // Event handler for speech started events.
     // DESIGN: Write speech start detected log at server
     recognizer.speechStartDetected = (s, e) => {
-      console.log("\n  Speech Start Detected!! ", socket.name);
-      console.log("event log", e)
-
+      if (!speechEnd) {
+        console.log("\n  Speech Start Detected (Duplicate) !!\n from ", socket.name);
+        return;
+      }
       // Save speech start timestamp
       const startTime = Date.now();
 
-      timestamps[curTimestamp]["curStart"] = startTime;
-      startCnt++;
+      timestamps[curTimestamp]["startLogs"].push(startTime);
+      speechEnd = false;
 
-      console.log("start time", startTime, startCnt);
+      console.log("\n  Speech Start Detected!!\n from ", socket.name, "\n startTime: ", startTime);
+      console.log("event log", e);
     };
 
     // The event canceled signals that an error occurred during recognition.
@@ -158,16 +203,19 @@ module.exports = function (io, socket) {
   }
 
   function processAudioSTT(timestamp) {
-    console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles, startCnt);
-    if (timestamps[curTimestamp]["curStart"] <= timestamps[curTimestamp]["prevEnd"]) {
-      console.log("Already calculated section: ", timestamps[curTimestamp]["prevStart"]);
+    console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles);
+
+    if (getLastTimestamp("startLogs") <= getLastTimestamp("endLogs")) {
+      console.log("Already calculated section: ", getLastTimestamp("startLogs"));
       return;
     }
-    console.log(audiofiles);
-    if(audiofiles.length < startCnt) {
-      console.log("Not valid transcript!");
-      
-      clerks.get(socket.room_id).removeMsg(timestamps[curTimestamp]["curStart"]);
+
+    if (audiofiles.length !== timestamps[curTimestamp]["startLogs"].length) {
+      console.log("audiofile length does not fit with startLog length!");
+      console.log(audiofiles);
+      console.log(timestamps[curTimestamp]["startLogs"]);
+
+      clerks.get(socket.room_id).removeMsg(getLastTimestamp("startLogs"));
       return;
     }
     let whichAudio = audiofiles[audiofiles.length - 1];
@@ -175,15 +223,10 @@ module.exports = function (io, socket) {
     if (recognizer) { socket.emit("restartRecord"); }
 
     // Update timestamp
-    let prevEnd = timestamp; //curTimestamp + Math.round(privOffset / 10000);
-    let prevStart = timestamps[curTimestamp]["curStart"];
-    let lastEnd = timestamps[curTimestamp]["prevEnd"];
-    timestamps[curTimestamp]["curStart"] = lastEnd;
-    timestamps[curTimestamp]["prevEnd"] = prevEnd;
-    timestamps[curTimestamp]["prevStart"] = prevStart;
+    timestamps[curTimestamp]["endLogs"].push(timestamp);
 
     console.log("whichAudio??? ", whichAudio);
-    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, prevStart, prevEnd, whichAudio);
+    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), getLastTimestamp("endLogs"), whichAudio);
   }
 
   // Closes recognition stream.
@@ -192,10 +235,18 @@ module.exports = function (io, socket) {
       // Stops continuous speech recognition.
       // DESIGN: Write end recognition log at server
       recognizer.stopContinuousRecognitionAsync();
-      recognizer = null;
     }
 
-    startCnt = audiofiles.length;
+    // Initialize values
+    pushStream = null;
+    audioConfig = null;
+    recognizer = null;
+    timestamps = {};
+    curTimestamp = 0;
+    curRecordTimestamp = 0;
+    lastStopTimestamp = 0;
+    speechEnd = true;
+    audiofiles = [];
 
     console.log(`Recognition from ${socket.name} ended.`);
   }
@@ -244,8 +295,10 @@ module.exports = function (io, socket) {
     );
 
     // Leave timestamp log for further use
-    timestamps[timestamp] = { "init": 0, "prevStart": 0, "prevEnd": 0, "curStart": 0 };
+    // PIN: timestamp def
+    timestamps[timestamp] = { "init": 0, "startLogs": [], "endLogs": [] }
     curTimestamp = timestamp;
+    audiofiles = [];
 
     // Start ms STT service
     startStream();
@@ -282,8 +335,12 @@ module.exports = function (io, socket) {
     if (!audiofiles.includes(timestamp)) {
       audiofiles.push(timestamp);
 
+      if (curRecordTimestamp == 0) {
+        curRecordTimestamp = timestamp
+      }
+
       //TODO: remove[debug]
-      console.log("Save file log (audiofiles, startCnt) ", audiofiles, startCnt);
+      console.log("Save file log (audiofiles last/cnt) ", timestamp, audiofiles.length);
 
       // DESIGN: Write new file log at server
     }
