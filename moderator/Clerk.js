@@ -226,8 +226,6 @@ module.exports = class Clerk {
    * Broadcasts a transcript to the room.
    */
   publishTranscript(transcript, name, timestamp) {
-    // console.log("publishTranscript")
-    if (transcript.split(' ')[0].length == 0) return;
     this.addRoomLog();
     this.io.sockets
       .to(this.room_id)
@@ -307,7 +305,7 @@ module.exports = class Clerk {
           for (var key in keyword_trends) {
             trending_sort.push([key, keyword_trends[key]]);
           }
-          trending_sort.sort(function(a, b) {
+          trending_sort.sort(function (a, b) {
             return b[1] - a[1];
           });
           for (key of trending_sort.slice(0, 5)) {

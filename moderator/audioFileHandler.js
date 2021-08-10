@@ -155,6 +155,10 @@ module.exports = function (io, socket) {
     // Event handler for speech started events.
     // DESIGN: Write speech start detected log at server
     recognizer.speechStartDetected = (s, e) => {
+      if (!speechEnd) {
+        console.log("\n  Speech Start Detected (Duplicate) !!\n from ", socket.name);
+        return;
+      }
       // Save speech start timestamp
       const startTime = Date.now();
 
