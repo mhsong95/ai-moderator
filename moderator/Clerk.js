@@ -153,27 +153,13 @@ module.exports = class Clerk {
     return replaceTranscript
   }
 
-  /**
-   * TODO: ADD comment
-   * MS STT에서 return 된 transcript를 임시로 messagebox에 표시
-   * 
-   * DESIGN: maybe add log?
-   */
-  tempParagraph(speakerId, speakerName, transcript, timestamp) {
-    console.log("tempParagraph: ", timestamp, transcript);
-
-    // Save transcript
-    if (timestamp in this.paragraphs) {
-      console.log("add transcript to existing msgbox")
-      this.paragraphs[timestamp]["ms"].push(transcript);
-      console.log(timestamp, this.paragraphs[timestamp]);
-    }
-    else {
-      console.log("add new msgbox")
-      this.paragraphs[timestamp] = {
+  getMsgTimestamp(speakerId, speakerName, timestamps, isLast) {
+    let ts = timestamps[0];
+    if (!(ts in this.paragraphs)) {
+      this.paragraphs[ts] = {
         "speakerID": speakerId,
         "speakerName": speakerName,
-        "ms": [transcript],
+        "ms": [],
         "naver": [],
         "sum": {},
         "editTrans": {},
@@ -181,11 +167,73 @@ module.exports = class Clerk {
         "pinned": false,
       }
     }
+    let newTimestamp = 0;
+    let otherTimestamp = 0;
+    let newLast = ts;
+    for (var t in Object.keys(this.paragraphs)) {
+      // DESIGN: 이중에서 speechStart에 존재하는 key있는지 확인 -> 있으면 해당 키 중에 제일 큰 값 사용
+      if (timestamps.includes(t)) {
+        newTimestamp = t;
+        console.log("newTimestamp: ", newTimestamp);
+        continue;
+      }
+      if (t > ts) {
+        console.log("Larger timestamp from speaker: ", this.paragraphs[t]["speakerName"])
+        // DESIGN: 선택된 값보다 큰 key가 있는지 확인
+        otherTimestamp = t;
+      }
+    }
 
-    let replaceTranscript = this.getReplaceTranscript(timestamp);
+    if (newTimestamp) {
+      ts = newTimestamp
+      console.log("(Clerks.js - tempParagraph) new timestamp: ", ts)
+    }
+    if (otherTimestamp && !isLast) {
+      // -> 해당 키의 transcript 길이 확인
+      // DESIGN: MS 길이가 3보다 크면 다음 조각부터 SPLIT하기 (이번에 ISLAST 보내기)
+      if (this.paragraphs[otherTimestamp]["ms"].length > 3) {
+        isLast = true;
+        newLast = timestamps[timestamps.length - 1];
+        this.paragraphs[newLast] = {
+          "speakerID": speakerId,
+          "speakerName": speakerName,
+          "ms": [],
+          "naver": [],
+          "sum": {},
+          "editTrans": {},
+          "editSum": {},
+          "pinned": false,
+        }
+      }
+    }
+
+    console.log("ts::::",ts)
+    return ts;
+  }
+
+  /**
+   * TODO: ADD comment
+   * MS STT에서 return 된 transcript를 임시로 messagebox에 표시
+   * 
+   * DESIGN: maybe add log?
+   */
+  async tempParagraph(speakerId, speakerName, transcript, timestamp) {
+    console.log("tempParagraph: ", timestamp[0], transcript);
+
+    // Design: calculate current timestamp
+    let ts = await this.getMsgTimestamp(speakerId, speakerName, timestamp, false);
+
+    // Save transcript
+    console.log("add transcript to existing msgbox")
+    this.paragraphs[ts]["ms"].push(transcript);
+    console.log(ts, this.paragraphs[ts]);
+
+    let replaceTranscript = this.getReplaceTranscript(ts);
 
     // Show message box
-    this.publishTranscript(replaceTranscript, speakerName, timestamp);
+    this.publishTranscript(replaceTranscript, speakerName, ts);
+
+    return ts;
   }
 
   replaceParagraph(speakerName, timestamp) {
@@ -206,39 +254,6 @@ module.exports = class Clerk {
   }
 
   /**
-   * Cuts the paragraph and request summary, then switch to a new paragraph.
-   */
-  // TODO: remove islast
-  // ? remove?
-  switchParagraph(nextSpeakerId, nextSpeakerName, nextTranscript, nextTimeStamp, isLast) {
-    // There might not be a paragraph, thus should check this condition.
-    if (this.speakerId !== null) {
-      this.requestSummary();
-    }
-    this.speakerId = nextSpeakerId;
-    this.speakerName = nextSpeakerName;
-    this.paragraph = nextTranscript;
-    this.timestamp = nextTimeStamp;
-
-    this.publishTranscript(nextTranscript, this.speakerName, this.timestamp);
-    if (isLast) {
-      this.requestSummary();
-    }
-  }
-
-  /**
-   * Appends a transcript to the paragraph.
-   */
-  // ? TODO: remove?
-  appendTranscript(transcript, isLast) {
-    this.paragraph += " " + transcript;
-    this.publishTranscript(this.paragraph, this.speakerName, this.timestamp);
-    if (isLast) {
-      this.requestSummary();
-    }
-  }
-
-  /**
    * Broadcasts a transcript to the room.
    */
   publishTranscript(transcript, name, timestamp) {
@@ -255,7 +270,7 @@ module.exports = class Clerk {
   requestSummary(speakerId, speakerName, paragraph, timestamp) {
     console.log("requestSummary");
     if (!paragraph) {
-      paragraph = this.paragraphs[speechStart]["naver"].join(' ')
+      paragraph = this.paragraphs[timestamp]["naver"].join(' ')
     }
 
     let idx = this.requestSumIdx;
@@ -453,6 +468,7 @@ module.exports = class Clerk {
    */
   // TODO: remove userID if it is not used in `summarizer/server.py`
   requestSTT(roomID, userId, user, speechStart, trimStart, trimEnd, isLast) {
+    console.log("@@@@requestSTT PICK@@@@: speechStart, trimStart, trimEnd, isLast ", speechStart, trimStart, trimEnd, isLast);
     let idx = this.requestSTTIdx;
     this.requestSTTIdx = ++this.requestSTTIdx % this.sttPortCnt;
     let host = this.sttPorts[idx];
@@ -465,7 +481,6 @@ module.exports = class Clerk {
     console.log("this.requestSTTIdx: ", this.requestSTTIdx)
     console.log("speechStart timestamp: ", new Date(Number(speechStart)))
     console.log("-----request Start-----");
-
     axios
       .post(
         host,
@@ -489,6 +504,8 @@ module.exports = class Clerk {
         }
 
         // DESIGN: UPDATE naver STT log
+        // console.log("timestamp", timestamp, typeof timestamp);
+        // console.log(Object.keys(this.paragraphs));
         if (transcript) {
           this.paragraphs[speechStart]["naver"].push(transcript);
           console.log("(Clerk.js - requestSTT) transcript: ", transcript);
@@ -507,8 +524,15 @@ module.exports = class Clerk {
         }
       })
       .catch((e) => {
-        console.log("CATCH - requestSTT");
-        console.log(e);
+        console.log("****ERROR CATCH - requestSTT");
+        // console.log(e);
+        console.log("user, speechStart, trimStart, trimEnd, isLast", user, speechStart, trimStart, trimEnd, isLast);
+
+        // DESIGN: 너무 금방 꺼서 녹음파일 생성 안되었을 수 있음 -> SUMMARY REQUEST만 진행
+        if (isLast) {
+          // Conduct summarizer request
+          this.requestSummary(userId, user, this.paragraphs[speechStart]["naver"].join(' '), speechStart);
+        }
       });
   }
 
