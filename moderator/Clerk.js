@@ -155,18 +155,6 @@ module.exports = class Clerk {
 
   getMsgTimestamp(speakerId, speakerName, timestamps, isLast) {
     let ts = timestamps[0];
-    if (!(ts in this.paragraphs)) {
-      this.paragraphs[ts] = {
-        "speakerID": speakerId,
-        "speakerName": speakerName,
-        "ms": [],
-        "naver": [],
-        "sum": {},
-        "editTrans": {},
-        "editSum": {},
-        "pinned": false,
-      }
-    }
     let newTimestamp = 0;
     let otherTimestamp = 0;
     let newLast = ts;
@@ -219,6 +207,23 @@ module.exports = class Clerk {
    */
   async tempParagraph(speakerId, speakerName, transcript, timestamp) {
     console.log("tempParagraph: ", timestamp[0], transcript);
+
+    if (!(timestamp[0] in this.paragraphs)) {
+      console.log("add new msgbox")
+      let ts = timestamp[0];
+      this.paragraphs[ts] = {
+        "speakerID": speakerId,
+        "speakerName": speakerName,
+        "ms": [transcript],
+        "naver": [],
+        "sum": {},
+        "editTrans": {},
+        "editSum": {},
+        "pinned": false,
+      }
+      this.publishTranscript(transcript, speakerName, ts);
+      return ts;
+    }
 
     // Design: calculate current timestamp
     let ts = await this.getMsgTimestamp(speakerId, speakerName, timestamp, false);
