@@ -89,9 +89,7 @@ module.exports = function (io, socket) {
 
     // start new recording signal
     let startTimestamp = Date.now();
-    if (!isLast) {
-      socket.emit("startNewRecord", startTimestamp);
-    }
+    socket.emit("startNewRecord", startTimestamp);
 
     // stop recording signal
     let stopTimestamp = Date.now();
