@@ -45,34 +45,34 @@
       <!--Map-->
       <!-- <iframe style="border: 1px solid grey; margin: 10px 0px 0px 5px; width: 100%; height: 80%;" src="../map.html"></iframe> -->
       <div class="tab">
-        <button class="tablinks" onclick="showMap('../img/day1-map.png');">1일차<br>(명동)</button>
-        <button class="tablinks" onclick="showMap('../img/day2-map.png');">2일차<br>(강남)</button>
+        <button class="tablinks" onclick="showMap('day1', '../img/day1-map.png');">1일차 (명동)</button>
+        <button class="tablinks" onclick="showMap('day2', '../img/day2-map.png');">2일차 (강남)</button>
       </div>
       <div id="map-view" class="tabcontent">
         <img id="map-image" style="width: 100%; height: 100%; border: 3px solid black;" src="../img/day1-map.png">
 
-        <div id="foods-list" style="border: 1px solid grey; background-color: #fbf0fd;">
+        <div id="foods-list" style="border: 3px solid red;">
           <p style="text-align: center; font-weight: bold; font-size: large;">[음식점]</p>
-          <p class="placename">1. 애성회관<br><span style="margin-left: 20px; font-size: small;">(한우곰탕)</span></p>
-          <p class="placename">2. 대성골뱅이치킨<br><span style="margin-left: 20px; font-size: small;">(치킨)</span></p>
-          <p class="placename">3. 남도식당<br><span style="margin-left: 20px; font-size: small;">(추어탕)</span></p>
-          <p class="placename">4. 호수집<br><span style="margin-left: 20px; font-size: small;">(닭볶음탕)</span></p>
-          <p class="placename">5. 무궁화<br><span style="margin-left: 20px; font-size: small;">(한정식 코스)</span></p>
-          <p class="placename">6. 루브리카<br><span style="margin-left: 20px; font-size: small;">(양식 레스토랑)</span></p>
-          <p class="placename">7. 황소막창구이<br><span style="margin-left: 20px; font-size: small;">(소막창)</span></p>
-          <p class="placename">8. 고수레<br><span style="margin-left: 20px; font-size: small;">(차돌 올면)</span></p>
-          <p class="placename">9. 더백푸드트럭<br><span style="margin-left: 20px; font-size: small;">(수제버거)</span></p>
-          <p class="placename">10. 제로컴플렉스<br><span style="margin-left: 20px; font-size: small;">(프렌치 레스토랑)</span></p>
+          <p class="placename">1. 애성회관</p>
+          <p class="placename">2. 대성골뱅이치킨</p>
+          <p class="placename">3. 남도식당</p>
+          <p class="placename">4. 호수집</p>
+          <p class="placename">5. 무궁화</p>
+          <p class="placename">6. 루브리카</p>
+          <p class="placename">7. 황소막창구이</p>
+          <p class="placename">8. 고수레</p>
+          <p class="placename">9. 더백푸드트럭</p>
+          <p class="placename">10. 제로컴플렉스</p>
         </div>
 
-        <div id="places-list" style="border: 1px solid grey; background-color: #e9fff9;">
+        <div id="places-list" style="border: 3px solid blue;">
           <p style="text-align: center; font-weight: bold; font-size: large;">[관광지]</p>
           <p class="placename">1. 서울역사박물관</p>
           <p class="placename">2. 덕수궁</p>
           <p class="placename">3. 서울시립미술관</p>
           <p class="placename">4. 서울광장</p>
           <p class="placename">5. 명동거리</p>
-          <p class="placename">6. 서울글로벌문화센터체험</p>
+          <p class="placename">6. 서울글로벌<br>문화센터체험</p>
           <p class="placename">7. 명동대성당</p>
           <p class="placename">8. 남산골한옥마을</p>
           <p class="placename">9. 숭례문</p>
@@ -220,12 +220,73 @@
       </button>
 
       <script>
-        function showMap(src) {
+        let food_day1 = `<p style="text-align: center; font-weight: bold; font-size: large;">[음식점]</p>
+          <p class="placename">1. 애성회관</p>
+          <p class="placename">2. 대성골뱅이치킨</p>
+          <p class="placename">3. 남도식당</p>
+          <p class="placename">4. 호수집</p>
+          <p class="placename">5. 무궁화</p>
+          <p class="placename">6. 루브리카</p>
+          <p class="placename">7. 황소막창구이</p>
+          <p class="placename">8. 고수레</p>
+          <p class="placename">9. 더백푸드트럭</p>
+          <p class="placename">10. 제로컴플렉스</p>`;
+
+        let food_day2 = `<p style="text-align: center; font-weight: bold; font-size: large;">[음식점]</p>
+          <p class="placename">1. 미즈컨테이너</p>
+          <p class="placename">2. 도림</p>
+          <p class="placename">3. 을밀대</p>
+          <p class="placename">4. 한아람정육식당</p>
+          <p class="placename">5. 화진포 막국수</p>
+          <p class="placename">6. 라미옥</p>
+          <p class="placename">7. 산들해</p>
+          <p class="placename">8. 하동관</p>
+          <p class="placename">9. 광화문미진</p>
+          <p class="placename">10. 고봉삼계탕</p>`;
+
+        let place_day1 = `<p style="text-align: center; font-weight: bold; font-size: large;">[관광지]</p>
+          <p class="placename">1. 서울역사박물관</p>
+          <p class="placename">2. 덕수궁</p>
+          <p class="placename">3. 서울시립미술관</p>
+          <p class="placename">4. 서울광장</p>
+          <p class="placename">5. 명동거리</p>
+          <p class="placename">6. 서울글로벌<br>문화센터체험</p>
+          <p class="placename">7. 명동대성당</p>
+          <p class="placename">8. 남산골한옥마을</p>
+          <p class="placename">9. 숭례문</p>
+          <p class="placename">10. 남대문시장</p>
+          <p class="placename">11. 문화역서울 284</p>
+          <p class="placename">12. 남산공원</p>
+          <p class="placename">13. 남산서울타워</p>`;
+
+        let place_day2 = `<p style="text-align: center; font-weight: bold; font-size: large;">[관광지]</p>
+          <p class="placename">1. 잠실한강공원</p>
+          <p class="placename">2. 잠실종합운동장</p>
+          <p class="placename">3. 석촌호수</p>
+          <p class="placename">4. 롯데월드/<br>롯데월드타워/롯데몰</p>
+          <p class="placename">5. 몽촌토성</p>
+          <p class="placename">6. 올림픽공원</p>
+          <p class="placename">7. 몽촌역사관</p>
+          <p class="placename">8. 대중음악박물관</p>
+          <p class="placename">9. 코엑스</p>
+          <p class="placename">10. 봉은사</p>
+          <p class="placename">11. 한국문화의집</p>`;
+
+        function showMap(day, src) {
           let mapContent = document.getElementById('map-image');
           mapContent.src = src;
 
+          let foodList = document.getElementById('foods-list');
+          let placeList = document.getElementById('places-list');
+          if (day === 'day1') {
+            foodList.innerHTML = food_day1;
+            placeList.innerHTML = place_day1;
+          }
+          else {
+            foodList.innerHTML = food_day2;
+            placeList.innerHTML = place_day2;
+          }
         }
-
       </script>
   </body>
 
