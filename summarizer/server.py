@@ -328,9 +328,12 @@ def get_confidence_score_between_two(summary, compare_summary, keywordList):
     score_list = [rouge_score, google_score]
     return mean(score_list)
 
-def get_confidence_score(summary, compare_summarylist, keywordList):
+def get_confidence_score(summary, compare_summarylist, keywordList, text):
     if summary == "":
         return 0
+        
+    if summary == text:
+        return 1
 
     score_type_num_add, keyword_score = get_keyword_score(summary, keywordList)
     confidence_scores = [keyword_score] if score_type_num_add else []
@@ -342,6 +345,9 @@ def get_confidence_score(summary, compare_summarylist, keywordList):
         confidence_score = get_confidence_score_between_two(summary, compare_summary, keywordList)
         confidence_scores.append(confidence_score)
     
+    if len(confidence_scores) == 0:
+        return 1
+
     return mean(confidence_scores)
 
 
@@ -492,7 +498,8 @@ class echoHandler(BaseHTTPRequestHandler):
             if abs_summary == "":
                 abs_summary = text; ab_confidence_score = 1
             else :
-                ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList) 
+                ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList, text)
+                abs_summary = text if ab_confidence_score == 1 else abs_summary
                 
             ext_summary = ext_summary if ext_summary!= "" else text
 

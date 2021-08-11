@@ -97,13 +97,13 @@
           <div class="btn-group btn-group-md dropup me-2" role="group">
             <button type="button" class="btn btn-outline-primary btn-md shadow-none mx-auto" id="start-video-button"
               style="display: none"
-              onclick="this.disabled = true; rc.produce(RoomClient.mediaType.video, document.getElementById('video-select').value); rc.addUserLog(Date.now(), 'Video ON\n');">
+              onclick="this.disabled = true; rc.produce(RoomClient.mediaType.video, document.getElementById('video-select').value); rc.addUserLog(Date.now(), 'VIDEO-ON\n');">
               <i class="fas fa-video-slash"></i>
               Show Video
             </button>
             <button type="button" id="stop-video-button" style="display: none"
               class="btn btn-outline-primary btn-md shadow-none rounded-start"
-              onclick="this.disabled = true; rc.closeProducer(RoomClient.mediaType.video); rc.addUserLog(Date.now(), 'Video OFF\n');">
+              onclick="this.disabled = true; rc.closeProducer(RoomClient.mediaType.video); rc.addUserLog(Date.now(), 'VIDEO-OFF\n');">
               <i class="fas fa-video"></i>
               Hide Video
             </button>
@@ -124,13 +124,13 @@
           <div class="btn-group dropup me-2" role="group">
             <button type="button" id="start-audio-button" style="display: none"
               class="btn btn-outline-primary btn-md shadow-none"
-              onclick="this.disabled = true; rc.produce(RoomClient.mediaType.audio, document.getElementById('audio-select').value); rc.addUserLog(Date.now(), 'Audio ON\n');">
+              onclick="this.disabled = true; rc.produce(RoomClient.mediaType.audio, document.getElementById('audio-select').value); rc.addUserLog(Date.now(), 'AUDIO-ON\n');">
               <i class="fas fa-volume-mute"></i>
               Open Audio
             </button>
             <button type="button" id="stop-audio-button" style="display: none"
               class="btn btn-outline-primary btn-md shadow-none rounded-start"
-              onclick="this.disabled = true; rc.closeProducer(RoomClient.mediaType.audio); rc.addUserLog(Date.now(), 'Audio OFF\n');">
+              onclick="this.disabled = true; rc.closeProducer(RoomClient.mediaType.audio); rc.addUserLog(Date.now(), 'AUDIO-OFF\n');">
               <i class="fas fa-volume-up"></i>
               Close Audio
             </button>
@@ -175,12 +175,12 @@
       
         <div style="margin-top: 1em; ">
           <input type="text" id="search-word" placeholder="SEARCH"
-            onkeydown="checkEnter(event); rc.addUserLog(Date.now(), 'Search\n');">
-          <button type="button" onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'Search Button\n');" width="50px" style="padding: 3.5px; background-color:yellowgreen; margin: 2px; border: none; border-radius: 5px;">
+            onkeydown="checkEnter(event);">
+          <button type="button" onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'CLICK-SEARCH-BUTTON\n');" width="50px" style="padding: 3.5px; background-color:yellowgreen; margin: 2px; border: none; border-radius: 5px;">
             <!--<img src="/img/search.png" width="30px" style="padding: 0px; margin: 0px;">-->
             <i class="fas fa-search" width="30px", style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
           </button>
-          <button type="button" onclick="showAllBoxes(); rc.addUserLog(Date.now(), 'ShowAll Button\n');" width="30px" style="padding: 3px; background-color:palevioletred; margin: 2px; border: none; border-radius: 5px;">
+          <button type="button" onclick="showAllBoxes(); rc.addUserLog(Date.now(), 'CLICK-SHOW-ALL-BUTTON\n');" width="30px" style="padding: 3px; background-color:palevioletred; margin: 2px; border: none; border-radius: 5px;">
             <i class="fas fa-backspace" width="30px", style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
           </button>
         </div>
@@ -208,7 +208,7 @@
       <div id="messages" style="clear: both;"></div>
 
 
-      <button type="button" onclick="scrollDown(); rc.addUserLog(Date.now(), 'Scroll Down\n');" width="80px" style="padding: 0px; margin: 0px; border: none; border-radius: 0px;">
+      <button type="button" onclick="scrollDown(); rc.addUserLog(Date.now(), 'CLICK-SCROLL-DOWN-BUTTON\n');" width="80px" style="padding: 0px; margin: 0px; border: none; border-radius: 0px;">
         <img src="/img/scrolldown.png" style="width: 100px;"style="padding: 0px; margin: 0px;">
       </button>
 
