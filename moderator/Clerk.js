@@ -153,20 +153,43 @@ module.exports = class Clerk {
     return replaceTranscript
   }
 
+  addNewParagraph(speakerId, speakerName, timestamp) {
+    this.paragraphs[timestamp] = {
+      "speakerID": speakerId,
+      "speakerName": speakerName,
+      "ms": [],
+      "naver": [],
+      "sum": {},
+      "editTrans": {},
+      "editSum": {},
+      "pinned": false,
+    }
+  }
+
   getMsgTimestamp(speakerId, speakerName, timestamps, isLast) {
+    console.log("Clerk.js::getMsgTimestamp::speakerId, speakerName, timestamps, isLast", speakerId, speakerName, timestamps, isLast)
     let ts = timestamps[0];
+
+    if (!(ts in this.paragraphs)) {
+      console.log("add new msgbox:: ts, isLast", ts, isLast)
+      this.addNewParagraph(speakerId, speakerName, ts);
+      return { ts, isLast };
+    }
+
+
     let newTimestamp = 0;
     let otherTimestamp = 0;
     let newLast = ts;
-    for (var t in Object.keys(this.paragraphs)) {
+    for (var t in this.paragraphs) {
+      t = Number(t);
+      console.log("::::::::t, ts, newTimestamp, otherTimestamp", t, ts, newTimestamp, otherTimestamp);
       // DESIGN: 이중에서 speechStart에 존재하는 key있는지 확인 -> 있으면 해당 키 중에 제일 큰 값 사용
       if (timestamps.includes(t)) {
         newTimestamp = t;
         console.log("newTimestamp: ", newTimestamp);
-        continue;
       }
-      if (t > ts) {
-        console.log("Larger timestamp from speaker: ", this.paragraphs[t]["speakerName"])
+      else if (t > ts) {
+        console.log(speakerName, " Larger timestamp from speaker: ", this.paragraphs[t]["speakerName"])
         // DESIGN: 선택된 값보다 큰 key가 있는지 확인
         otherTimestamp = t;
       }
@@ -174,29 +197,22 @@ module.exports = class Clerk {
 
     if (newTimestamp) {
       ts = newTimestamp
-      console.log("(Clerks.js - tempParagraph) new timestamp: ", ts)
+      console.log("(Clerks.js - getMsgTimestamp) new timestamp: ", ts)
     }
-    if (otherTimestamp && !isLast) {
+    if ((otherTimestamp > ts) && !isLast) {
+      console.log("HERE!", this.paragraphs[otherTimestamp]["ms"].length)
       // -> 해당 키의 transcript 길이 확인
       // DESIGN: MS 길이가 3보다 크면 다음 조각부터 SPLIT하기 (이번에 ISLAST 보내기)
       if (this.paragraphs[otherTimestamp]["ms"].length > 3) {
         isLast = true;
         newLast = timestamps[timestamps.length - 1];
-        this.paragraphs[newLast] = {
-          "speakerID": speakerId,
-          "speakerName": speakerName,
-          "ms": [],
-          "naver": [],
-          "sum": {},
-          "editTrans": {},
-          "editSum": {},
-          "pinned": false,
-        }
+        console.log("newLast::", newLast);
+        this.addNewParagraph(speakerId, speakerName, newLast, []);
       }
     }
 
-    console.log("ts::::",ts)
-    return ts;
+    console.log("ts::::", ts)
+    return { ts, isLast };
   }
 
   /**
@@ -206,39 +222,17 @@ module.exports = class Clerk {
    * DESIGN: maybe add log?
    */
   async tempParagraph(speakerId, speakerName, transcript, timestamp) {
-    console.log("tempParagraph: ", timestamp[0], transcript);
-
-    if (!(timestamp[0] in this.paragraphs)) {
-      console.log("add new msgbox")
-      let ts = timestamp[0];
-      this.paragraphs[ts] = {
-        "speakerID": speakerId,
-        "speakerName": speakerName,
-        "ms": [transcript],
-        "naver": [],
-        "sum": {},
-        "editTrans": {},
-        "editSum": {},
-        "pinned": false,
-      }
-      this.publishTranscript(transcript, speakerName, ts);
-      return ts;
-    }
-
-    // Design: calculate current timestamp
-    let ts = await this.getMsgTimestamp(speakerId, speakerName, timestamp, false);
+    console.log("tempParagraph: ", timestamp, transcript);
 
     // Save transcript
     console.log("add transcript to existing msgbox")
-    this.paragraphs[ts]["ms"].push(transcript);
-    console.log(ts, this.paragraphs[ts]);
+    this.paragraphs[timestamp]["ms"].push(transcript);
+    console.log(timestamp, this.paragraphs[timestamp]);
 
-    let replaceTranscript = this.getReplaceTranscript(ts);
+    let replaceTranscript = this.getReplaceTranscript(timestamp);
 
     // Show message box
-    this.publishTranscript(replaceTranscript, speakerName, ts);
-
-    return ts;
+    this.publishTranscript(replaceTranscript, speakerName, timestamp);
   }
 
   replaceParagraph(speakerName, timestamp) {
