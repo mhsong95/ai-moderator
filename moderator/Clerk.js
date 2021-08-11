@@ -11,13 +11,23 @@ const getLastLine = require('./fileTools.js').getLastLine;
 const { time } = require("console");
 
 const summaryHost = config.summaryHost;
-const summaryPorts = config.summaryPorts;
-const portCnt = summaryPorts.length;
 
-let summaryHosts = []
-for (i = 0; i < portCnt; i++) {
-  summaryHosts.push(summaryHost + summaryPorts[i])
-  // console.log(summaryHosts);
+const summarizerPorts = config.summarizerPorts;
+const sumPortCnt = summarizerPorts.length;
+
+const sttPorts = config.sttPorts;
+const sttPortCnt = sttPorts.length;
+
+const sttNumKeys = config.numKeys;
+
+let summarizerHosts = []
+for (i = 0; i < sumPortCnt; i++) {
+  summarizerHosts.push(summaryHost + summarizerPorts[i])
+}
+
+let sttHosts = []
+for (i = 0; i < sttPortCnt; i++) {
+  sttHosts.push(summaryHost + sttPorts[i])
 }
 
 let keyword_trends = {};
@@ -52,10 +62,15 @@ module.exports = class Clerk {
      * TODO: update this comment
      * summarizer 포트 지정
      */
-    this.summaryPort = summaryHosts
+    this.summarizerPorts = summarizerHosts;
+    this.sttPorts = sttHosts;
+    this.sumPortCnt = sumPortCnt;
+    this.sttPortCnt = sttPortCnt;
+    this.sttKeyCnt = sttNumKeys;
 
-    this.portCnt = portCnt
-    this.requestCnt = 0
+    this.requestSTTIdx = 0;
+    this.sttKeyIdx = 0;
+    this.requestSumIdx = 0;
   }
 
   restoreParagraphs() {
@@ -168,6 +183,7 @@ module.exports = class Clerk {
     }
 
     let replaceTranscript = this.getReplaceTranscript(timestamp);
+
     // Show message box
     this.publishTranscript(replaceTranscript, speakerName, timestamp);
   }
@@ -238,11 +254,16 @@ module.exports = class Clerk {
    */
   requestSummary(speakerId, speakerName, paragraph, timestamp) {
     console.log("requestSummary");
+    if (!paragraph) {
+      paragraph = this.paragraphs[speechStart]["naver"].join(' ')
+    }
 
-    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+    let idx = this.requestSumIdx;
+    this.requestSumIdx = ++this.requestSumIdx % this.sumPortCnt;
+    let host = this.summarizerPorts[idx];
 
     console.log("HOST: ", host)
-    console.log("this.requestCnt: ", this.requestCnt)
+    console.log("this.requestSumIdx: ", this.requestSumIdx)
 
     if (paragraph.split(' ')[0].length == 0) return;
 
@@ -337,10 +358,12 @@ module.exports = class Clerk {
   }
 
   updateParagraph(editTimestamp, paragraph, timestamp, editor) {
-    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+    let idx = this.requestSumIdx;
+    this.requestSumIdx = ++this.requestSumIdx % this.sumPortCnt;
+    let host = this.summarizerPorts[idx];
 
     console.log("HOST: ", host)
-    console.log("this.requestCnt: ", this.requestCnt)
+    console.log("this.requestSumIdx: ", this.requestSumIdx)
 
     axios
       .post(
@@ -430,11 +453,16 @@ module.exports = class Clerk {
    */
   // TODO: remove userID if it is not used in `summarizer/server.py`
   requestSTT(roomID, userId, user, speechStart, trimStart, trimEnd, isLast) {
-    let host = this.summaryPort[this.requestCnt++ % this.portCnt]
+    let idx = this.requestSTTIdx;
+    this.requestSTTIdx = ++this.requestSTTIdx % this.sttPortCnt;
+    let host = this.sttPorts[idx];
+
+    let keyIdx = this.sttKeyIdx;
+    this.sttKeyIdx = ++this.sttKeyIdx % this.sttKeyCnt;
 
     console.log("-----requestSTT-----")
     console.log("HOST: ", host)
-    console.log("this.requestCnt: ", this.requestCnt)
+    console.log("this.requestSTTIdx: ", this.requestSTTIdx)
     console.log("speechStart timestamp: ", new Date(Number(speechStart)))
     console.log("-----request Start-----");
 
@@ -447,6 +475,7 @@ module.exports = class Clerk {
           user,
           startTimestamp: trimStart,
           endTimestamp: trimEnd,
+          keyIdx
         },
         {
           headers: { 'Content-Type': 'multipart/form-data' }

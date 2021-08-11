@@ -27,9 +27,12 @@ config = configparser.ConfigParser()
 config.read(os.getcwd().split("ai-moderator")[0]+"ai-moderator"+ os.sep + "summarizer" +os.sep+ 'config.ini', encoding='utf-8')
 
 # Clova Speech invoke URL
-invoke_url = config['Clova_STT']['invoke_url']
+invoke_url = config['Clova_STT']['invoke_url'].split('**')
 # Clova Speech secret key
-secret = config['Clova_STT']['secret']
+secret = config['Clova_STT']['secret'].split('**')
+
+naverKeyLen = len(invoke_url)
+naverKeyCnt = 0
 
 # Convert audio file from MediaRecorder in `moderator` into .wav format for STT process
 # run following command
@@ -128,6 +131,8 @@ def pororo_abstractive_model(input_txt):
     return summary
 
 def pororo_extractive_model(input_txt):
+    return ""
+
     try: 
         summary = summ_extractive(input_txt)
     except:
@@ -421,6 +426,7 @@ class ClovaSpeechClient:
             'Accept': 'application/json;UTF-8',
             'X-CLOVASPEECH-API-KEY': self.secret
         }
+        print(self.invoke_url)
         print(json.dumps(request_body).encode('UTF-8'))
         files = {
             'media': open(file, 'rb'),
@@ -442,6 +448,7 @@ class echoHandler(BaseHTTPRequestHandler):
             user = fields["user"]
             startTimestamp = fields["startTimestamp"]
             endTimestamp = fields["endTimestamp"]
+            keyIdx = fields["keyIdx"]
 
             # Convert file type from webm to wav
             inputfile = "../moderator/webm/"+roomID+"_"+user+"_"+str(startTimestamp)+".webm"
@@ -451,7 +458,7 @@ class echoHandler(BaseHTTPRequestHandler):
             print(inputfile +'\n'+ outputfile +'\n'+ "convert file type")
             
             # Run Naver STT for given audio file
-            stt_res = ClovaSpeechClient(invoke_url, secret).req_upload(file=outputfile, completion='sync')
+            stt_res = ClovaSpeechClient(invoke_url[keyIdx], secret[keyIdx]).req_upload(file=outputfile, completion='sync')
             # DESIGN: trim transcript at local timestamp (endTimestamp - startTimestap)
             print("trim range: ", endTimestamp - startTimestamp);
             print(stt_res.text)

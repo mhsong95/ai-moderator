@@ -56,6 +56,7 @@ module.exports = function (io, socket) {
    * @returns Last element of corresponding type in timestamps[curTimestamp]
    */
   function getLastTimestamp(type) {
+    console.log("GetLastTimestamp: type / curTimestamp", type, curTimestamp, timestamps)
     let len = timestamps[curTimestamp][type].length
     if (len == 0) {
       return 0
@@ -85,16 +86,24 @@ module.exports = function (io, socket) {
 
   function restartRecord(isLast) {
     console.log("(audioFileHandler.js) restartRecord - islast: ", isLast);
+
     // start new recording signal
     let startTimestamp = Date.now();
-    socket.emit("startNewRecord", startTimestamp);
+    if (!isLast) {
+      socket.emit("startNewRecord", startTimestamp);
+    }
 
     // stop recording signal
     let stopTimestamp = Date.now();
     socket.emit("stopCurrentRecord");
 
     // send temp Naver STT request
-    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), curRecordTimestamp, lastStopTimestamp, isLast);
+    try {
+      clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), curRecordTimestamp, lastStopTimestamp, isLast);
+    }
+    catch (e) {
+      console.log("ERR: ", e)
+    }
 
     curRecordTimestamp = startTimestamp;
     lastStopTimestamp = stopTimestamp;
@@ -241,12 +250,6 @@ module.exports = function (io, socket) {
     pushStream = null;
     audioConfig = null;
     recognizer = null;
-    timestamps = {};
-    curTimestamp = 0;
-    curRecordTimestamp = 0;
-    lastStopTimestamp = 0;
-    speechEnd = true;
-    audiofiles = [];
 
     console.log(`Recognition from ${socket.name} ended.`);
   }
@@ -300,6 +303,10 @@ module.exports = function (io, socket) {
     curTimestamp = timestamp;
     audiofiles = [];
 
+    curRecordTimestamp = 0;
+    lastStopTimestamp = 0;
+    speechEnd = true;
+
     // Start ms STT service
     startStream();
   });
@@ -350,6 +357,7 @@ module.exports = function (io, socket) {
    * TODO: Add comment
    */
   socket.on("endRecognition", () => {
+    console.log("endRecognition");
     stopStream();
   });
 

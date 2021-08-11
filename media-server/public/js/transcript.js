@@ -311,6 +311,11 @@ function onRemoveMsg(timestamp) {
 // Event listener on individual transcript arrival.
 function onTranscript(transcript, name, timestamp) {
   console.log("ON TRANSCRIPT - timestamp=" + timestamp);
+  if (!transcript) {
+    console.log("EMPTY TRANSCRIPT!!! REMOVE MSG BOX FROM ", name, " at ", timestamp);
+    onRemoveMsg(timestamp);
+    return;
+  }
   let messageBox = getMessageBox(timestamp);
   if (!messageBox) {
     messageBox = createMessageBox(name, timestamp);
