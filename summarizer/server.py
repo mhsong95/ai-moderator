@@ -392,7 +392,8 @@ def get_overall_summaries(text, keyword):
     kobert_ex_res = pororo_ex_res
 
     if len(pororo_ex_res.split(". ")) < 4:
-        return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
+        if pororo_ex_res != "":
+            return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
     # Generate Extractive summary with new sentences
     sentences = text.split(". ")
@@ -466,7 +467,7 @@ class echoHandler(BaseHTTPRequestHandler):
             # Run Naver STT for given audio file
             stt_res = ClovaSpeechClient(invoke_url[keyIdx], secret[keyIdx]).req_upload(file=outputfile, completion='sync')
             # DESIGN: trim transcript at local timestamp (endTimestamp - startTimestap)
-            print("trim range: ", endTimestamp - startTimestamp);
+            print("trim range: ", endTimestamp - startTimestamp)
             print(stt_res.text)
             print(json.loads(stt_res.text)['text'])
             res = json.loads(stt_res.text)['text']
