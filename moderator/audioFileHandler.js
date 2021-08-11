@@ -43,6 +43,7 @@ module.exports = function (io, socket) {
   // Mark speech already end
   let speechEnd = true;
 
+  // Mark recognition end 
   let endRecognition = true;
 
   /**
@@ -58,7 +59,6 @@ module.exports = function (io, socket) {
    * @returns Last element of corresponding type in timestamps[curTimestamp]
    */
   function getLastTimestamp(type) {
-    // console.log("GetLastTimestamp: type / curTimestamp", type, curTimestamp, timestamps)
     let len = timestamps[curTimestamp][type].length
     if (len == 0) {
       return 0
@@ -82,18 +82,14 @@ module.exports = function (io, socket) {
       timestamp = getLastTimestamp("startLogs");
     }
 
-    console.log("@@@@speechCallback PICK@@@@: timestamp ", timestamp);
-
     // Clerk accumulates these full sentences ("final" results)
     console.log(`${new Date(Number(timestamp[0]))}(${socket.name}): ${transcript}`);
 
-
-    // Design: calculate current timestamp
+    // Calculate current timestamp
     let { ts, isLast } = await clerk.getMsgTimestamp(socket.id, socket.name, timestamp, false);
 
     // Update temporary messagebox
     clerk.tempParagraph(socket.id, socket.name, transcript, ts);
-    console.log("@@@@speechCallback PICK@@@@: ts ", ts)
 
     restartRecord(ts, isLast);
   };
@@ -107,8 +103,6 @@ module.exports = function (io, socket) {
     // start new recording signal
     let startTimestamp = Date.now();
     socket.emit("startNewRecord", startTimestamp);
-
-    console.log("(audioFileHandler.js) restartRecord - curRecordTimestamp, startTimestamp, isLast: ", curRecordTimestamp, startTimestamp, isLast);
 
     // stop recording signal
     let stopTimestamp = Date.now();
@@ -194,7 +188,6 @@ module.exports = function (io, socket) {
       speechEnd = false;
 
       console.log("\n  Speech Start Detected!!\n from ", socket.name, "\n startTime: ", startTime);
-      console.log("event log", e);
     };
 
     // The event canceled signals that an error occurred during recognition.
@@ -338,9 +331,6 @@ module.exports = function (io, socket) {
       if (curRecordTimestamp == 0) {
         curRecordTimestamp = timestamp
       }
-
-      //TODO: remove[debug]
-      console.log("@@@@ streamAudioData PICK:: Save file log (audiofiles last/cnt) ", timestamp, audiofiles.length);
 
       // DESIGN: Write new file log at server
     }
