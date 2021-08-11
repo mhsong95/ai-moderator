@@ -28,7 +28,7 @@ module.exports = function (io, socket) {
    * 
    * key: timestamp from "startRecognition" socket message
    * value: { "init": time when `startContinuousRecognitionAsync` function started,
-   *          "startLogs": start recognition timestamps, 
+   *          "startLogs": [ [start recognition timestamp, recognizied timestamps], ... ]
    *          "endLogs": end recognition timestamps }
    */
   let timestamps = {};
@@ -42,6 +42,8 @@ module.exports = function (io, socket) {
 
   // Mark speech already end
   let speechEnd = true;
+
+  let endRecognition = true;
 
   /**
    * Audio file lists from each user
@@ -69,35 +71,48 @@ module.exports = function (io, socket) {
    * Callback to be called when a response (transcript) arrives from API.
    * @param {RecognitionResult} data Recognition result from recognizer.recognized function
    */
-  const speechCallback = (data) => {
+  const speechCallback = async (data) => {
     let clerk = clerks.get(socket.room_id);
 
     let transcript = data.text;
     let timestamp = getLastTimestamp("startLogs");
 
-    // Clerk accumulates these full sentences ("final" results)
-    console.log(`${new Date(Number(timestamp))}(${socket.name}): ${transcript}`);
+    if(timestamp) {
+      timestamps[curTimestamp]["startLogs"][timestamps[curTimestamp]["startLogs"].length - 1].push(Date.now())
+      timestamp = getLastTimestamp("startLogs");
+    }
 
-    restartRecord(false);
+    console.log("@@@@speechCallback PICK@@@@: timestamp ", timestamp);
+
+    // Clerk accumulates these full sentences ("final" results)
+    console.log(`${new Date(Number(timestamp[0]))}(${socket.name}): ${transcript}`);
 
     // Update temporary messagebox
-    clerk.tempParagraph(socket.id, socket.name, transcript, timestamp);
+    let ts = await clerk.tempParagraph(socket.id, socket.name, transcript, timestamp);
+    console.log("@@@@speechCallback PICK@@@@: ts ", ts)
+
+    restartRecord(ts, false);
   };
 
-  function restartRecord(isLast) {
-    console.log("(audioFileHandler.js) restartRecord - islast: ", isLast);
+  function restartRecord(timestamp, isLast) {
+    if (endRecognition) {
+      isLast = true;
+      speechEnd = true;
+    }
 
     // start new recording signal
     let startTimestamp = Date.now();
     socket.emit("startNewRecord", startTimestamp);
 
+    console.log("(audioFileHandler.js) restartRecord - curRecordTimestamp, startTimestamp, isLast: ", curRecordTimestamp, startTimestamp, isLast);
+    
     // stop recording signal
     let stopTimestamp = Date.now();
     socket.emit("stopCurrentRecord");
 
     // send temp Naver STT request
     try {
-      clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), curRecordTimestamp, lastStopTimestamp, isLast);
+      clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, timestamp, curRecordTimestamp, lastStopTimestamp, isLast);
     }
     catch (e) {
       console.log("ERR: ", e)
@@ -146,7 +161,7 @@ module.exports = function (io, socket) {
 
     // Event handler for speech stopped events.
     // DESIGN: Write speech end detected log at server
-    recognizer.speechEndDetected = (s, e) => {
+    recognizer.speechEndDetected = async (s, e) => {
       console.log("\n  Speech End Detected!!", socket.name);
       // console.log(e)
 
@@ -156,7 +171,9 @@ module.exports = function (io, socket) {
       }
       speechEnd = true;
 
-      restartRecord(true);
+      let ts = await clerks.get(socket.room_id).getMsgTimestamp(socket.id, socket.name, getLastTimestamp("startLogs"), false);
+
+      restartRecord(ts, true);
     };
 
     // Event handler for speech started events.
@@ -169,7 +186,7 @@ module.exports = function (io, socket) {
       // Save speech start timestamp
       const startTime = Date.now();
 
-      timestamps[curTimestamp]["startLogs"].push(startTime);
+      timestamps[curTimestamp]["startLogs"].push([startTime]);
       speechEnd = false;
 
       console.log("\n  Speech Start Detected!!\n from ", socket.name, "\n startTime: ", startTime);
@@ -207,33 +224,6 @@ module.exports = function (io, socket) {
         recognizer.close();
       }
     );
-  }
-
-  function processAudioSTT(timestamp) {
-    console.log("Process Audio STT: ", curTimestamp, timestamps, audiofiles);
-
-    if (getLastTimestamp("startLogs") <= getLastTimestamp("endLogs")) {
-      console.log("Already calculated section: ", getLastTimestamp("startLogs"));
-      return;
-    }
-
-    if (audiofiles.length !== timestamps[curTimestamp]["startLogs"].length) {
-      console.log("audiofile length does not fit with startLog length!");
-      console.log(audiofiles);
-      console.log(timestamps[curTimestamp]["startLogs"]);
-
-      clerks.get(socket.room_id).removeMsg(getLastTimestamp("startLogs"));
-      return;
-    }
-    let whichAudio = audiofiles[audiofiles.length - 1];
-
-    if (recognizer) { socket.emit("restartRecord"); }
-
-    // Update timestamp
-    timestamps[curTimestamp]["endLogs"].push(timestamp);
-
-    console.log("whichAudio??? ", whichAudio);
-    clerks.get(socket.room_id).requestSTT(socket.room_id, socket.id, socket.name, getLastTimestamp("startLogs"), getLastTimestamp("endLogs"), whichAudio);
   }
 
   // Closes recognition stream.
@@ -291,6 +281,7 @@ module.exports = function (io, socket) {
    * TODO: Add comment
    */
   socket.on("startRecognition", (timestamp) => {
+    endRecognition = false;
     console.log(
       `Recognition starting by ${socket.name} in ${socket.room_id}`
     );
@@ -345,7 +336,7 @@ module.exports = function (io, socket) {
       }
 
       //TODO: remove[debug]
-      console.log("Save file log (audiofiles last/cnt) ", timestamp, audiofiles.length);
+      console.log("@@@@ streamAudioData PICK:: Save file log (audiofiles last/cnt) ", timestamp, audiofiles.length);
 
       // DESIGN: Write new file log at server
     }
@@ -356,6 +347,7 @@ module.exports = function (io, socket) {
    */
   socket.on("endRecognition", () => {
     console.log("endRecognition");
+    endRecognition = true;
     stopStream();
   });
 
