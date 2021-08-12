@@ -393,22 +393,33 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   let paragraph = messageBox.childNodes[3].childNodes[1];
   paragraph.style.display = "none";
 
+  let fav_word = [];
+  let newAlarm = document.createElement("p");
+  newAlarm.style.backgroundColor = "#fffaa3";
+  newAlarm.style.fontSize = "medium";
+  newAlarm.style.marginBottom = "2px";
+  newAlarm.style.padding = "5px 5px";
+  newAlarm.style.border = "1px solid grey";
+  newAlarm.style.margin = "5px 5px 3px 5px"
+  newAlarm.textContent = "즐겨찾기를 포함한 새로운 메시지가 추가되었습니다!";
+
   for (word of favoriteKeywords) {
     if (paragraph.textContent.includes(word)) {
-      notiAudio.play();
-      let rightDisplay = document.getElementById("display-choice");
-      let newAlarm = document.createElement("p");
-      newAlarm.style.backgroundColor = "#fffaa3";
-      newAlarm.style.fontSize = "small";
-      newAlarm.style.marginBottom = "2px";
-      newAlarm.textContent = "New message includes your favorite keyword!";
-      setTimeout(function () {
-        newAlarm.parentNode.removeChild(newAlarm);
-      }, 7000);
-      rightDisplay.appendChild(newAlarm);
-      break;
+      fav_word.push(word);
     }
   }
+  if (fav_word.length > 0) {
+    notiAudio.play();
+    let rightDisplay = document.getElementById("display-choice");
+    for (word of fav_word) {
+      newAlarm.textContent += " #" + word;
+    }
+    setTimeout(function () {
+      newAlarm.parentNode.removeChild(newAlarm);
+    }, 10000);
+    rightDisplay.appendChild(newAlarm);
+  }
+
 
   let abSummaryBox = messageBox.childNodes[1];
   let keywordBox = messageBox.childNodes[2];
