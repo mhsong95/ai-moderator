@@ -81,22 +81,6 @@ function openMap() {
   window.open("../map.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=900");
 }
 
-// Unmute when closing subtask popup
-function unmuteOnClose() {
-  if (['1', '2', '3'].includes(user_name.slice(-1))) {
-    let muteBtns = document.getElementsByClassName("control-overlay");
-    let startAudioBtn = document.getElementById("start-audio-button");
-    for (btn of muteBtns) {
-      if (btn.getAttribute("muted") === "muted") {
-        btn.click();
-      }
-    }
-    if (!(startAudioBtn.disabled)) {
-      startAudioBtn.click();
-    }
-  }
-}
-
 // Open popup for subtask
 function openSubtask() {
   // If user_name ends with [1, 2, 3], then use the mute function
@@ -116,7 +100,6 @@ function openSubtask() {
   subtaskPopup = window.open("../subtask.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=1000");
   subtaskPopup.onbeforeunload = function () {
     overlay_off();
-    unmuteOnClose();
   };
 }
 
