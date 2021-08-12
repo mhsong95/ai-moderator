@@ -43,6 +43,7 @@ module.exports = function (io, socket) {
   // Mark speech already end
   let speechEnd = true;
 
+  // Mark recognition end 
   let endRecognition = true;
 
   /**
@@ -58,7 +59,6 @@ module.exports = function (io, socket) {
    * @returns Last element of corresponding type in timestamps[curTimestamp]
    */
   function getLastTimestamp(type) {
-    console.log("GetLastTimestamp: type / curTimestamp", type, curTimestamp, timestamps)
     let len = timestamps[curTimestamp][type].length
     if (len == 0) {
       return 0
@@ -77,21 +77,21 @@ module.exports = function (io, socket) {
     let transcript = data.text;
     let timestamp = getLastTimestamp("startLogs");
 
-    if(timestamp) {
+    if (timestamp) {
       timestamps[curTimestamp]["startLogs"][timestamps[curTimestamp]["startLogs"].length - 1].push(Date.now())
       timestamp = getLastTimestamp("startLogs");
     }
 
-    console.log("@@@@speechCallback PICK@@@@: timestamp ", timestamp);
-
     // Clerk accumulates these full sentences ("final" results)
     console.log(`${new Date(Number(timestamp[0]))}(${socket.name}): ${transcript}`);
 
-    // Update temporary messagebox
-    let ts = await clerk.tempParagraph(socket.id, socket.name, transcript, timestamp);
-    console.log("@@@@speechCallback PICK@@@@: ts ", ts)
+    // Calculate current timestamp
+    let { ts, isLast } = await clerk.getMsgTimestamp(socket.id, socket.name, timestamp, false);
 
-    restartRecord(ts, false);
+    // Update temporary messagebox
+    clerk.tempParagraph(socket.id, socket.name, transcript, ts);
+
+    restartRecord(ts, isLast);
   };
 
   function restartRecord(timestamp, isLast) {
@@ -104,8 +104,6 @@ module.exports = function (io, socket) {
     let startTimestamp = Date.now();
     socket.emit("startNewRecord", startTimestamp);
 
-    console.log("(audioFileHandler.js) restartRecord - curRecordTimestamp, startTimestamp, isLast: ", curRecordTimestamp, startTimestamp, isLast);
-    
     // stop recording signal
     let stopTimestamp = Date.now();
     socket.emit("stopCurrentRecord");
@@ -171,9 +169,9 @@ module.exports = function (io, socket) {
       }
       speechEnd = true;
 
-      let ts = await clerks.get(socket.room_id).getMsgTimestamp(socket.id, socket.name, getLastTimestamp("startLogs"), false);
+      let { ts, isLast } = await clerks.get(socket.room_id).getMsgTimestamp(socket.id, socket.name, getLastTimestamp("startLogs"), true);
 
-      restartRecord(ts, true);
+      restartRecord(ts, isLast);
     };
 
     // Event handler for speech started events.
@@ -190,7 +188,6 @@ module.exports = function (io, socket) {
       speechEnd = false;
 
       console.log("\n  Speech Start Detected!!\n from ", socket.name, "\n startTime: ", startTime);
-      console.log("event log", e);
     };
 
     // The event canceled signals that an error occurred during recognition.
@@ -334,9 +331,6 @@ module.exports = function (io, socket) {
       if (curRecordTimestamp == 0) {
         curRecordTimestamp = timestamp
       }
-
-      //TODO: remove[debug]
-      console.log("@@@@ streamAudioData PICK:: Save file log (audiofiles last/cnt) ", timestamp, audiofiles.length);
 
       // DESIGN: Write new file log at server
     }
