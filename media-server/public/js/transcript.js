@@ -45,31 +45,35 @@ function openMap() {
 
 // Unmute when closing subtask popup
 function unmuteOnClose() {
-  let muteBtns = document.getElementsByClassName("control-overlay");
-  let startAudioBtn = document.getElementById("start-audio-button");
-  for (btn of muteBtns) {
-    if (btn.getAttribute("muted") === "muted") {
-      btn.click();
+  if (['1', '2', '3'].includes(user_name.slice(-1))) {
+    let muteBtns = document.getElementsByClassName("control-overlay");
+    let startAudioBtn = document.getElementById("start-audio-button");
+    for (btn of muteBtns) {
+      if (btn.getAttribute("muted") === "muted") {
+        btn.click();
+      }
     }
-  }
-  if (!(startAudioBtn.disabled)) {
-    startAudioBtn.click();
+    if (!(startAudioBtn.disabled)) {
+      startAudioBtn.click();
+    }
   }
 }
 
 // Open popup for subtask
 function openSubtask() {
-  let muteBtns = document.getElementsByClassName("control-overlay");
-  let stopAudioBtn = document.getElementById("stop-audio-button");
-  for (btn of muteBtns) {
-    if (btn.getAttribute("muted") === "unmuted") {
-      btn.click();
+  // If user_name ends with [1, 2, 3], then use the mute function
+  if (['1', '2', '3'].includes(user_name.slice(-1))) {
+    let muteBtns = document.getElementsByClassName("control-overlay");
+    for (btn of muteBtns) {
+      if (btn.getAttribute("muted") === "unmuted") {
+        btn.click();
+      }
+    }
+    let stopAudioBtn = document.getElementById("stop-audio-button");
+    if (!(stopAudioBtn.disabled)) {
+      stopAudioBtn.click();
     }
   }
-  if (!(stopAudioBtn.disabled)) {
-    stopAudioBtn.click();
-  }
-
   rc.addUserLog(Date.now(), "OPEN-SUBTASK\n");
   subtaskPopup = window.open("../subtask.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=1000");
   subtaskPopup.onbeforeunload = function () {
