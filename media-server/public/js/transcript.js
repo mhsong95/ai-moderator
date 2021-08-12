@@ -37,6 +37,37 @@ var subtaskPopup;
 var subtaskTryCnt = 1;
 let tempAnswers = [];
 
+var startTime = new Date();
+const countDownTimer = function (id, date) { 
+  var _vDate = new Date(date); // 전달 받은 일자 
+  var _second = 1000; 
+  var _minute = _second * 60; 
+  var _hour = _minute * 60; 
+  var _day = _hour * 24; 
+  var timer; 
+  
+  function showRemaining() { 
+    var now = new Date(); 
+    var distDt = _vDate - now; 
+    if (distDt < 0) { 
+      clearInterval(timer); 
+      // document.getElementById(id).textContent = '해당 이벤트가 종료 되었습니다!'; 
+      return; } 
+      
+    var days = Math.floor(distDt / _day); 
+    var hours = Math.floor((distDt % _day) / _hour); 
+    var minutes = Math.floor((distDt % _hour) / _minute); 
+    var seconds = Math.floor((distDt % _minute) / _second); 
+    
+    //document.getElementById(id).textContent = date.toLocaleString() + "까지 : "; 
+    document.getElementById(id).textContent = "SUB-TASK\n"+minutes + '분 '+ seconds + '초'; 
+  } 
+  timer = setInterval(showRemaining, 1000); 
+}
+countDownTimer("subtask", startTime.getTime()+10*60*1000);
+
+
+
 // Open popup for map
 function openMap() {
   rc.addUserLog(Date.now(), "OPEN-MAP\n");
@@ -92,16 +123,19 @@ window.addEventListener('focus', function () {
 });
 
 // Logging Scroll Event
-window.addEventListener('scroll', function (event) {
+// messages.scrollTop
+messages.addEventListener('scroll', function (event) {
   window.clearTimeout(isScrolling); // Clear our timeout throughout the scroll
   isScrolling = setTimeout(function () { // Set a timeout to run after scrolling ends
-    if ((document.body.getBoundingClientRect()).top > scrollPos) {
-      rc.addUserLog(Date.now(), "SCROLL-UP\n");
-    }
-    else {
+    if (messages.scrollTop > scrollPos) {
+      console.log("SCROLL-DOWN");
       rc.addUserLog(Date.now(), "SCROLL-DOWN\n");
     }
-    scrollPos = (document.body.getBoundingClientRect()).top;
+    else {
+      console.log("SCROLL-UP");
+      rc.addUserLog(Date.now(), "SCROLL-UP\n");
+    }
+    scrollPos = messages.scrollTop;
   }, 66);
 }, false);
 
@@ -131,9 +165,12 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   let abSummaryEl = messageBox.childNodes[1];
   let speaker = messageBox.childNodes[0].childNodes[0].childNodes[0].textContent; //messageBox.title.nametag.strong.textContent  
 
-  paragraph.textContent = newParagraph;
+  rc.addUserLog(Date.now(), 'UPDATE-PARAGRAPH-MESSAGEBOX/TIMESTAMP=' + timestamp + 
+    '/NEW-PARAGRAPH=' + newParagraph + "/OLD-PARAGRAPH="+paragraph.textContent+
+    "/NEW-SUMMARY="+ summaryArr[0] +"/OLD-SUMMARY="+abSummaryEl.childNodes[1].textContent+
+    '\n');
 
-  rc.addUserLog(Date.now(), 'UPDATE-PARAGRAPH-MESSAGEBOX/TIMESTAMP=' + timestamp + '/MSG=' + newParagraph + '\n');
+  paragraph.textContent = newParagraph;
 
   // If confidence === -1, the summary result is only the paragraph itself.
   // Do not put confidence element as a sign of "this is not a summary"
@@ -292,6 +329,8 @@ function onUpdateSummary(type, content, timestamp) {
   if (user_name === speaker) { messageBox.style.background = SureMessage_Mycolor; }
   else { messageBox.style.background = SureMessage_Othercolor; }
 
+  rc.addUserLog(Date.now(), 'UPDATE-SUMMARY-MESSAGEBOX/TIMESTAMP=' + timestamp + '/NEW-SUMMARY=' + content + "/OLD-SUMMARY="+summaryEl.childNodes[1].textContent+'\n');
+
   summaryEl = messageBox.childNodes[1];
   let confidenceElem = confidenceElement(1); // if user change summary, confidence score would be 100 % 
   summaryEl.childNodes[0].textContent = "[요약]"
@@ -308,7 +347,7 @@ function onUpdateSummary(type, content, timestamp) {
     }
   }
 
-  rc.addUserLog(Date.now(), 'UPDATE-SUMMARY-MESSAGEBOX/TIMESTAMP=' + timestamp + '/SUMMARY=' + content + '\n');
+
 
   addEditBtn(summaryEl.childNodes[1], type, timestamp);
 }
@@ -716,6 +755,7 @@ function displayTrendingHelper(keywordBtn) {
   searchword.value = keywordBtn.textContent.slice(1);
   removeSummaryBox();
   displayUnitOfBox();
+  rc.addUserLog(Date.now(), 'SEARCH-TRENDINGWORDS/MSG=' + searchword.value  + '\n');
 }
 
 var highlighter = new Hilitor();
@@ -1096,9 +1136,11 @@ function pinBox(timestamp) {
 function showPinBoxes() {
   let pinClick = document.getElementById("dropdownPin");
   if (pinClick.style.display === "none") {
+    rc.addUserLog(Date.now(), "PIN-DROPDOWN-PIN-OPEN\n");
     pinClick.style.display = "block";
   }
   else {
+    rc.addUserLog(Date.now(), "PIN-DROPDOWN-CLOSE\n");
     pinClick.style.display = "none";
   }
 }
