@@ -49,8 +49,8 @@ kobert_model = KOBERT_SUMMARIZER()
 # Ko-BART
 import torch
 from kobart import get_kobart_tokenizer
-from transformers.modeling_bart import BartForConditionalGeneration 
-# from transformers.models.bart import BartForConditionalGeneration
+# from transformers.modeling_bart import BartForConditionalGeneration 
+from transformers.models.bart import BartForConditionalGeneration
 kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart_summary')#, from_tf=True)
 kobart_tokenizer = get_kobart_tokenizer()
 

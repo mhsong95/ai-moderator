@@ -99,7 +99,11 @@
         <div id="media-control" class="container-fluid btn-toolbar d-grid gap-2 d-md-block" role="toolbar">
           <!-- invite button -->
           <div class="btn-group me-2" role="group">
-            <button class="btn btn-outline-success btn-md shadow-none" onclick="copyJoinLink()">
+            <button id="meeting-timer" class="btn btn-outline-sencondary btn-md shadow-none disabled">
+              <i class="fas fa-hourglass-start"></i>
+              남은 회의 시간: 
+            </button>
+            <button id="invite-btn" class="btn btn-outline-success btn-md shadow-none" onclick="copyJoinLink()" hidden>
               <i class="fas fa-users"></i>
               Invite
             </button>
@@ -158,6 +162,12 @@
               </li>
               <select id="audio-select" class="form-select form-select-sm shadow-none"></select>
             </ul>
+          </div>
+          <div class="btn-group me-2" role="group">
+            <button id="start-timer" class="btn btn-outline-info btn-md shadow-none" onclick="rc.startTimer()" hidden>
+              <i class="far fa-play-circle"></i>
+              회의 시작
+            </button>
           </div>
           <!-- <div class="btn-group" role="group">
             <button

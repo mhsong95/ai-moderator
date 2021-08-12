@@ -21,7 +21,6 @@ const _EVENTS = {
 }
 
 class RoomClient {
-
     constructor (localMediaEl, remoteMediaEl, mediasoupClient, socket, room_id, name, successCallback) {
         this.name = name
         this.localMediaEl = localMediaEl
@@ -76,6 +75,10 @@ class RoomClient {
             room_name
         }).then(async function (e) {
             console.log(e)
+            if (name == "cpsAdmin") {
+                document.getElementById("invite-btn").hidden = false;
+                document.getElementById("start-timer").hidden = false;
+            }
             const data = await this.socket.request('getRouterRtpCapabilities');
             let device = await this.loadDevice(data)
             this.device = device
@@ -754,6 +757,12 @@ class RoomClient {
             this.socket.request('saveLog', { room_name, user_name, userLog });
             this.userLog = {}
         }
+    }
+
+    startTimer() {
+        console.log("Start timer")
+        // 타이머 시작 기능
+        moderatorSocket.emit("startTimer", new Date());
     }
 
     //////// GETTERS ////////

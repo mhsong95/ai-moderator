@@ -452,6 +452,12 @@ module.exports = class Clerk {
       .emit("updateSummary", type, content, timestamp);
   }
 
+  startTimer(date) {
+    this.io.sockets
+      .to(this.room_id)
+      .emit("startTimer", date);
+  }
+
   /**
    * TODO: add comment
    * request temp stt

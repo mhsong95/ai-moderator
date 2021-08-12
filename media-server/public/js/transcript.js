@@ -18,6 +18,8 @@ const UnsureMessage_color = "rgba(117, 117, 117, 0.3)"
 const SureMessage_Mycolor = "rgba(40, 70, 167, 0.219)"
 const SureMessage_Othercolor = "rgba(40, 167, 70, 0.219)"
 
+moderatorSocket.on("startTimer", onStartTimer);
+
 moderatorSocket.on("restore", onRestore);
 moderatorSocket.on("transcript", onTranscript);
 moderatorSocket.on("removeMsg", onRemoveMsg);
@@ -38,7 +40,7 @@ var subtaskTryCnt = 1;
 let tempAnswers = [];
 
 var startTime = new Date();
-const countDownTimer = function (id, date) { 
+const countDownTimer = function (id, date) {
   var _vDate = new Date(date); // 전달 받은 일자 
   var _second = 1000; 
   var _minute = _second * 60; 
@@ -64,9 +66,14 @@ const countDownTimer = function (id, date) {
   } 
   timer = setInterval(showRemaining, 1000); 
 }
-countDownTimer("subtask", startTime.getTime()+10*60*1000);
 
 
+function onStartTimer(startTime){
+  console.log("onStartTimer!!", startTime);
+  
+  startTime = new Date(startTime);
+  countDownTimer("subtask", startTime.getTime()+10*60*1000);
+}
 
 // Open popup for map
 function openMap() {
@@ -294,10 +301,7 @@ function onRestore(past_paragraphs) {
       var lastKey = Object.keys(datas["editSum"])[Object.keys(datas["editSum"]).length - 1];
       newsum = datas["editSum"][lastKey]["content"]
     }
-
-
-    // DESIGN: Add considering edit logs!
-
+    
     // Append the new transcript to the old paragraph.
     let paragraph = messageBox.childNodes[3].childNodes[1];
     paragraph.textContent = transcript;

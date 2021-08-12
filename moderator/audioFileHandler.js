@@ -274,6 +274,10 @@ module.exports = function (io, socket) {
     clerks.get(socket.room_id).updateSummary(editTimestamp, type, content, timestamp);
   })
 
+  socket.on("startTimer", (date) => {
+    clerks.get(socket.room_id).startTimer(date);
+  })
+
   /**
    * TODO: Add comment
    */
