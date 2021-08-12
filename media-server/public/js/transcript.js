@@ -43,16 +43,38 @@ function openMap() {
   window.open("../map.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=900");
 }
 
-// Open popup for subtask
-function openSubtask() {
-  rc.addUserLog(Date.now(), "OPEN-SUBTASK\n");
-  subtaskPopup = window.open("https://docs.google.com/forms/d/e/1FAIpQLSeQptC17BLX6hoLtuPuFfBdBWZ85rEAeVQEQUx4WtIbV3NlGw/viewform", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=800");
-  subtaskPopup.onload = function () {
-    for (ans of tempAnswers) {
-      let checkBox = subtaskPopup.document.getElementById(ans);
-      checkBox.checked = true;
+// Unmute when closing subtask popup
+function unmuteOnClose() {
+  let muteBtns = document.getElementsByClassName("control-overlay");
+  let startAudioBtn = document.getElementById("start-audio-button");
+  for (btn of muteBtns) {
+    if (btn.getAttribute("muted") === "muted") {
+      btn.click();
     }
   }
+  if (!(startAudioBtn.disabled)) {
+    startAudioBtn.click();
+  }
+}
+
+// Open popup for subtask
+function openSubtask() {
+  let muteBtns = document.getElementsByClassName("control-overlay");
+  let stopAudioBtn = document.getElementById("stop-audio-button");
+  for (btn of muteBtns) {
+    if (btn.getAttribute("muted") === "unmuted") {
+      btn.click();
+    }
+  }
+  if (!(stopAudioBtn.disabled)) {
+    stopAudioBtn.click();
+  }
+
+  rc.addUserLog(Date.now(), "OPEN-SUBTASK\n");
+  subtaskPopup = window.open("../subtask.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=1000");
+  subtaskPopup.onbeforeunload = function () {
+    unmuteOnClose();
+  };
 }
 
 // Submit answers for subtask
