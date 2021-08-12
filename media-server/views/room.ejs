@@ -45,8 +45,8 @@
       <!--Map-->
       <!-- <iframe style="border: 1px solid grey; margin: 10px 0px 0px 5px; width: 100%; height: 80%;" src="../map.html"></iframe> -->
       <div class="tab">
-        <button class="tablinks" onclick="showMap('day1', '../img/day1-map.png');">1일차 (명동)</button>
-        <button class="tablinks" onclick="showMap('day2', '../img/day2-map.png');">2일차 (강남)</button>
+        <button id="map-1" style="background-color: #e0e0e0;" class="tablinks" onclick="showMap('day1', '../img/day1-map.png');">1일차 (명동)</button>
+        <button id="map-2" style="background-color: #8c8c8c;" class="tablinks" onclick="showMap('day2', '../img/day2-map.png');">2일차 (강남)</button>
       </div>
       <div id="map-view" class="tabcontent">
         <img id="map-image" style="width: 100%; height: 100%; border: 3px solid black;" src="../img/day1-map.png">
@@ -281,10 +281,18 @@
           if (day === 'day1') {
             foodList.innerHTML = food_day1;
             placeList.innerHTML = place_day1;
+            let btn1 = document.getElementById("map-1");
+            let btn2 = document.getElementById("map-2");
+            btn1.style.backgroundColor = "#e0e0e0";
+            btn2.style.backgroundColor = "#8c8c8c";
           }
           else {
             foodList.innerHTML = food_day2;
             placeList.innerHTML = place_day2;
+            let btn1 = document.getElementById("map-1");
+            let btn2 = document.getElementById("map-2");
+            btn2.style.backgroundColor = "#e0e0e0";
+            btn1.style.backgroundColor = "#8c8c8c";
           }
         }
       </script>

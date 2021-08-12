@@ -7,8 +7,8 @@
         <p id="title" style="margin: 20px 20px 20px 20px; font-size: x-large; font-weight: bold;">[ 검색창 ]</p>
 
         <div class="tab">
-            <button class="tablinks" onclick="showInfo(this.textContent);">명동</button>
-            <button class="tablinks" onclick="showInfo(this.textContent);">강남</button>
+            <button id="btn1" class="tablinks" style="background-color: #e0e0e0;" onclick="showInfo(this.textContent);">1일차 (명동)</button>
+            <button id="btn2" class="tablinks" style="background-color: #8c8c8c;" onclick="showInfo(this.textContent);">2일차 (강남)</button>
         </div>
         <div id="search-view" class="tabcontent">
 
@@ -158,7 +158,12 @@
                 let foodList = document.getElementById("foodSearch");
                 let placeList = document.getElementById("placeSearch");
 
-                if (place === "명동") {
+                if (place === "1일차 (명동)") {
+                    let btn1 = document.getElementById("btn1");
+                    let btn2 = document.getElementById("btn2");
+                    btn1.style.backgroundColor = "#e0e0e0";
+                    btn2.style.backgroundColor = "#8c8c8c";
+
                     foodList.innerHTML = `<div display="inline-block" style="float: left; height: 1400px; border: 1px solid grey; background-color: #fbf0fd;">
                     <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
                         <p>[ 음식점 ] </p>
@@ -262,6 +267,11 @@
                 </div>`;
                 }
                 else {
+                    let btn1 = document.getElementById("btn1");
+                    let btn2 = document.getElementById("btn2");
+                    btn2.style.backgroundColor = "#e0e0e0";
+                    btn1.style.backgroundColor = "#8c8c8c";
+
                     foodList.innerHTML = `<div display="inline-block" style="float: left; height: 1300px; border: 1px solid grey; background-color: #fbf0fd;">
                     <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
                         <p>[ 음식점 ] </p>

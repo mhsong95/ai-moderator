@@ -79,10 +79,10 @@ nav {
 }
 
 .tab button:hover {
-  background-color: #ddd;
+  background-color: rgb(170, 165, 165);
 }
 
-.tab button.active {
+.tab button:active {
   background-color: #ccc;
 }
 
@@ -101,7 +101,7 @@ nav {
 .placename {
   font-size: medium;
   width: 100%;
-  margin: 5px 5px 5px 5px;
+  margin: 5px 5px 15px 5px;
 }
 
 .name-overlay {
