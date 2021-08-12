@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "summarizer": "python3 server.py"
+    "summarizer": "python3 sum_server.py",
+    "stt": "python3 stt_server.py"
   },
   "author": "",
   "license": "ISC"
