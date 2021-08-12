@@ -133,9 +133,7 @@ module.exports = class Clerk {
     let msTrans = this.paragraphs[timestamp]["ms"];
 
     if (!msTrans.length) {
-      this.io.sockets
-        .to(this.room_id)
-        .emit("removeMsg", timestamp);
+      this.removeMsg(timestamp)
       return;
     }
 
@@ -221,6 +219,9 @@ module.exports = class Clerk {
     this.paragraphs[timestamp]["ms"].push(transcript);
 
     let replaceTranscript = this.getReplaceTranscript(timestamp);
+    if (!replaceTranscript || (replaceTranscript == ' ')) {
+      this.removeMsg(timestamp);
+    };
 
     // Show message box
     this.publishTranscript(replaceTranscript, speakerName, timestamp);
