@@ -55,9 +55,9 @@
       <!-- <iframe style="border: 1px solid grey; margin: 10px 0px 0px 5px; width: 100%; height: 80%;" src="../map.html"></iframe> -->
       <div class="tab">
         <button id="map-1" style="background-color: #e0e0e0;" class="tablinks"
-          onclick="showMap('day1', '../img/day1-map.png');">1일차 (명동)</button>
+          onclick="showMap('day1', '../img/day1-map.png'); rc.addUserLog(Date.now(), 'CLICK-DAY1-MAP\n');">1일차 (명동)</button>
         <button id="map-2" style="background-color: #8c8c8c;" class="tablinks"
-          onclick="showMap('day2', '../img/day2-map.png');">2일차 (강남)</button>
+          onclick="showMap('day2', '../img/day2-map.png'); rc.addUserLog(Date.now(), 'CLICK-DAY2-MAP\n');">2일차 (강남)</button>
       </div>
       <div id="map-view" class="tabcontent">
         <img id="map-image" style="width: 100%; height: 100%; border: 3px solid black;" src="../img/day1-map.png">
@@ -238,9 +238,9 @@
       <div id="messages" style="clear: both;"></div>
 
 
-      <button type="button" onclick="scrollDown(); rc.addUserLog(Date.now(), 'CLICK-SCROLL-DOWN-BUTTON\n');"
+      <button id="scrollbtn"  type="button" onclick="scrollDown(); rc.addUserLog(Date.now(), 'CLICK-SCROLL-DOWN-BUTTON\n');"
         width="80px" style="padding: 0px; margin: 0px; border: none; border-radius: 0px;">
-        <img src="/img/scrolldown.png" style="width: 100px;" style="padding: 0px; margin: 0px;">
+        <img src="/img/scrolldownbtn.png" style="width: 100px;" style="padding: 0px; margin: 0px;">
       </button>
 
       <button type="button" onclick="openSubtask(); overlay_on();"

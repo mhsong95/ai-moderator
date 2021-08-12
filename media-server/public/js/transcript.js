@@ -342,9 +342,19 @@ function onTranscript(transcript, name, timestamp) {
   abSummaryBox.childNodes[0].textContent = "[자막 생성 중...]"
   abSummaryBox.childNodes[1].textContent = transcript;
 
-  console.log("ON TRANSCRIPT content=" + transcript);
   // Filtering with new message box
   displayUnitOfBox();
+
+  // Scroll down the messages area.
+  let scrolldownbutton = document.getElementById("scrollbtn");
+  if (messages.scrollTop+messages.clientHeight+messageBox.clientHeight+20 > messages.scrollHeight){
+    messages.scrollTop = messages.scrollHeight;
+    scrolldownbutton.style.display = "none"
+  }
+  else {
+    scrolldownbutton.style.display= "";
+  }
+  
 }
 
 // Event listener on summary arrival.
@@ -451,7 +461,16 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   addEditBtn(abSummaryBox.childNodes[1], "absum", timestamp);
 
   // Scroll down the messages area.
-  // messages.scrollTop = messages.scrollHeight;
+  let scrolldownbutton = document.getElementById("scrollbtn");
+  if (messages.scrollTop+messages.clientHeight+messageBox.clientHeight+20 > messages.scrollHeight){
+    messages.scrollTop = messages.scrollHeight;
+    scrolldownbutton.style.display = "none"
+  }
+  else {
+    scrolldownbutton.style.display= "";
+  }
+
+
 }
 
 // Helper function for adding new keywords
@@ -667,7 +686,7 @@ function finishEditContent(type, oldtxt, timestamp) {
 
         paragraph.childNodes[1].onclick = function () { editContent(type, timestamp); };
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(editTimestamp, 'CANCLE-EDIT-PARAGRAPH/TYPE=' + type + '/TIMESTAMP=' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'CANCEL-EDIT-PARAGRAPH/TYPE=' + type + '/TIMESTAMP=' + timestamp + '\n');
       }
       break;
     default:
@@ -685,7 +704,7 @@ function finishEditContent(type, oldtxt, timestamp) {
       else {
         toEditableIcon(summary.lastChild)
         summary.lastChild.onclick = function () { editContent(type, timestamp); };
-        rc.addUserLog(editTimestamp, 'CANCLE-EDIT-SUMMARY/TYPE=' + type + '/TIMESTAMP=' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'CANCEL-EDIT-SUMMARY/TYPE=' + type + '/TIMESTAMP=' + timestamp + '\n');
       }
       break;
   }
