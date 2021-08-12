@@ -54,10 +54,12 @@
       <!--Map-->
       <!-- <iframe style="border: 1px solid grey; margin: 10px 0px 0px 5px; width: 100%; height: 80%;" src="../map.html"></iframe> -->
       <div class="tab">
-        <button id="map-1" style="background-color: #e0e0e0;" class="tablinks"
-          onclick="showMap('day1', '../img/day1-map.png'); rc.addUserLog(Date.now(), 'CLICK-DAY1-MAP\n');">1일차 (명동)</button>
-        <button id="map-2" style="background-color: #8c8c8c;" class="tablinks"
-          onclick="showMap('day2', '../img/day2-map.png'); rc.addUserLog(Date.now(), 'CLICK-DAY2-MAP\n');">2일차 (강남)</button>
+        <button id="map-1" class="tablinks btn btn-dark btn-md rounded-top shadow-none"
+          onclick="showMap('day1', '../img/day1-map.png'); rc.addUserLog(Date.now(), 'CLICK-DAY1-MAP\n');">1일차
+          (명동)</button>
+        <button id="map-2" class="tablinks btn btn-outline-dark btn-md rounded-top shadow-none"
+          onclick="showMap('day2', '../img/day2-map.png'); rc.addUserLog(Date.now(), 'CLICK-DAY2-MAP\n');">2일차
+          (강남)</button>
       </div>
       <div id="map-view" class="tabcontent">
         <img id="map-image" style="width: 100%; height: 100%; border: 3px solid black;" src="../img/day1-map.png">
@@ -99,9 +101,9 @@
         <div id="media-control" class="container-fluid btn-toolbar d-grid gap-2 d-md-block" role="toolbar">
           <!-- invite button -->
           <div class="btn-group me-2" role="group">
-            <button id="meeting-timer" class="btn btn-outline-sencondary btn-md shadow-none disabled">
+            <button id="meeting-timer" class="btn btn-outline-secondary btn-md shadow-none disabled">
               <i class="fas fa-hourglass-start"></i>
-              남은 회의 시간: 
+              남은 회의 시간:
             </button>
             <button id="invite-btn" class="btn btn-outline-success btn-md shadow-none" onclick="copyJoinLink()" hidden>
               <i class="fas fa-users"></i>
@@ -215,24 +217,34 @@
         <div id="keywords-list" style="margin-top: 5px;">
           <p style="font-size:medium; display: inline-block; margin-bottom: 5px;"><strong>실시간 인기: </strong></p>
           <button type="button" id="trending-1" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#1</button>
           <button type="button" id="trending-2" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#2</button>
           <button type="button" id="trending-3" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#3</button>
           <button type="button" id="trending-4" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#4</button>
           <button type="button" id="trending-5" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#5</button>
           <button type="button" id="trending-6" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#6</button>
           <button type="button" id="trending-7" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#7</button>
           <button type="button" id="trending-8" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#8</button>
           <button type="button" id="trending-9" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#9</button>
           <button type="button" id="trending-10" onclick="displayTrendingHelper(this);"
+            class="btn btn-light btn-sm shadow-none"
             style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#10</button>
         </div>
         <div id="favorites">
@@ -248,16 +260,18 @@
       <div id="messages" style="clear: both;"></div>
 
 
-      <button id="scrollbtn"  type="button" onclick="scrollDown(); rc.addUserLog(Date.now(), 'CLICK-SCROLL-DOWN-BUTTON\n');"
-        width="80px" style="padding: 0px; margin: 0px; border: none; border-radius: 0px;">
+      <button id="scrollbtn" type="button"
+        onclick="scrollDown(); rc.addUserLog(Date.now(), 'CLICK-SCROLL-DOWN-BUTTON\n');" width="80px"
+        style="padding: 0px; margin: 0px; border: none; border-radius: 0px;">
         <img src="/img/scrolldownbtn.png" style="width: 100px;" style="padding: 0px; margin: 0px;">
       </button>
 
       <button id='subtask' type="button" onclick="openSubtask(); overlay_on();"
+        class="btn btn-danger btn-sm shadow-none"
         style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
         설문 풀기
       </button>
-      <button type="button" onclick="openMap();"
+      <button type="button" onclick="openMap();" class="btn btn-warning btn-sm shadow-none"
         style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
         지도 보기
       </button>
@@ -326,16 +340,22 @@
             placeList.innerHTML = place_day1;
             let btn1 = document.getElementById("map-1");
             let btn2 = document.getElementById("map-2");
-            btn1.style.backgroundColor = "#e0e0e0";
-            btn2.style.backgroundColor = "#8c8c8c";
+            btn1.classList.remove('btn-outline-dark');
+            btn1.classList.add('btn-dark');
+            
+            btn2.classList.remove('btn-dark');
+            btn2.classList.add('btn-outline-dark');
           }
           else {
             foodList.innerHTML = food_day2;
             placeList.innerHTML = place_day2;
             let btn1 = document.getElementById("map-1");
             let btn2 = document.getElementById("map-2");
-            btn2.style.backgroundColor = "#e0e0e0";
-            btn1.style.backgroundColor = "#8c8c8c";
+            btn2.classList.remove('btn-outline-dark');
+            btn2.classList.add('btn-dark');
+          
+            btn1.classList.remove('btn-dark');
+            btn1.classList.add('btn-outline-dark');
           }
         }
       </script>
