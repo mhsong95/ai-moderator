@@ -143,9 +143,10 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
 
   // Update keyword
   let keywordBox = messageBox.childNodes[2];
-  for (key of keywordBox.childNodes) {
-    if (key.tagName === "P") {
-      key.remove();
+  let keyList = keywordBox.childNodes;
+  for (var key of keyList) {
+    if (key.textContent.charAt(0) === "#") {
+      key.style.display = "none";
     }
   }
   let keywordList = summaryArr[2].split("@@@@@CD@@@@@AX@@@@@");
@@ -286,10 +287,11 @@ function onUpdateSummary(type, content, timestamp) {
   summaryEl.childNodes[1].textContent = content;
 
   let keywordBox = messageBox.childNodes[2];
-  for (key of keywordBox.childNodes) {
-    if (key.tagName === "P") {
-      if (!content.includes(key.innerHTML.slice(1))) {
-        key.remove();
+  let keyList = keywordBox.childNodes;
+  for (key of keyList) {
+    if (key.textContent.charAt(0) === "#") {
+      if (!(content.includes(key.textContent.slice(1)))) {
+        key.style.display = "none";
       }
     }
   }
@@ -462,7 +464,7 @@ function addKeywordHelper(keyword, timestamp) {
   let messageBox = document.getElementById(timestamp.toString());
   let keywordBox = messageBox.childNodes[2];
   var newKeyword = document.createElement("p");
-  newKeyword.innerHTML = '#' + keyword;
+  newKeyword.textContent = '#' + keyword;
   newKeyword.className = "keyword-btn";
   newKeyword.setAttribute("id", timestamp.toString() + '@@@' + keyword);
   let delBtn = document.createElement("button");
@@ -495,7 +497,8 @@ function delKeyword(timestamp, delKeywordBtn) {
   let state = delKeywordBtn.getAttribute("state");
   if (state === "off") {
     delKeywordBtn.innerHTML = "완료";
-    for (key of keywordBox.childNodes) {
+    let keyList = keywordBox.childNodes;
+    for (key of keyList) {
       if (key.tagName === "P") {
         key.childNodes[1].style.display = "";
       }
@@ -507,7 +510,8 @@ function delKeyword(timestamp, delKeywordBtn) {
     delImage.style.color = "black";
     delKeywordBtn.innerHTML = "";
     delKeywordBtn.append(delImage);
-    for (key of keywordBox.childNodes) {
+    let keyList = keywordBox.childNodes;
+    for (key of keyList) {
       if (key.tagName === "P") {
         key.childNodes[1].style.display = "none";
       }
@@ -527,12 +531,13 @@ function removeKeywordHelper(keyword, timestamp) {
 }
 
 function addKeywordBlockHelper(timestamp, keyword) {
-  let messageBox = getMessageBox(timestamp);
-  let keywordBox = messageBox.childNodes[2];
+  let msgBox = getMessageBox(timestamp);
+  let keywordBox = msgBox.childNodes[2];
   let keywordBtn = document.createElement("p");
   keywordBtn.className = "keyword-btn";
   keywordBtn.setAttribute("id", timestamp.toString() + '@@@' + keyword);
-  keywordBtn.innerHTML = "#" + keyword;
+  // keywordBtn.innerHTML = "#" + keyword;
+  keywordBtn.textContent = "#" + keyword;
   keywordBtn.style.display = "inline-block";
   keywordBtn.style.fontSize = "small";
   keywordBtn.style.padding = "0px 5px 0px 3px";
@@ -639,7 +644,7 @@ function finishEditContent(type, oldtxt, timestamp) {
         // update paragraph and summary on all users
         rc.updateParagraph(editTimestamp, paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(editTimestamp, 'FINISH-EDIT-MESSAGE=' + messageBox.childNodes[0].childNodes[0].textContent + ',TYPE=' + type + ',TIMESTAMP=' + timestamp + ',OLDMESSAGE='+oldtxt.value.textContent+'\n');
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-MESSAGE=' + messageBox.childNodes[0].childNodes[0].textContent + ',TYPE=' + type + ',TIMESTAMP=' + timestamp + ',OLDMESSAGE='+oldtxt.value+'\n');
       }
       else {
         // change icon
