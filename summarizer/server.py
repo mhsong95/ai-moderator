@@ -384,19 +384,19 @@ def get_overall_summaries(text, keyword):
     print("get_overall_summaries for keyword: " + keyword)
 
     # Only need extractive summary
-    text_sentence_num = len(re.split('[.?!]', text))
+    text_sentence_num = len(re.split("[.?!]", text))
     pororo_ab_res, kobart_ab_res = "empty text", "empty text"
 
     # Generate Extractive summary
-    pororo_ex_res = pororo_extractive_model(text) if text_sentence_num > 3 else text
-    kobert_ex_res = pororo_ex_res
+    # pororo_ex_res = summ_extractive(text) if text_sentence_num > 3 else text
+    # kobert_ex_res = pororo_ex_res
 
-    if len(pororo_ex_res.split(". ")) < 4:
-        if pororo_ex_res != "":
-            return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
+    # if len(re.split('[.?!]', pororo_ex_res)) < 4:
+    #     if pororo_ex_res != "":
+    #         return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
     # Generate Extractive summary with new sentences
-    sentences = text.split(". ")
+    sentences = re.split('[.?!]', text)
     sentences_with_keyword = []
     for sentence in sentences:
         if keyword in sentence:

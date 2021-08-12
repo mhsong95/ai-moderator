@@ -102,9 +102,12 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
       rc.addUserLog(Date.now(), 'SUMMARY-FOR-KEYWORD');
       let summaryBox = document.getElementById("summary-for-keyword");
       let extSumm = summaryArr[1].replace('?', '.').replace('!', '.').split('. ');
+      let summaryText = summaryBox.childNodes[1].childNodes[0];
+
       extSummary = "";
+      summaryText.textContent = "";
       for (sentence of extSumm) {
-        extSummary += "> \"" + sentence + "\"\n";
+        extSummary += "* \"" + sentence + "\"\n";
       }
       summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
     }
@@ -702,7 +705,7 @@ function displayUnitOfBox() {
       let isfiltered = paragraphs[i].textContent.includes(searchword.trim());
       let messageBox = messageBoxes[i];
       if (isfiltered) {
-        keywordParagraph += messageBox.childNodes[3].childNodes[1].textContent;
+        keywordParagraph += " " + messageBox.childNodes[3].childNodes[1].textContent;
       }
       displayBox(true && isfiltered, messageBox, displayYes);
     }
@@ -837,7 +840,7 @@ function createSummaryBox(keyword) {
 
   // summaryBox.childNodes[1]: Includes abstract summary
   let abSummaryBox = document.createElement("div");
-  let abSummary = document.createElement("strong");
+  let abSummary = document.createElement("p");
   abSummary.textContent = "Processing overall summary...";
   abSummaryBox.style.fontSize = "medium";
   abSummaryBox.style.marginLeft = "5px";
