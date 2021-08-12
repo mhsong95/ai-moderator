@@ -74,16 +74,43 @@ function openMap() {
   window.open("../map.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=900");
 }
 
-// Open popup for subtask
-function openSubtask() {
-  rc.addUserLog(Date.now(), "OPEN-SUBTASK\n");
-  subtaskPopup = window.open("https://docs.google.com/forms/d/e/1FAIpQLSeQptC17BLX6hoLtuPuFfBdBWZ85rEAeVQEQUx4WtIbV3NlGw/viewform", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=800");
-  subtaskPopup.onload = function () {
-    for (ans of tempAnswers) {
-      let checkBox = subtaskPopup.document.getElementById(ans);
-      checkBox.checked = true;
+// Unmute when closing subtask popup
+function unmuteOnClose() {
+  if (['1', '2', '3'].includes(user_name.slice(-1))) {
+    let muteBtns = document.getElementsByClassName("control-overlay");
+    let startAudioBtn = document.getElementById("start-audio-button");
+    for (btn of muteBtns) {
+      if (btn.getAttribute("muted") === "muted") {
+        btn.click();
+      }
+    }
+    if (!(startAudioBtn.disabled)) {
+      startAudioBtn.click();
     }
   }
+}
+
+// Open popup for subtask
+function openSubtask() {
+  // If user_name ends with [1, 2, 3], then use the mute function
+  if (['1', '2', '3'].includes(user_name.slice(-1))) {
+    let muteBtns = document.getElementsByClassName("control-overlay");
+    for (btn of muteBtns) {
+      if (btn.getAttribute("muted") === "unmuted") {
+        btn.click();
+      }
+    }
+    let stopAudioBtn = document.getElementById("stop-audio-button");
+    if (!(stopAudioBtn.disabled)) {
+      stopAudioBtn.click();
+    }
+  }
+  rc.addUserLog(Date.now(), "OPEN-SUBTASK\n");
+  subtaskPopup = window.open("../subtask.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=1000");
+  subtaskPopup.onbeforeunload = function () {
+    overlay_off();
+    unmuteOnClose();
+  };
 }
 
 function overlay_on() {
@@ -415,22 +442,33 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   let paragraph = messageBox.childNodes[3].childNodes[1];
   paragraph.style.display = "none";
 
+  let fav_word = [];
+  let newAlarm = document.createElement("p");
+  newAlarm.style.backgroundColor = "#fffaa3";
+  newAlarm.style.fontSize = "medium";
+  newAlarm.style.marginBottom = "2px";
+  newAlarm.style.padding = "5px 5px";
+  newAlarm.style.border = "1px solid grey";
+  newAlarm.style.margin = "5px 5px 3px 5px"
+  newAlarm.textContent = "즐겨찾기를 포함한 새로운 메시지가 추가되었습니다!";
+
   for (word of favoriteKeywords) {
     if (paragraph.textContent.includes(word)) {
-      notiAudio.play();
-      let rightDisplay = document.getElementById("display-choice");
-      let newAlarm = document.createElement("p");
-      newAlarm.style.backgroundColor = "#fffaa3";
-      newAlarm.style.fontSize = "small";
-      newAlarm.style.marginBottom = "2px";
-      newAlarm.textContent = "New message includes your favorite keyword!";
-      setTimeout(function () {
-        newAlarm.parentNode.removeChild(newAlarm);
-      }, 7000);
-      rightDisplay.appendChild(newAlarm);
-      break;
+      fav_word.push(word);
     }
   }
+  if (fav_word.length > 0) {
+    notiAudio.play();
+    let rightDisplay = document.getElementById("display-choice");
+    for (word of fav_word) {
+      newAlarm.textContent += " #" + word;
+    }
+    setTimeout(function () {
+      newAlarm.parentNode.removeChild(newAlarm);
+    }, 10000);
+    rightDisplay.appendChild(newAlarm);
+  }
+
 
   let abSummaryBox = messageBox.childNodes[1];
   let keywordBox = messageBox.childNodes[2];

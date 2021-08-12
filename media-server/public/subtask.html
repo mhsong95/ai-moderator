@@ -4,63 +4,37 @@
     <head>
     </head>
     <body>
-        <div id="subtask">
-            <p style="font-size: large; font-weight: bold;">[숨은그림찾기] 아래 그림을 보고, 숨어 있는 모형을 모두 선택해주세요.</p>
-            <img src="img/pic1_top.png" width="1200px">
-        </div>
-        <div id="subtask-answers" style="width: 650px; margin-left: 280px; padding: 10px 10px 10px 10px; text-align:center; font-size: large; border: 2px solid black; border-radius: 5px; background-color: lightgray;">
-            <input type="checkbox" name="check_ans" id="선글라스" value="선글라스">선글라스
-            <input type="checkbox" name="check_ans" id="망원경" value="망원경">망원경
-            <input type="checkbox" name="check_ans" id="돛단배" value="돛단배">돛단배
-            <input type="checkbox" name="check_ans" id="풍선" value="풍선">풍선
-            <input type="checkbox" name="check_ans" id="왕관" value="왕관">왕관
-            <input type="checkbox" name="check_ans" id="모자" value="모자">모자
-            <input type="checkbox" name="check_ans" id="카메라" value="카메라">카메라
-            <input type="checkbox" name="check_ans" id="열기구" value="열기구">열기구
-            <input type="checkbox" name="check_ans" id="나침반" value="나침반">나침반
-            <br><br>
-            <input type="checkbox" name="check_ans" id="자동차" value="자동차">자동차
-            <input type="checkbox" name="check_ans" id="솜사탕" value="솜사탕">솜사탕
-            <input type="checkbox" name="check_ans" id="신발" value="신발">신발
-            <input type="checkbox" name="check_ans" id="지도" value="지도">지도
-            <input type="checkbox" name="check_ans" id="독수리" value="독수리">독수리
-            <input type="checkbox" name="check_ans" id="소파" value="소파">소파
-            <input type="checkbox" name="check_ans" id="지팡이" value="지팡이">지팡이
-            <input type="checkbox" name="check_ans" id="시계" value="시계">시계
-            <input type="checkbox" name="check_ans" id="비행기" value="비행기">비행기
-        </div>
-        <button type="button" style="display: inline-block; font-size: larger; margin-top: 10px; margin-left: 500px" onclick="onSave();">
-            임시저장
-        </button>
-        <button type="button" style="display: inline-block; font-size: larger; margin-top: 10px; margin-left: 10px" onclick="onSubmit();">
-            제출
-        </button>
+        <p style="margin-left: 30px; margin-bottom: 10px; font-size: large;">* 아래 설문을 완료해주세요. (남은 시간: <span style="font-size: large; color: red;" id="timer"></span>)</p>
+        <p style="margin-left: 30px; margin-top: 0px; font-size: large;">* 완료되었으면 우측의 "돌아가기" 버튼을 클릭해주세요.
+            <button type="button" style="float: right; background-color: #FFD9EA; border-radius: 5px; font-size: large; margin-bottom: 20px; margin-right: 30px;" onclick="onSubmit();">
+                돌아가기
+            </button>
+        </p>
+
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeQptC17BLX6hoLtuPuFfBdBWZ85rEAeVQEQUx4WtIbV3NlGw/viewform" style="width: 100%; height: 800px; overflow-y: scroll;"></iframe>
 
         <script>
             function onSubmit() {
-                let checkBoxes = document.getElementsByTagName("input");
-                var tmp = [];
-                for (box of checkBoxes) {
-                    if (box.checked) {
-                        tmp.push(box.value);
-                    }
-                }
-                let ans = tmp.join('-');
-                window.opener.onSubmitAnswer(ans);
+                window.opener.unmuteOnClose();
+                window.opener.overlay_off();
                 window.close();
             }
-            
-            function onSave() {
-                let checkBoxes = document.getElementsByTagName("input");
-                var tmp = [];
-                for (box of checkBoxes) {
-                    if (box.checked) {
-                        tmp.push(box.value);
-                    }
+
+            var time = 180;
+            var min = "";
+            var sec = "";
+
+            var x = setInterval(function() {
+                min = parseInt(time/60);
+                sec = time % 60;
+                document.getElementById("timer").innerHTML = min + "분" + sec + "초";
+                time--;
+
+                if (time < 0) {
+                    clearInterval(x);
+                    document.getElementById("timer").innerHTML = "시간초과";
                 }
-                window.opener.onSaveAnswer(tmp);
-                window.close();
-            }
+            }, 1000);
         </script>
     </body>
 </html>

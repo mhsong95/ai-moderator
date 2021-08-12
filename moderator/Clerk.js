@@ -133,9 +133,7 @@ module.exports = class Clerk {
     let msTrans = this.paragraphs[timestamp]["ms"];
 
     if (!msTrans.length) {
-      this.io.sockets
-        .to(this.room_id)
-        .emit("removeMsg", timestamp);
+      this.removeMsg(timestamp)
       return;
     }
 
@@ -192,7 +190,9 @@ module.exports = class Clerk {
         newTimestamp = t;
       }
       else if (t > ts) {
-        otherTimestamp = t;
+        if (this.paragraphs[t]["ms"].length > 3) {
+          otherTimestamp = t;
+        }
       }
     }
 
@@ -200,11 +200,9 @@ module.exports = class Clerk {
       ts = newTimestamp
     }
     if ((otherTimestamp > ts) && !isLast) {
-      if (this.paragraphs[otherTimestamp]["ms"].length > 3) {
-        isLast = true;
-        newLast = timestamps[timestamps.length - 1];
-        this.addNewParagraph(speakerId, speakerName, newLast, []);
-      }
+      isLast = true;
+      newLast = timestamps[timestamps.length - 1];
+      this.addNewParagraph(speakerId, speakerName, newLast, []);
     }
 
     return { ts, isLast };
@@ -221,6 +219,9 @@ module.exports = class Clerk {
     this.paragraphs[timestamp]["ms"].push(transcript);
 
     let replaceTranscript = this.getReplaceTranscript(timestamp);
+    if (!replaceTranscript || (replaceTranscript == ' ')) {
+      this.removeMsg(timestamp);
+    };
 
     // Show message box
     this.publishTranscript(replaceTranscript, speakerName, timestamp);
