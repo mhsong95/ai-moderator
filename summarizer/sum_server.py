@@ -7,42 +7,10 @@ import subprocess
 import json
 import requests
 
-import os
-import configparser
-
-# import argparse
-
-# parser = argparse.ArgumentParser()
-# parser.add_argument("port", help="Input port to use in summarizer server.", type=int)
-# args = parser.parse_args()
-# print(args.port)
-# print(type(args.port))
-
 import sys
 for line in sys.stdin:
     PORT = int(line)
 print("PORT: ", PORT)
-
-config = configparser.ConfigParser()
-config.read(os.getcwd().split("ai-moderator")[0]+"ai-moderator"+ os.sep + "summarizer" +os.sep+ 'config.ini', encoding='utf-8')
-
-# Clova Speech invoke URL
-invoke_url = config['Clova_STT']['invoke_url'].split('**')
-# Clova Speech secret key
-secret = config['Clova_STT']['secret'].split('**')
-
-naverKeyLen = len(invoke_url)
-naverKeyCnt = 0
-
-# Convert audio file from MediaRecorder in `moderator` into .wav format for STT process
-# run following command
-# - ffmpeg -i ./input_file.webm -c:a pcm_f32le ./ouput_file.wav
-# parameter
-# - input: filename to convert (e.g., 'input.webm')
-# - output: filename to save (e.g., 'output.wav')
-def convert_and_split(input, output):
-    command = ['ffmpeg', '-i', input, '-c:a', 'pcm_f32le', output]
-    subprocess.run(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
 
 ################# BERT & BART ###########################################
 # # INITIALIZE [BERT&BART] 
@@ -81,8 +49,8 @@ kobert_model = KOBERT_SUMMARIZER()
 # Ko-BART
 import torch
 from kobart import get_kobart_tokenizer
-from transformers.modeling_bart import BartForConditionalGeneration 
-# from transformers.models.bart import BartForConditionalGeneration
+# from transformers.modeling_bart import BartForConditionalGeneration 
+from transformers.models.bart import BartForConditionalGeneration
 kobart_model = BartForConditionalGeneration.from_pretrained(kobart_path+'/kobart_summary')#, from_tf=True)
 kobart_tokenizer = get_kobart_tokenizer()
 
@@ -407,123 +375,64 @@ def get_overall_summaries(text, keyword):
 
     return pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res
 
-class ClovaSpeechClient:
-    def __init__(self, invoke_url, secret):
-        self.invoke_url = invoke_url
-        self.secret = secret
-        
-    def req_upload(self, file, completion, callback=None, userdata=None, forbiddens=None, boostings=None, sttEnable=True,
-                wordAlignment=True, fullText=True, script='', diarization=None, keywordExtraction=None, groupByAudio=False):
-        request_body = {
-            'language': 'ko-KR',
-            'completion': completion,
-            'callback': callback,
-            'userdata': userdata,
-            'sttEnable': sttEnable,
-            'wordAlignment': wordAlignment,
-            'fullText': fullText,
-            'script': script,
-            'forbiddens': forbiddens,
-            'boostings': boostings,
-            'diarization': diarization,
-            'keywordExtraction': keywordExtraction,
-            'groupByAudio': groupByAudio,
-        }
-        headers = {
-            'Accept': 'application/json;UTF-8',
-            'X-CLOVASPEECH-API-KEY': self.secret
-        }
-        print(self.invoke_url)
-        print(json.dumps(request_body).encode('UTF-8'))
-        files = {
-            'media': open(file, 'rb'),
-            'params': (None, json.dumps(request_body).encode('UTF-8'), 'application/json')
-        }
-        response = requests.post(headers=headers, url=self.invoke_url + '/recognizer/upload', files=files)
-        return response
-
-
 class echoHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         print(self.client_address)
         content_len = int(self.headers.get('Content-Length'))
         post_body = self.rfile.read(content_len).decode('utf-8')
         fields = json.loads(post_body)
-        if fields["type"] == "requestSTT":
-            print("REQUEST::::::STT")
-            roomID = fields["roomID"]
-            user = fields["user"]
-            startTimestamp = fields["startTimestamp"]
-            endTimestamp = fields["endTimestamp"]
-            keyIdx = fields["keyIdx"]
+        
+        print("REQUEST::::::SUMMARY")
+        user_name = fields["user"]    # Only for overall summary request
+        text = fields["content"]
+        infoList = user_name.split("@@@")
 
-            # Convert file type from webm to wav
-            inputfile = "../moderator/webm/"+roomID+"_"+user+"_"+str(startTimestamp)+".webm"
-            outputfile = "./wav/"+roomID+"_"+user+"_"+str(startTimestamp)+".wav"
-            convert_and_split(inputfile, outputfile)
-            # TODO: remove[debug]
-            print(inputfile +'\n'+ outputfile +'\n'+ "convert file type")
+        # Check if request for an overall summary (fields["user"] == "OVERALL" + keyword)
+        if (infoList[0] == "OVERALL"):
+            pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_overall_summaries(text, infoList[1])
+        else:
+            pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
             
-            # Run Naver STT for given audio file
-            stt_res = ClovaSpeechClient(invoke_url[keyIdx], secret[keyIdx]).req_upload(file=outputfile, completion='sync')
-            # DESIGN: trim transcript at local timestamp (endTimestamp - startTimestap)
-            print("trim range: ", endTimestamp - startTimestamp)
-            print(stt_res.text)
-            print(json.loads(stt_res.text)['text'])
-            res = json.loads(stt_res.text)['text']
+        print("pororo_ab_res:   "+ pororo_ab_res)
+        print("pororo_ex_res:   "+ pororo_ex_res)
+        print("kobart_ab_res:   "+ kobart_ab_res)
+        print("kobert_ex_res:   "+ kobert_ex_res)
+
+        # Extract combined keywords
+        keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
+        # Extract Top 10 trending keywords
+        # top10_trending = get_trending_keyword(keywordList)
+
+        # Calculate confidence score
+        abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
+        if abs_summary == "":
+            abs_summary = text; ab_confidence_score = 1
+        else :
+            ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList, text)
+            abs_summary = text if ab_confidence_score == 1 else abs_summary
             
-        elif fields["type"] == "requestSummary":
-            print("REQUEST::::::SUMMARY")
-            user_name = fields["user"]    # Only for overall summary request
-            text = fields["content"]
-            infoList = user_name.split("@@@")
+        ext_summary = ext_summary if ext_summary!= "" else text
 
-            # Check if request for an overall summary (fields["user"] == "OVERALL" + keyword)
-            if (infoList[0] == "OVERALL"):
-                pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_overall_summaries(text, infoList[1])
-            else:
-                pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res = get_summaries(text)
-                
-            print("pororo_ab_res:   "+ pororo_ab_res)
-            print("pororo_ex_res:   "+ pororo_ex_res)
-            print("kobart_ab_res:   "+ kobart_ab_res)
-            print("kobert_ex_res:   "+ kobert_ex_res)
+        # Concatenate summaries, keywords, trending keywords
+        keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
+        # trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
+        # res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
+        res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString])
+        res += "@@@@@CF@@@@@" + str(ab_confidence_score) 
 
-            # Extract combined keywords
-            keywordList = combined_keyword_extractor(text, pororo_ab_res, pororo_ex_res, kobart_ab_res, kobert_ex_res)
-            # Extract Top 10 trending keywords
-            # top10_trending = get_trending_keyword(keywordList)
-
-            # Calculate confidence score
-            abs_summary, abs_compare_summary, ext_summary, ext_compare_summary = select_rep_summary(pororo_ab_res, kobart_ab_res, pororo_ex_res, kobert_ex_res)
-            if abs_summary == "":
-                abs_summary = text; ab_confidence_score = 1
-            else :
-                ab_confidence_score = get_confidence_score(abs_summary, [abs_compare_summary, ext_summary, ext_compare_summary], keywordList, text)
-                abs_summary = text if ab_confidence_score == 1 else abs_summary
-                
-            ext_summary = ext_summary if ext_summary!= "" else text
-
-            # Concatenate summaries, keywords, trending keywords
-            keywordString = '@@@@@CD@@@@@AX@@@@@'.join(keywordList)
-            # trendingString = '@@@@@CD@@@@@AX@@@@@'.join(top10_trending)
-            # res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString, trendingString])
-            res = '@@@@@AB@@@@@EX@@@@@'.join([abs_summary, ext_summary, keywordString])
-            res += "@@@@@CF@@@@@" + str(ab_confidence_score) 
-
-            # Print results
-            print("CONFIDENCE_SCORE", ab_confidence_score)
-            print('Abstractive:::\n%s' % abs_summary)
-            print('Extractive:::\n%s' % ext_summary)
-            print('Keywords:::')
-            for keyword in keywordList:
-                print("#%s " % keyword, end="")
-            # print('\nTrending Keywords:::')
-            # n = 1
-            # for keyword in top10_trending:
-            #     print("%d. %s " % (n, keyword), end="")
-            #     n += 1
-            print()
+        # Print results
+        print("CONFIDENCE_SCORE", ab_confidence_score)
+        print('Abstractive:::\n%s' % abs_summary)
+        print('Extractive:::\n%s' % ext_summary)
+        print('Keywords:::')
+        for keyword in keywordList:
+            print("#%s " % keyword, end="")
+        # print('\nTrending Keywords:::')
+        # n = 1
+        # for keyword in top10_trending:
+        #     print("%d. %s " % (n, keyword), end="")
+        #     n += 1
+        print()
 
         self.send_response(200)
         self.send_header('content-type', 'text/html')

@@ -26,6 +26,15 @@
   </head>
 
   <body>
+    <div id="overlay" onclick="overlay_off();">
+      <button id="text" class="btn btn-primary btn-lg shadow-none" style="margin: 0;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              -ms-transform: translate(-50%, -50%);
+              transform: translate(-50%, -50%);">설문이 끝난 후 화면을 클릭해 주세요.</button>
+    </div>
+
     <!-- Left Layout -->
     <div id="left">
       <!-- Videos -->
@@ -45,8 +54,10 @@
       <!--Map-->
       <!-- <iframe style="border: 1px solid grey; margin: 10px 0px 0px 5px; width: 100%; height: 80%;" src="../map.html"></iframe> -->
       <div class="tab">
-        <button id="map-1" style="background-color: #e0e0e0;" class="tablinks" onclick="showMap('day1', '../img/day1-map.png');">1일차 (명동)</button>
-        <button id="map-2" style="background-color: #8c8c8c;" class="tablinks" onclick="showMap('day2', '../img/day2-map.png');">2일차 (강남)</button>
+        <button id="map-1" style="background-color: #e0e0e0;" class="tablinks"
+          onclick="showMap('day1', '../img/day1-map.png');">1일차 (명동)</button>
+        <button id="map-2" style="background-color: #8c8c8c;" class="tablinks"
+          onclick="showMap('day2', '../img/day2-map.png');">2일차 (강남)</button>
       </div>
       <div id="map-view" class="tabcontent">
         <img id="map-image" style="width: 100%; height: 100%; border: 3px solid black;" src="../img/day1-map.png">
@@ -84,7 +95,7 @@
       </div>
 
       <!-- Bottom Navbar Buttons -->
-      <nav class="navbar navbar-expand-lg fixed-bottom">
+      <nav id="left-navbar" class="navbar navbar-expand-lg fixed-bottom">
         <div id="media-control" class="container-fluid btn-toolbar d-grid gap-2 d-md-block" role="toolbar">
           <!-- invite button -->
           <div class="btn-group me-2" role="group">
@@ -172,50 +183,72 @@
           </button>
           <div id="dropdownPin" style="display: none; position: absolute; right: 0" class="dropdown-pin"></div>
         </div>
-      
+
         <div style="margin-top: 1em; ">
-          <input type="text" id="search-word" placeholder="SEARCH"
-            onkeydown="checkEnter(event);">
-          <button type="button" onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'CLICK-SEARCH-BUTTON\n');" width="50px" style="padding: 3.5px; background-color:yellowgreen; margin: 2px; border: none; border-radius: 5px;">
+          <input type="text" id="search-word" placeholder="SEARCH" onkeydown="checkEnter(event);">
+          <button type="button" onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'CLICK-SEARCH-BUTTON\n');"
+            width="50px"
+            style="padding: 3.5px; background-color:yellowgreen; margin: 2px; border: none; border-radius: 5px;">
             <!--<img src="/img/search.png" width="30px" style="padding: 0px; margin: 0px;">-->
-            <i class="fas fa-search" width="30px", style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
+            <i class="fas fa-search" width="30px" ,
+              style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
           </button>
-          <button type="button" onclick="showAllBoxes(); rc.addUserLog(Date.now(), 'CLICK-SHOW-ALL-BUTTON\n');" width="30px" style="padding: 3px; background-color:palevioletred; margin: 2px; border: none; border-radius: 5px;">
-            <i class="fas fa-backspace" width="30px", style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
+          <button type="button" onclick="showAllBoxes(); rc.addUserLog(Date.now(), 'CLICK-SHOW-ALL-BUTTON\n');"
+            width="30px"
+            style="padding: 3px; background-color:palevioletred; margin: 2px; border: none; border-radius: 5px;">
+            <i class="fas fa-backspace" width="30px" ,
+              style="padding: 0px; color:white; background-color: transparent; margin: 0px;"></i>
           </button>
         </div>
 
         <!--Add buttons for trending keyword-->
         <div id="keywords-list" style="margin-top: 5px;">
           <p style="font-size:medium; display: inline-block; margin-bottom: 5px;"><strong>실시간 인기: </strong></p>
-          <button type="button" id="trending-1" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#1</button>
-          <button type="button" id="trending-2" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#2</button>
-          <button type="button" id="trending-3" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#3</button>
-          <button type="button" id="trending-4" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#4</button>
-          <button type="button" id="trending-5" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#5</button>
-          <button type="button" id="trending-6" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#6</button>
-          <button type="button" id="trending-7" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#7</button>
-          <button type="button" id="trending-8" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#8</button>
-          <button type="button" id="trending-9" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#9</button>
-          <button type="button" id="trending-10" onclick="displayTrendingHelper(this);" style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;" >#10</button>
+          <button type="button" id="trending-1" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#1</button>
+          <button type="button" id="trending-2" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#2</button>
+          <button type="button" id="trending-3" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#3</button>
+          <button type="button" id="trending-4" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#4</button>
+          <button type="button" id="trending-5" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#5</button>
+          <button type="button" id="trending-6" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#6</button>
+          <button type="button" id="trending-7" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#7</button>
+          <button type="button" id="trending-8" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#8</button>
+          <button type="button" id="trending-9" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#9</button>
+          <button type="button" id="trending-10" onclick="displayTrendingHelper(this);"
+            style="font-size: smaller; padding: 1px 3px 1px 3px; margin-top: 2px; border-radius: 5px; border: 1px solid black;">#10</button>
         </div>
         <div id="favorites">
           <p style="font-size: medium; display: inline-block; margin-bottom: 5px;"><strong>즐겨찾기: </strong></p>
-          <button state="off" type="button" id="del-keyword" onclick="delFavorite();" style="float: right; font-size: smaller; margin-left: 5px; padding: 1px 3px 1px 3px; border-radius: 5px;" ><i class="fas fa-minus"></i> 삭제</button>
-          <button type="button" id="my-keyword" onclick="addFavorite();" style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px;" ><i class="fas fa-plus"></i> 추가</button>
+          <button state="off" type="button" id="del-keyword" onclick="delFavorite();"
+            style="float: right; font-size: smaller; margin-left: 5px; padding: 1px 3px 1px 3px; border-radius: 5px;"><i
+              class="fas fa-minus"></i> 삭제</button>
+          <button type="button" id="my-keyword" onclick="addFavorite();"
+            style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px;"><i
+              class="fas fa-plus"></i> 추가</button>
         </div>
       </div>
       <div id="messages" style="clear: both;"></div>
 
 
-      <button type="button" onclick="scrollDown(); rc.addUserLog(Date.now(), 'CLICK-SCROLL-DOWN-BUTTON\n');" width="80px" style="padding: 0px; margin: 0px; border: none; border-radius: 0px;">
-        <img src="/img/scrolldown.png" style="width: 100px;"style="padding: 0px; margin: 0px;">
+      <button type="button" onclick="scrollDown(); rc.addUserLog(Date.now(), 'CLICK-SCROLL-DOWN-BUTTON\n');"
+        width="80px" style="padding: 0px; margin: 0px; border: none; border-radius: 0px;">
+        <img src="/img/scrolldown.png" style="width: 100px;" style="padding: 0px; margin: 0px;">
       </button>
 
-      <button type="button" onclick="openSubtask();" style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
+      <button type="button" onclick="openSubtask(); overlay_on();"
+        style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
         설문 풀기
       </button>
-      <button type="button" onclick="openMap();" style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
+      <button type="button" onclick="openMap();"
+        style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
         지도 보기
       </button>
 
