@@ -74,7 +74,6 @@ module.exports = class Clerk {
 
   restoreParagraphs() {
     const fileName = './logs/' + this.room_id + '.txt'
-
     fs.access(fileName, fs.F_OK, (err) => {
       if (err) {
         console.log("No previous conversation");
@@ -122,6 +121,33 @@ module.exports = class Clerk {
           console.error(err)
         })
     })
+
+
+    const clockfilename = './logs/' + this.room_id + '_STARTCLOCK.txt'
+    fs.access(clockfilename, fs.F_OK, (err) => {
+      if (err){
+        console.log("NO CLOCK FILE");
+        return
+      }
+
+      // File exists
+      const minLineLength = 1
+      getLastLine(clockfilename, minLineLength)
+        .then((lastLine) => {
+          let starttime = new Date(parseInt(lastLine));
+
+          this.io.sockets
+          .to(this.room_id)
+          .emit("startTimer", starttime);
+
+          console.log("RESTORE CLOCK", starttime);
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+
+    });
+
   }
 
   /**
@@ -453,6 +479,12 @@ module.exports = class Clerk {
   }
 
   startTimer(date) {
+    console.log("DATE", date);
+    fs.appendFile('./logs/' + this.room_id + '_STARTCLOCK.txt', date.toString(), function (err) {
+      if (err) throw err;
+      console.log('Log is added successfully.');
+    });
+
     this.io.sockets
       .to(this.room_id)
       .emit("startTimer", date);

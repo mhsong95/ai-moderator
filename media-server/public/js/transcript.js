@@ -1,6 +1,7 @@
 // transcript.js
 // Defines event handlers for transcripts from moderator server.
 // Includes UI control on transcription and summary data arrival.
+
 const messages = document.getElementById("messages");
 const keywordsList = document.getElementById("keywords-list");
 const trending_1 = document.getElementById("trending-1");
@@ -40,7 +41,7 @@ var subtaskTryCnt = 1;
 let tempAnswers = [];
 
 var startTime = new Date();
-const countDownTimer = function (id, date) {
+const countDownTimer = function (id, date, word) {
   var _vDate = new Date(date); // 전달 받은 일자 
   var _second = 1000; 
   var _minute = _second * 60; 
@@ -62,7 +63,7 @@ const countDownTimer = function (id, date) {
     var seconds = Math.floor((distDt % _minute) / _second); 
     
     //document.getElementById(id).textContent = date.toLocaleString() + "까지 : "; 
-    document.getElementById(id).textContent = "SUB-TASK\n"+minutes + '분 '+ seconds + '초'; 
+    document.getElementById(id).textContent = word +" ("+minutes + '분 '+ seconds + '초)'; 
   } 
   timer = setInterval(showRemaining, 1000); 
 }
@@ -72,7 +73,13 @@ function onStartTimer(startTime){
   console.log("onStartTimer!!", startTime);
   
   startTime = new Date(startTime);
-  countDownTimer("subtask", startTime.getTime()+10*60*1000);
+  let usernumber = user_name.slice(user_name.length -1, user_name.length);
+
+  if (! isNaN(usernumber)){ // PARTICIPANTS, NOT ADMIN
+    countDownTimer("subtask", startTime.getTime()+parseInt(usernumber)*60*1000, "SUB-TASK");  
+  }
+
+  countDownTimer("meeting-timer", startTime.getTime()+20*60*1000, "남은 회의 시간");
 }
 
 // Open popup for map
@@ -81,12 +88,28 @@ function openMap() {
   window.open("../map.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=900");
 }
 
+// Unmute when closing subtask popup
+function unmuteOnClose() {
+  if (['1', '2', '3'].includes(user_name.slice(-1))) {
+    let muteBtns = document.getElementsByClassName("control-overlay");
+    let startAudioBtn = document.getElementById("start-audio-button");
+    for (var btn of muteBtns) {
+      if (btn.getAttribute("muted") === "muted") {
+        btn.click();
+      }
+    }
+    if (!(startAudioBtn.disabled)) {
+      startAudioBtn.click();
+    }
+  }
+}
+
 // Open popup for subtask
 function openSubtask() {
   // If user_name ends with [1, 2, 3], then use the mute function
   if (['1', '2', '3'].includes(user_name.slice(-1))) {
     let muteBtns = document.getElementsByClassName("control-overlay");
-    for (btn of muteBtns) {
+    for (var btn of muteBtns) {
       if (btn.getAttribute("muted") === "unmuted") {
         btn.click();
       }
@@ -169,7 +192,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
 
       extSummary = "";
       summaryText.textContent = "";
-      for (sentence of extSumm) {
+      for (var sentence of extSumm) {
         extSummary += "* \"" + sentence + "\"\n";
       }
       summaryBox.childNodes[1].childNodes[0].textContent = extSummary;
@@ -220,7 +243,7 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   keywordList = keywordList.filter(item => item);
   keywordMap[timestamp.toString()] = keywordList;
 
-  for (keyword of keywordList) {
+  for (var keyword of keywordList) {
     addKeywordBlockHelper(timestamp, keyword);
   }
 
@@ -353,7 +376,7 @@ function onUpdateSummary(type, content, timestamp) {
 
   let keywordBox = messageBox.childNodes[2];
   let keyList = keywordBox.childNodes;
-  for (key of keyList) {
+  for (var key of keyList) {
     if (key.textContent.charAt(0) === "#") {
       if (!(content.includes(key.textContent.slice(1)))) {
         key.style.display = "none";
@@ -439,7 +462,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   newAlarm.style.margin = "5px 5px 3px 5px"
   newAlarm.textContent = "즐겨찾기를 포함한 새로운 메시지가 추가되었습니다!";
 
-  for (word of favoriteKeywords) {
+  for (var word of favoriteKeywords) {
     if (paragraph.textContent.includes(word)) {
       fav_word.push(word);
     }
@@ -447,7 +470,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   if (fav_word.length > 0) {
     notiAudio.play();
     let rightDisplay = document.getElementById("display-choice");
-    for (word of fav_word) {
+    for (var word of fav_word) {
       newAlarm.textContent += " #" + word;
     }
     setTimeout(function () {
@@ -463,7 +486,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   keywordList = keywordList.filter(item => item);
   keywordMap[timestamp.toString()] = keywordList;
 
-  for (keyword of keywordList) {
+  for (let keyword of keywordList) {
     addKeywordBlockHelper(timestamp, keyword);
   }
 
@@ -498,7 +521,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   var trendingList = summaryArr[3].split("@@@@@CD@@@@@AX@@@@@");
   var trendingBtns = [trending_1, trending_2, trending_3, trending_4, trending_5, trending_6, trending_7, trending_8, trending_9, trending_10];
   let i = 0;
-  for (trendBtn of trendingBtns) {
+  for (let trendBtn of trendingBtns) {
     if (trendingList[i]) {
       trendBtn.textContent = "#" + trendingList[i];
       trendBtn.style.display = "inline-block";
@@ -594,7 +617,7 @@ function delKeyword(timestamp, delKeywordBtn) {
   if (state === "off") {
     delKeywordBtn.innerHTML = "완료";
     let keyList = keywordBox.childNodes;
-    for (key of keyList) {
+    for (let key of keyList) {
       if (key.tagName === "P") {
         key.childNodes[1].style.display = "";
       }
@@ -607,7 +630,7 @@ function delKeyword(timestamp, delKeywordBtn) {
     delKeywordBtn.innerHTML = "";
     delKeywordBtn.append(delImage);
     let keyList = keywordBox.childNodes;
-    for (key of keyList) {
+    for (let key of keyList) {
       if (key.tagName === "P") {
         key.childNodes[1].style.display = "none";
       }
@@ -867,7 +890,7 @@ function delFavorite() {
   let delKey = document.getElementById("del-keyword");
   if (delKey.getAttribute("state") === "off") {
     delKey.textContent = "완료";
-    for (key of keys) {
+    for (var key of keys) {
       key.style.backgroundColor = "red";
       key.onclick = function () {
         this.remove();
@@ -882,7 +905,7 @@ function delFavorite() {
     delKey.innerHTML = "";
     delKey.append(delImage);
     delKey.innerHTML += "삭제";
-    for (key of keys) {
+    for (var key of keys) {
       key.style.backgroundColor = "#fed7bf";
       key.onclick = function () { searchFavorite(key.innerHTML.slice(1)); };
     }
@@ -1105,7 +1128,7 @@ function createMessageBox(name, timestamp) {
 
   // Finally append the box to 'messages' area
   let lastchild = true;
-  for (box of messages.childNodes) {
+  for (var box of messages.childNodes) {
     if (Number(box.id) > timestamp) {
       messages.insertBefore(messageBox, box);
       lastchild = false;
