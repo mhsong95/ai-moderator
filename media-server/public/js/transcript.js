@@ -55,9 +55,19 @@ function openSubtask() {
   }
 }
 
+function overlay_on() {
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("left-navbar").style.transform = "translateY(100%)";
+}
+
+function overlay_off() {
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("left-navbar").style.transform = "translateY(0)";
+}
+
 // Submit answers for subtask
 function onSubmitAnswer(answers) {
-  rc.addUserLog(Date.now(), "SUBTASK-ANSWER/TRY-CNT=" + subtaskTryCnt + "/MSG=" + answers+"\n");
+  rc.addUserLog(Date.now(), "SUBTASK-ANSWER/TRY-CNT=" + subtaskTryCnt + "/MSG=" + answers + "\n");
   console.log('SUBTASK ANSWER_TRY' + subtaskTryCnt + '=' + answers);
   subtaskTryCnt++;
   tempAnswers = [];
@@ -463,7 +473,7 @@ function addKeyword(box, timestamp) {
 
 // Helper function for adding a new keyword in message box
 function addKeywordHelper(keyword, timestamp) {
-  rc.addUserLog(Date.now(), "ADD-KEYWORD/MSG="+keyword+"/TIMESTAMP="+timestamp+"\n");
+  rc.addUserLog(Date.now(), "ADD-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
   let messageBox = document.getElementById(timestamp.toString());
   let keywordBox = messageBox.childNodes[2];
   var newKeyword = document.createElement("p");
@@ -494,7 +504,7 @@ function addKeywordHelper(keyword, timestamp) {
 }
 
 function delKeyword(timestamp, delKeywordBtn) {
-  rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG="+keyword+"/TIMESTAMP="+timestamp+"\n");
+  rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
   let messageBox = document.getElementById(timestamp.toString());
   let keywordBox = messageBox.childNodes[2];
   let state = delKeywordBtn.getAttribute("state");
@@ -647,7 +657,7 @@ function finishEditContent(type, oldtxt, timestamp) {
         // update paragraph and summary on all users
         rc.updateParagraph(editTimestamp, paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(editTimestamp, 'FINISH-EDIT-PARAGRAPH'+'/TYPE=' + type +'/MSG=' + messageBox.childNodes[0].childNodes[0].textContent + '/TIMESTAMP=' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-PARAGRAPH' + '/TYPE=' + type + '/MSG=' + messageBox.childNodes[0].childNodes[0].textContent + '/TIMESTAMP=' + timestamp + '\n');
       }
       else {
         // change icon
@@ -670,7 +680,7 @@ function finishEditContent(type, oldtxt, timestamp) {
 
       if (oldtxt != summary.textContent) {
         rc.updateSummary(editTimestamp, "absum", summary.textContent, timestamp)
-        rc.addUserLog(editTimestamp, 'FINISH-EDIT-SUMMARY'+"/TYPE=" + type + '/MSG='+summary.textContent+'/TIMESTAMP=' + timestamp + "\n");
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-SUMMARY' + "/TYPE=" + type + '/MSG=' + summary.textContent + '/TIMESTAMP=' + timestamp + "\n");
       }
       else {
         toEditableIcon(summary.lastChild)
@@ -744,7 +754,7 @@ function addFavorite() {
 
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
-      rc.addUserLog(Date.now(), "ADD-FAVORITE/MSG="+keyInput.value+"\n");
+      rc.addUserLog(Date.now(), "ADD-FAVORITE/MSG=" + keyInput.value + "\n");
       favoriteKeywords.push(keyInput.value);
       let myKeyword = document.createElement("button");
       myKeyword.setAttribute("id", keyInput.value);
@@ -777,7 +787,7 @@ function delFavorite() {
       key.style.backgroundColor = "red";
       key.onclick = function () {
         this.remove();
-        rc.addUserLog(Date.now(), "DELETE-FAVORITE/MSG=" + this.textContent.slice(1)+"\n");
+        rc.addUserLog(Date.now(), "DELETE-FAVORITE/MSG=" + this.textContent.slice(1) + "\n");
       };
     }
     delKey.setAttribute("state", "on");
@@ -804,7 +814,7 @@ function searchFavorite(keyword) {
   displayUnitOfBox();
   createSummaryBox(keyword);
   let editTimestamp = Date.now();
-  rc.addUserLog(Date.now(), "SEARCH-FAVORITE/MSG="+keyword+"\n");
+  rc.addUserLog(Date.now(), "SEARCH-FAVORITE/MSG=" + keyword + "\n");
   rc.updateParagraph(editTimestamp, keywordParagraph, "summary-for-keyword@@@" + user_name, "OVERALL@@@" + keyword);
 }
 
@@ -1035,11 +1045,11 @@ function pinBox(timestamp) {
   let newPin = document.createElement("a");
 
   if (messageBox.getAttribute("pinned") === "false") {
-    rc.addUserLog(Date.now(), "PIN-BOX/TIMESTAMP="+stringTime+"\n");
+    rc.addUserLog(Date.now(), "PIN-BOX/TIMESTAMP=" + stringTime + "\n");
     messageBox.setAttribute("pinned", "true");
     newPin.setAttribute("id", "pin" + stringTime);
     newPin.href = "#";
-    newPin.onclick = function () {rc.addUserLog(Date.now(), "CLICK-PIN/TIMESTAMP="+stringTime+"\n"); messageBox.scrollIntoView(true); };
+    newPin.onclick = function () { rc.addUserLog(Date.now(), "CLICK-PIN/TIMESTAMP=" + stringTime + "\n"); messageBox.scrollIntoView(true); };
     newPin.style.padding = "0px 2px 0px 2px";
     newPin.style.backgroundColor = "#ffffff";
     newPin.style.border = "0.1px solid #d4d4d4";
@@ -1056,7 +1066,7 @@ function pinBox(timestamp) {
     pinBtn.childNodes[0].style.color = "#000000";
   }
   else {
-    rc.addUserLog(Date.now(), "UNPIN-BOX/TIMESTAMP="+stringTime+"\n");
+    rc.addUserLog(Date.now(), "UNPIN-BOX/TIMESTAMP=" + stringTime + "\n");
     messageBox.setAttribute("pinned", "false");
     let delPin = document.getElementById("pin" + stringTime);
     delPin.remove();
