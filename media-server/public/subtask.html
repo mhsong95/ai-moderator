@@ -10,15 +10,13 @@
                 돌아가기
             </button>
         </p>
-        
 
         <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeQptC17BLX6hoLtuPuFfBdBWZ85rEAeVQEQUx4WtIbV3NlGw/viewform" style="width: 100%; height: 800px; overflow-y: scroll;"></iframe>
-
-    
 
         <script>
             function onSubmit() {
                 window.opener.unmuteOnClose();
+                window.opener.overlay_off();
                 window.close();
             }
 

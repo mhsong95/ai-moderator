@@ -73,6 +73,7 @@ function openSubtask() {
   rc.addUserLog(Date.now(), "OPEN-SUBTASK\n");
   subtaskPopup = window.open("../subtask.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=1000");
   subtaskPopup.onbeforeunload = function () {
+    overlay_off();
     unmuteOnClose();
   };
 }
