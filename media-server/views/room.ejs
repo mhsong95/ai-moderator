@@ -99,12 +99,15 @@
       <!-- Bottom Navbar Buttons -->
       <nav id="left-navbar" class="navbar navbar-expand-lg fixed-bottom">
         <div id="media-control" class="container-fluid btn-toolbar d-grid gap-2 d-md-block" role="toolbar">
-          <!-- invite button -->
           <div class="btn-group me-2" role="group">
             <button id="meeting-timer" class="btn btn-outline-secondary btn-md shadow-none disabled">
               <i class="fas fa-hourglass-start"></i>
               남은 회의 시간:
             </button>
+            </button>
+          </div>
+          <!-- invite button -->
+          <div class="btn-group me-2" role="group">
             <button id="invite-btn" class="btn btn-outline-success btn-md shadow-none" onclick="copyJoinLink()" hidden>
               <i class="fas fa-users"></i>
               Invite
@@ -266,14 +269,14 @@
         <img src="/img/scrolldownbtn.png" style="width: 100px;" style="padding: 0px; margin: 0px;">
       </button>
 
-      <button id='subtask' type="button" disabled="disabled" onclick="openSubtask(); overlay_on();"
-        class="btn btn-danger btn-sm shadow-none"
-        style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
-        설문 풀기
-      </button>
-      <button type="button" onclick="openMap();" class="btn btn-warning btn-sm shadow-none"
-        style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
+      <button type="button" onclick="openMap();" class="btn btn-warning btn-md shadow-none fw-bold"
+        style="margin-top: 10px; margin-right: 10px; float: right;">
         지도 보기
+      </button>
+      <button id='subtask' type="button" disabled="disabled" onclick="openSubtask(); overlay_on();"
+        class="btn btn-danger btn-md shadow-none"
+        style="margin-top: 10px; margin-right: 10px; float: right;">
+        설문 풀기
       </button>
 
       <script>
