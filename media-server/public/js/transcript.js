@@ -55,28 +55,41 @@ const countDownTimer = function (id, date, word) {
     if (distDt < 0) { 
       clearInterval(timer); 
       // document.getElementById(id).textContent = '해당 이벤트가 종료 되었습니다!'; 
+      document.getElementById(id).textContent = word;
+      document.getElementById('subtask').setAttribute("disabled","disabled");
       return; } 
-      
-    var days = Math.floor(distDt / _day); 
-    var hours = Math.floor((distDt % _day) / _hour); 
+
     var minutes = Math.floor((distDt % _hour) / _minute); 
     var seconds = Math.floor((distDt % _minute) / _second); 
+        
+    if (id == "meeting-timer"){
+      document.getElementById(id).textContent = word +" ("+minutes + '분 '+ seconds + '초)'; 
+
+      if (distDt < 5*60*1000) {
+        document.getElementById(id).style.color = 'red'
+      }else if (distDt < 10*60*1000){
+        document.getElementById(id).style.color = 'blue'
+      }
+    }else {
+      if (distDt < 2*60*1000) {
+        document.getElementById(id).textContent = word +" ("+minutes + '분 '+ seconds + '초)'; 
+        document.getElementById(id).removeAttribute("disabled");
+      }
+    }
     
-    //document.getElementById(id).textContent = date.toLocaleString() + "까지 : "; 
-    document.getElementById(id).textContent = word +" ("+minutes + '분 '+ seconds + '초)'; 
   } 
   timer = setInterval(showRemaining, 1000); 
 }
 
 
 function onStartTimer(startTime){
-  console.log("onStartTimer!!", startTime);
   
   startTime = new Date(startTime);
   let usernumber = user_name.slice(user_name.length -1, user_name.length);
+  console.log("onStartTimer()", startTime, "USER-NUMBER", usernumber);
 
   if (! isNaN(usernumber)){ // PARTICIPANTS, NOT ADMIN
-    countDownTimer("subtask", startTime.getTime()+parseInt(usernumber)*60*1000, "SUB-TASK");  
+    countDownTimer("subtask", startTime.getTime()+parseInt(usernumber)*60*1000, "설문 풀기");  
   }
 
   countDownTimer("meeting-timer", startTime.getTime()+20*60*1000, "남은 회의 시간");
