@@ -463,6 +463,11 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   // Filtering with new message box
   displayUnitOfBox();
 
+  if(summaryArr[0]==''){
+    console.log("No summary:: Delete msg box: ", timestamp);
+    onRemoveMsg(timestamp);
+  }
+
   if (confArr[0] < 0.66) {
     messageBox.style.background = UnsureMessage_color;
   }
