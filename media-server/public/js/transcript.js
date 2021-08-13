@@ -136,6 +136,7 @@ function openSubtask() {
   subtaskPopup = window.open("../subtask.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=1000");
   subtaskPopup.onbeforeunload = function () {
     overlay_off();
+    unmuteOnClose();
   };
 }
 
@@ -630,7 +631,7 @@ function delKeyword(timestamp, delKeywordBtn) {
   if (state === "off") {
     delKeywordBtn.innerHTML = "완료";
     let keyList = keywordBox.childNodes;
-    for (let key of keyList) {
+    for (var key of keyList) {
       if (key.tagName === "P") {
         key.childNodes[1].style.display = "";
       }
@@ -643,7 +644,7 @@ function delKeyword(timestamp, delKeywordBtn) {
     delKeywordBtn.innerHTML = "";
     delKeywordBtn.append(delImage);
     let keyList = keywordBox.childNodes;
-    for (let key of keyList) {
+    for (var key of keyList) {
       if (key.tagName === "P") {
         key.childNodes[1].style.display = "none";
       }
@@ -866,11 +867,17 @@ function scrollDown() {
 
 // Type in new favorite keyword
 function addFavorite() {
+  let addFavBtn = document.getElementById("add-fav-keyword");
+  addFavBtn.style.backgroundColor = "lightgray";
+
   let keywordList = document.getElementById("favorites");
+  var keyInputSpan = document.createElement("span");
   var keyInput = document.createElement("input");
   keyInput.style.fontSize = "small";
-  keyInput.style.margin = "0px 5px 0px 0px";
-  keyInput.placeholder = "Enter new keyword";
+  keyInput.style.margin = "3px 0px 0px 5px";
+  keyInput.style.padding = "0px 3px 0px 3px";
+  keyInput.style.width = "100px";
+  keyInput.placeholder = "입력해주세요.";
 
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
@@ -889,23 +896,47 @@ function addFavorite() {
       myKeyword.style.display = "inline-block";
       checkBoxWithKey(keyInput.value);
       myKeyword.onclick = function () { searchFavorite(keyInput.value); };
-      keyInput.remove();
+      keyInputSpan.remove();
+      addFavBtn.style.backgroundColor = "transparent";
       keywordList.append(myKeyword);
     }
   });
-  keywordList.append(keyInput);
+  
+  let exBtn = document.createElement("button");
+  let exImg = document.createElement("i");
+  exImg.setAttribute("class", "fas fa-times-circle");
+  exImg.style.color = "gray";
+  exBtn.style.backgroundColor = "transparent";
+  exBtn.style.border = "none";
+  exBtn.style.margin = "0px 0px 0px 3px";
+  exBtn.style.padding = "0px 0px 0px 0px";
+  exImg.style.margin = "0px 0px 0px 0px";
+  exImg.style.padding = "0px 0px 0px 0px";
+  exBtn.append(exImg);
+  exBtn.onclick = function () {
+    this.parentNode.remove();
+    addFavBtn.style.backgroundColor = "transparent";
+  };
+
+  keyInputSpan.append(keyInput);
+  keyInputSpan.append(exBtn);
+  keywordList.append(keyInputSpan);
   keyInput.focus();
 }
 
 // Delete favorite keyword
 function delFavorite() {
   let keys = document.getElementsByClassName("favoriteKeyword");
-  let delKey = document.getElementById("del-keyword");
+  let delKey = document.getElementById("del-fav-keyword");
   if (delKey.getAttribute("state") === "off") {
     delKey.textContent = "완료";
+    delKey.style.backgroundColor = "lightgray";
     for (var key of keys) {
       key.style.backgroundColor = "red";
       key.onclick = function () {
+        var idx = favoriteKeywords.indexOf(key.textContent.slice(1));
+        favoriteKeywords.splice(idx, 1);
+        undoColorKeys(key.textContent.slice(1));
         this.remove();
         rc.addUserLog(Date.now(), "DELETE-FAVORITE/MSG=" + this.textContent.slice(1) + "\n");
       };
@@ -918,11 +949,26 @@ function delFavorite() {
     delKey.innerHTML = "";
     delKey.append(delImage);
     delKey.innerHTML += "삭제";
+    delKey.style.backgroundColor = "transparent";
     for (var key of keys) {
       key.style.backgroundColor = "#fed7bf";
       key.onclick = function () { searchFavorite(key.innerHTML.slice(1)); };
     }
     delKey.setAttribute("state", "off");
+  }
+}
+
+// Find previous boxes containing the deleted keyword & remove the colors
+function undoColorKeys(keyword) {
+  let messageBoxes = document.getElementsByClassName("message-box");
+  for (var i = 0; i < messageBoxes.length; i++) {
+    let messageBox = messageBoxes[i];
+    let keywordBox = messageBox.childNodes[2];
+    for (keywordBtn of keywordBox.childNodes) {
+      if ((keywordBtn.className === "keyword-btn") && (keywordBtn.textContent.slice(1) === keyword)) {
+        keywordBtn.style.backgroundColor = "transparent";
+      }
+    }
   }
 }
 

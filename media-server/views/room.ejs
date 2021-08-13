@@ -249,11 +249,11 @@
         </div>
         <div id="favorites">
           <p style="font-size: medium; display: inline-block; margin-bottom: 5px;"><strong>즐겨찾기: </strong></p>
-          <button state="off" type="button" id="del-keyword" onclick="delFavorite();"
-            style="float: right; font-size: smaller; margin-left: 5px; padding: 1px 3px 1px 3px; border-radius: 5px;"><i
+          <button state="off" type="button" id="del-fav-keyword" onclick="delFavorite();"
+            style="float: right; font-size: smaller; margin-left: 5px; padding: 1px 3px 1px 3px; border-radius: 5px; background-color: transparent;"><i
               class="fas fa-minus"></i> 삭제</button>
-          <button type="button" id="my-keyword" onclick="addFavorite();"
-            style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px;"><i
+          <button type="button" id="add-fav-keyword" onclick="addFavorite();"
+            style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px; background-color: transparent;"><i
               class="fas fa-plus"></i> 추가</button>
         </div>
       </div>
@@ -371,7 +371,8 @@
     </script>
     <script src="/js/conference.js"></script>
     <script src="/js/speech.js"></script>
-    <script type="module" src="/js/transcript.js"></script>
+    <script src="/js/transcript.js"></script>
+    <!-- <script type="module" src="/js/transcript.js"></script> -->
   </footer>
 
 </html>
