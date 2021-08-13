@@ -121,6 +121,7 @@ nav {
   width: 36px;
   background-color: rgba(0, 255, 0, 0.5);
   z-index: 10001;
+  display: hidden;
 }
 
 .control-overlay img {
