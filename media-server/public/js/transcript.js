@@ -85,11 +85,17 @@ const countDownTimer = function (id, date, word) {
 function onStartTimer(startTime){
   
   startTime = new Date(startTime);
-  let usernumber = user_name.slice(user_name.length -1, user_name.length);
+  let usernumber = parseInt(user_name.slice(user_name.length -1, user_name.length));
   console.log("onStartTimer()", startTime, "USER-NUMBER", usernumber);
 
   if (! isNaN(usernumber)){ // PARTICIPANTS, NOT ADMIN
-    countDownTimer("subtask", startTime.getTime()+parseInt(usernumber)*60*1000, "설문 풀기");  
+
+    let startsubtask;
+    if (usernumber <= 2){ startsubtask = usernumber; }
+    else if (usernumber <= 4) { startsubtask = 3;}
+    else if (usernumber <= 6) { startsubtask = 4;}
+    console.log("PARTICIPANTS", user_name, "SUB-TASK START AT", startsubtask);
+    countDownTimer("subtask", startTime.getTime()+startsubtask*60*1000, "설문 풀기");  
   }
 
   countDownTimer("meeting-timer", startTime.getTime()+20*60*1000, "남은 회의 시간");
@@ -463,6 +469,11 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   }
   // Filtering with new message box
   displayUnitOfBox();
+
+  if(summaryArr[0]==''){
+    console.log("No summary:: Delete msg box: ", timestamp);
+    onRemoveMsg(timestamp);
+  }
 
   if (confArr[0] < 0.66) {
     messageBox.style.background = UnsureMessage_color;
@@ -890,6 +901,9 @@ function displayUnitOfBox() {
 
 function scrollDown() {
   messages.scrollTop = messages.scrollHeight;
+
+  let scrolldownbutton = document.getElementById("scrollbtn");
+  scrolldownbutton.style.display = "none"
 }
 //////////////////////////////////////////////
 /************* Helper functions *************/
@@ -1242,7 +1256,11 @@ function pinBox(timestamp) {
     messageBox.setAttribute("pinned", "true");
     newPin.setAttribute("id", "pin" + stringTime);
     newPin.href = "#";
-    newPin.onclick = function () { rc.addUserLog(Date.now(), "CLICK-PIN/TIMESTAMP=" + stringTime + "\n"); messageBox.scrollIntoView(false); };
+    newPin.addEventListener('click', function () {
+      rc.addUserLog(Date.now(), "CLICK-PIN/TIMESTAMP=" + stringTime + "\n");
+      console.log("CLICK-PIN -> TIMESTAMP="+stringTime, messageBox, messageBox.offsetTop, messageBox.offsetHeight);
+      messageBox.scrollIntoView(false);
+    });
     newPin.style.padding = "2px 2px 2px 2px";
     newPin.style.backgroundColor = "#ffffff";
     newPin.style.border = "0.1px solid #d4d4d4";

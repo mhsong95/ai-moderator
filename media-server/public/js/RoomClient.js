@@ -744,7 +744,7 @@ class RoomClient {
     }
 
     updateSummary(editTimestamp, type, content, timestamp) {
-        console.log("rc.updateSummary")
+        console.log("rc.updateSummary: ", type);
         moderatorSocket.emit("updateSummary", editTimestamp, type, content, timestamp);
     }
 
