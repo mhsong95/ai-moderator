@@ -117,16 +117,13 @@ function unmuteOnClose() {
         btn.click();
       }
     }
-    if (!(startAudioBtn.disabled)) {
-      startAudioBtn.click();
-    }
   }
 }
 
 // Open popup for subtask
 function openSubtask() {
   // If user_name ends with [1, 2, 3], then use the mute function
-  if (['1', '2', '3'].includes(user_name.slice(-1))) {
+  if (['3', '5'].includes(user_name.slice(-1))) {
     let muteBtns = document.getElementsByClassName("control-overlay");
     for (var btn of muteBtns) {
       if (btn.getAttribute("muted") === "unmuted") {
