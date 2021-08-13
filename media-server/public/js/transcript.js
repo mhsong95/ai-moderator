@@ -245,6 +245,11 @@ function onUpdateParagraph(newParagraph, summaryArr, confArr, timestamp) {
   abSummaryEl.childNodes[0].append(confidenceElem);
   abSummaryEl.childNodes[1].textContent = summaryArr[0];
 
+  if (messageBox.getAttribute("pinned") === "true") {
+    let pinbox = document.getElementById("pin" + timestamp.toString());
+    pinbox.childNodes[1].textContent = content;
+  }
+
   // Update keyword
   let keywordBox = messageBox.childNodes[2];
   let keyList = keywordBox.childNodes;
@@ -388,6 +393,11 @@ function onUpdateSummary(type, content, timestamp) {
   summaryEl.childNodes[0].append(confidenceElem);
   summaryEl.childNodes[1].textContent = content;
 
+  if (messageBox.getAttribute("pinned") === "true") {
+    let pinbox = document.getElementById("pin" + timestamp.toString());
+    pinbox.childNodes[1].textContent = content;
+  }
+
   let keywordBox = messageBox.childNodes[2];
   let keyList = keywordBox.childNodes;
   for (var key of keyList) {
@@ -397,9 +407,6 @@ function onUpdateSummary(type, content, timestamp) {
       }
     }
   }
-
-
-
   addEditBtn(summaryEl.childNodes[1], type, timestamp);
 }
 
@@ -577,17 +584,35 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 // Helper function for adding new keywords
 function addKeyword(box, timestamp) {
   console.log("Add keyword for messagebox");
+  var keyInputSpan = document.createElement("span");
   var keyInput = document.createElement("input");
   keyInput.style.fontSize = "small";
   keyInput.style.marginLeft = "5px";
-  keyInput.placeholder = "Enter new keyword";
+  keyInput.placeholder = "입력해주세요/";
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
       rc.updateSummary(Date.now(), "addkey", keyInput.value, timestamp);
-      keyInput.remove();
+      keyInputSpan.remove();
     }
   });
-  box.append(keyInput);
+
+  let exBtn = document.createElement("button");
+  let exImg = document.createElement("i");
+  exImg.setAttribute("class", "fas fa-times-circle");
+  exImg.style.color = "gray";
+  exBtn.style.backgroundColor = "transparent";
+  exBtn.style.border = "none";
+  exBtn.style.margin = "0px 0px 0px 3px";
+  exBtn.style.padding = "0px 0px 0px 0px";
+  exImg.style.margin = "0px 0px 0px 0px";
+  exImg.style.padding = "0px 0px 0px 0px";
+  exBtn.append(exImg);
+  exBtn.onclick = function () {
+    this.parentNode.remove();
+  };
+  keyInputSpan.append(keyInput);
+  keyInputSpan.append(exBtn);
+  box.append(keyInputSpan);
   keyInput.focus();
 }
 
@@ -624,7 +649,7 @@ function addKeywordHelper(keyword, timestamp) {
 }
 
 function delKeyword(timestamp, delKeywordBtn) {
-  rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
+  // rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
   let messageBox = document.getElementById(timestamp.toString());
   let keywordBox = messageBox.childNodes[2];
   let state = delKeywordBtn.getAttribute("state");
@@ -660,16 +685,20 @@ function removeKeyword(keywordBtn, timestamp) {
 
 function removeKeywordHelper(keyword, timestamp) {
   let keywordBtn = document.getElementById(timestamp.toString() + '@@@' + keyword);
+  let msgKeyList = keywordMap[timestamp.toString()];
+  let idx = msgKeyList.indexOf(keyword);
+  msgKeyList.splice(idx, 1);
   keywordBtn.remove();
 }
 
 function addKeywordBlockHelper(timestamp, keyword) {
+  rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
+
   let msgBox = getMessageBox(timestamp);
   let keywordBox = msgBox.childNodes[2];
   let keywordBtn = document.createElement("p");
   keywordBtn.className = "keyword-btn";
   keywordBtn.setAttribute("id", timestamp.toString() + '@@@' + keyword);
-  // keywordBtn.innerHTML = "#" + keyword;
   keywordBtn.textContent = "#" + keyword;
   keywordBtn.style.display = "inline-block";
   keywordBtn.style.fontSize = "small";
@@ -1202,8 +1231,6 @@ function createMessageBox(name, timestamp) {
 
 // Pins message box
 function pinBox(timestamp) {
-
-
   let stringTime = timestamp.toString();
   let messageBox = document.getElementById(stringTime);
   let pinBtn = messageBox.childNodes[0].childNodes[2];
@@ -1215,19 +1242,26 @@ function pinBox(timestamp) {
     messageBox.setAttribute("pinned", "true");
     newPin.setAttribute("id", "pin" + stringTime);
     newPin.href = "#";
-    newPin.onclick = function () { rc.addUserLog(Date.now(), "CLICK-PIN/TIMESTAMP=" + stringTime + "\n"); messageBox.scrollIntoView(true); };
-    newPin.style.padding = "0px 2px 0px 2px";
+    newPin.onclick = function () { rc.addUserLog(Date.now(), "CLICK-PIN/TIMESTAMP=" + stringTime + "\n"); messageBox.scrollIntoView(false); };
+    newPin.style.padding = "2px 2px 2px 2px";
     newPin.style.backgroundColor = "#ffffff";
     newPin.style.border = "0.1px solid #d4d4d4";
     newPin.style.fontSize = "smaller";
     newPin.style.color = "#000000";
     newPin.style.float = "left";
-    newPin.style.width = "180px";
+    newPin.style.width = "250px";
     newPin.style.overflow = "auto";
     newPin.style.textAlign = "left";
     newPin.style.textDecoration = "none";
-    newPin.innerHTML = "[" + messageBox.childNodes[0].childNodes[0].childNodes[0].textContent + "] "
-      + messageBox.childNodes[1].childNodes[1].textContent.substr(0, 10) + "...";
+    newPin.style.overflowX = "hidden";
+    let name = document.createElement("strong");
+    name.textContent = "[" + messageBox.childNodes[0].childNodes[0].childNodes[0].textContent + "] ";
+    name.style.marginLeft = "5px";
+    let textCont = document.createElement("p");
+    textCont.textContent = messageBox.childNodes[1].childNodes[1].textContent.substr(0, 50) + " ...";
+    textCont.style.margin = "3px 5px 3px 5px";
+    newPin.append(name);
+    newPin.append(textCont);
     dropdownPin.append(newPin);
     pinBtn.childNodes[0].style.color = "#000000";
   }
