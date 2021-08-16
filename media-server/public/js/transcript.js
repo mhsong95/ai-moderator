@@ -975,11 +975,11 @@ function delFavorite() {
     for (var key of keys) {
       key.style.backgroundColor = "red";
       key.onclick = function () {
-        var idx = favoriteKeywords.indexOf(key.textContent.slice(1));
+        var idx = favoriteKeywords.indexOf(this.textContent.slice(1));
         favoriteKeywords.splice(idx, 1);
-        undoColorKeys(key.textContent.slice(1));
-        this.remove();
+        undoColorKeys(this.textContent.slice(1));
         rc.addUserLog(Date.now(), "DELETE-FAVORITE/MSG=" + this.textContent.slice(1) + "\n");
+        this.remove();
       };
     }
     delKey.setAttribute("state", "on");
@@ -993,7 +993,7 @@ function delFavorite() {
     delKey.style.backgroundColor = "transparent";
     for (var key of keys) {
       key.style.backgroundColor = "#fed7bf";
-      key.onclick = function () { searchFavorite(key.innerHTML.slice(1)); };
+      key.onclick = function () { searchFavorite(key.textContent.slice(1)); };
     }
     delKey.setAttribute("state", "off");
   }
@@ -1005,9 +1005,9 @@ function undoColorKeys(keyword) {
   for (var i = 0; i < messageBoxes.length; i++) {
     let messageBox = messageBoxes[i];
     let keywordBox = messageBox.childNodes[2];
-    for (keywordBtn of keywordBox.childNodes) {
-      if ((keywordBtn.className === "keyword-btn") && (keywordBtn.textContent.slice(1) === keyword)) {
-        keywordBtn.style.backgroundColor = "transparent";
+    for (var keyBtn of keywordBox.childNodes) {
+      if ((keyBtn.className === "keyword-btn") && (keyBtn.textContent.slice(1) === keyword)) {
+        keyBtn.style.backgroundColor = "transparent";
       }
     }
   }
@@ -1066,6 +1066,7 @@ function createSummaryBox(keyword) {
   summaryBox.append(abSummaryBox);
 
   messages.insertBefore(summaryBox, messages.firstChild);
+  summaryBox.scrollIntoView(true);
   return summaryBox;
 }
 
