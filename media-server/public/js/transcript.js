@@ -1049,7 +1049,7 @@ function createSummaryBox(keyword) {
   let title = document.createElement("div");
   let nametag = document.createElement("span");
   let strong = document.createElement("strong");
-  strong.textContent = "[ #" + keyword + " 에 관한 주요문장]";
+  strong.textContent = "[ #" + keyword + " 을 포함한 문장]";
   nametag.className = "nametag";
   nametag.append(strong);
   title.append(nametag);
