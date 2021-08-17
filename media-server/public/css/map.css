@@ -1,0 +1,48 @@
+.item {
+    border: 1px solid grey;
+}
+
+.clickBtn {
+    background-color: transparent;
+    font-size: medium;
+    font-weight: bold;
+    border-radius: 5px;
+    border: 1px solid grey;
+}
+
+.tab {
+    overflow: hidden;
+    /* border: 1px solid #ccc;
+    background-color: #f1f1f1;*/
+    width: fit-content;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.tab button {
+    /* background-color: inherit;
+    float: left;
+    border: 1px solid black;
+    outline: none; */
+    float: left;
+    cursor: pointer;
+    padding: 5px 10px 5px 10px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* .tab button:hover {
+    background-color: #ddd;
+}
+
+.tab button.active {
+    background-color: #ccc;
+} */
+
+.tabcontent {
+    display: grid;
+    width: 1000px;
+    height: fit-content;
+    grid-template-columns: 1fr 1fr 2fr;
+    grid-template-rows: 1fr;
+}
