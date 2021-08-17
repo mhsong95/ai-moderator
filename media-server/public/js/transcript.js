@@ -812,7 +812,9 @@ function finishEditContent(type, oldtxt, timestamp) {
         // update paragraph and summary on all users
         rc.updateParagraph(editTimestamp, paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(editTimestamp, 'FINISH-EDIT-PARAGRAPH' + '/TYPE=' + type + '/MSG=' + messageBox.childNodes[0].childNodes[0].textContent + '/TIMESTAMP=' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-PARAGRAPH' + '/TYPE=' + type + '/PARAGRAPH=' + messageBox.childNodes[0].childNodes[0].textContent 
+              + '/OLDPARAGRAPH=' + oldtxt 
+              + '/TIMESTAMP=' + timestamp + '\n');
       }
       else {
         // change icon
@@ -835,7 +837,9 @@ function finishEditContent(type, oldtxt, timestamp) {
 
       if (oldtxt != summary.textContent) {
         rc.updateSummary(editTimestamp, "absum", summary.textContent, timestamp)
-        rc.addUserLog(editTimestamp, 'FINISH-EDIT-SUMMARY' + "/TYPE=" + type + '/MSG=' + summary.textContent + '/TIMESTAMP=' + timestamp + "\n");
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-SUMMARY' + "/TYPE=" + type + '/SUMMARY=' + summary.textContent + 
+                '/OLDSUMMARY='+ oldtxt + 
+                '/TIMESTAMP=' + timestamp + "\n");
       }
       else {
         toEditableIcon(summary.lastChild)
