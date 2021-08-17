@@ -744,7 +744,7 @@ class RoomClient {
     }
 
     updateSummary(editTimestamp, type, content, timestamp) {
-        console.log("rc.updateSummary")
+        console.log("rc.updateSummary: ", type);
         moderatorSocket.emit("updateSummary", editTimestamp, type, content, timestamp);
     }
 
@@ -762,7 +762,7 @@ class RoomClient {
     startTimer() {
         console.log("Start timer")
         // 타이머 시작 기능
-        moderatorSocket.emit("startTimer", new Date());
+        moderatorSocket.emit("startTimer", new Date().getTime());
     }
 
     //////// GETTERS ////////

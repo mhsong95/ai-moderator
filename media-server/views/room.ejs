@@ -99,12 +99,15 @@
       <!-- Bottom Navbar Buttons -->
       <nav id="left-navbar" class="navbar navbar-expand-lg fixed-bottom">
         <div id="media-control" class="container-fluid btn-toolbar d-grid gap-2 d-md-block" role="toolbar">
-          <!-- invite button -->
           <div class="btn-group me-2" role="group">
             <button id="meeting-timer" class="btn btn-outline-secondary btn-md shadow-none disabled">
               <i class="fas fa-hourglass-start"></i>
               남은 회의 시간:
             </button>
+            </button>
+          </div>
+          <!-- invite button -->
+          <div class="btn-group me-2" role="group">
             <button id="invite-btn" class="btn btn-outline-success btn-md shadow-none" onclick="copyJoinLink()" hidden>
               <i class="fas fa-users"></i>
               Invite
@@ -193,7 +196,7 @@
           <button style="border-radius: 5px; font-size: smaller;" onclick="showPinBoxes();">
             <i class="fas fa-thumbtack"></i> 고정 <i class="fas fa-caret-down"></i>
           </button>
-          <div id="dropdownPin" style="display: none; position: absolute; right: 0" class="dropdown-pin"></div>
+          <div id="dropdownPin" style="display: none; position: absolute; right: 0; padding: 3px 3px 3px 3px; background-color: lightgray; border-radius: 5px;" class="dropdown-pin"></div>
         </div>
 
         <div style="margin-top: 1em; ">
@@ -249,11 +252,11 @@
         </div>
         <div id="favorites">
           <p style="font-size: medium; display: inline-block; margin-bottom: 5px;"><strong>즐겨찾기: </strong></p>
-          <button state="off" type="button" id="del-keyword" onclick="delFavorite();"
-            style="float: right; font-size: smaller; margin-left: 5px; padding: 1px 3px 1px 3px; border-radius: 5px;"><i
+          <button state="off" type="button" id="del-fav-keyword" onclick="delFavorite();"
+            style="float: right; font-size: smaller; margin-left: 5px; padding: 1px 3px 1px 3px; border-radius: 5px; background-color: transparent;"><i
               class="fas fa-minus"></i> 삭제</button>
-          <button type="button" id="my-keyword" onclick="addFavorite();"
-            style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px;"><i
+          <button type="button" id="add-fav-keyword" onclick="addFavorite();"
+            style="float: right; font-size: smaller; padding: 1px 3px 1px 3px; border-radius: 5px; background-color: transparent;"><i
               class="fas fa-plus"></i> 추가</button>
         </div>
       </div>
@@ -266,14 +269,14 @@
         <img src="/img/scrolldownbtn.png" style="width: 100px;" style="padding: 0px; margin: 0px;">
       </button>
 
-      <button id='subtask' type="button" onclick="openSubtask(); overlay_on();"
-        class="btn btn-danger btn-sm shadow-none"
-        style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
-        설문 풀기
-      </button>
-      <button type="button" onclick="openMap();" class="btn btn-warning btn-sm shadow-none"
-        style="font-size: small; margin-top: 10px; margin-right: 10px; float: right; border-radius: 5px;">
+      <button type="button" onclick="openMap();" class="btn btn-warning btn-md shadow-none fw-bold"
+        style="margin-top: 10px; margin-right: 10px; float: right;">
         지도 보기
+      </button>
+      <button id='subtask' type="button" disabled="disabled" onclick="openSubtask(); overlay_on();"
+        class="btn btn-danger btn-md shadow-none"
+        style="margin-top: 10px; margin-right: 10px; float: right;">
+        설문 풀기
       </button>
 
       <script>
@@ -372,6 +375,7 @@
     <script src="/js/conference.js"></script>
     <script src="/js/speech.js"></script>
     <script src="/js/transcript.js"></script>
+    <!-- <script type="module" src="/js/transcript.js"></script> -->
   </footer>
 
 </html>
