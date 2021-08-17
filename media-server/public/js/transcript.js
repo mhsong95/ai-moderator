@@ -597,7 +597,7 @@ function addKeyword(box, timestamp) {
   keyInput.placeholder = "입력해주세요/";
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
-      rc.addUserLog(Date.now(), "ADD-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
+      rc.addUserLog(Date.now(), "ADD-KEYWORD/MSG=" + keyInput.value + "/TIMESTAMP=" + timestamp + "\n");
       rc.updateSummary(Date.now(), "addkey", keyInput.value, timestamp);
       keyInputSpan.remove();
     }
