@@ -701,8 +701,6 @@ function removeKeywordHelper(keyword, timestamp) {
 }
 
 function addKeywordBlockHelper(timestamp, keyword) {
-  rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
-
   let msgBox = getMessageBox(timestamp);
   let keywordBox = msgBox.childNodes[2];
   let keywordBtn = document.createElement("p");
