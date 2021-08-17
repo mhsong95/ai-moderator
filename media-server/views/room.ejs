@@ -196,12 +196,15 @@
           <button style="border-radius: 5px; font-size: smaller;" onclick="showPinBoxes();">
             <i class="fas fa-thumbtack"></i> 고정 <i class="fas fa-caret-down"></i>
           </button>
-          <div id="dropdownPin" style="display: none; position: absolute; right: 0; padding: 3px 3px 3px 3px; background-color: lightgray; border-radius: 5px;" class="dropdown-pin"></div>
+          <div id="dropdownPin"
+            style="display: none; position: absolute; right: 0; padding: 3px 3px 3px 3px; background-color: lightgray; border-radius: 5px;"
+            class="dropdown-pin"></div>
         </div>
 
         <div style="margin-top: 1em; ">
-          <input type="text" id="search-word" placeholder="SEARCH" onkeydown="checkEnter(event);">
-          <button type="button" onclick="displayUnitOfBox(); rc.addUserLog(Date.now(), 'CLICK-SEARCH-BUTTON\n');"
+          <input type="text" id="search-word" placeholder="SEARCH" onkeypress="checkEnter(event);">
+          <button type="button"
+            onclick="addSearchLog(); displayUnitOfBox(); rc.addUserLog(Date.now(), 'CLICK-SEARCH-BUTTON\n');"
             width="50px"
             style="padding: 3.5px; background-color:yellowgreen; margin: 2px; border: none; border-radius: 5px;">
             <!--<img src="/img/search.png" width="30px" style="padding: 0px; margin: 0px;">-->
@@ -274,8 +277,7 @@
         지도 보기
       </button>
       <button id='subtask' type="button" disabled="disabled" onclick="openSubtask(); overlay_on();"
-        class="btn btn-danger btn-md shadow-none"
-        style="margin-top: 10px; margin-right: 10px; float: right;">
+        class="btn btn-danger btn-md shadow-none" style="margin-top: 10px; margin-right: 10px; float: right;">
         설문 풀기
       </button>
 
@@ -345,7 +347,7 @@
             let btn2 = document.getElementById("map-2");
             btn1.classList.remove('btn-outline-dark');
             btn1.classList.add('btn-dark');
-            
+
             btn2.classList.remove('btn-dark');
             btn2.classList.add('btn-outline-dark');
           }
@@ -356,7 +358,7 @@
             let btn2 = document.getElementById("map-2");
             btn2.classList.remove('btn-outline-dark');
             btn2.classList.add('btn-dark');
-          
+
             btn1.classList.remove('btn-dark');
             btn1.classList.add('btn-outline-dark');
           }
