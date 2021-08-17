@@ -362,17 +362,14 @@ function onUpdateSummary(type, content, timestamp) {
   // Use updateSummary function for pin, addkey, delkey
   if (type === "pin") {
     pinBox(timestamp);
-    // rc.addUserLog(Date.now(), "PIN-BOX");
     return;
   }
   else if (type === "addkey") {
     addKeywordHelper(content, timestamp);
-    // rc.addUserLog(Date.now(), "ADD-KEYWORD-MSGBOX");
     return;
   }
   else if (type === "delkey") {
     removeKeywordHelper(content, timestamp);
-    // rc.addUserLog(Date.now(), "DEL-KEYWORD-MSGBOX");
     return;
   }
 
@@ -818,7 +815,9 @@ function finishEditContent(type, oldtxt, timestamp) {
         // update paragraph and summary on all users
         rc.updateParagraph(editTimestamp, paragraph.textContent, timestamp, messageBox.childNodes[0].childNodes[0].textContent);
         paragraph.style.backgroundColor = "#f2f2f2";
-        rc.addUserLog(editTimestamp, 'FINISH-EDIT-PARAGRAPH' + '/TYPE=' + type + '/MSG=' + messageBox.childNodes[0].childNodes[0].textContent + '/TIMESTAMP=' + timestamp + '\n');
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-PARAGRAPH' + '/TYPE=' + type + '/PARAGRAPH=' + messageBox.childNodes[0].childNodes[0].textContent 
+              + '/OLDPARAGRAPH=' + oldtxt 
+              + '/TIMESTAMP=' + timestamp + '\n');
       }
       else {
         // change icon
@@ -841,7 +840,9 @@ function finishEditContent(type, oldtxt, timestamp) {
 
       if (oldtxt != summary.textContent) {
         rc.updateSummary(editTimestamp, "absum", summary.textContent, timestamp)
-        rc.addUserLog(editTimestamp, 'FINISH-EDIT-SUMMARY' + "/TYPE=" + type + '/MSG=' + summary.textContent + '/TIMESTAMP=' + timestamp + "\n");
+        rc.addUserLog(editTimestamp, 'FINISH-EDIT-SUMMARY' + "/TYPE=" + type + '/SUMMARY=' + summary.textContent + 
+                '/OLDSUMMARY='+ oldtxt + 
+                '/TIMESTAMP=' + timestamp + "\n");
       }
       else {
         toEditableIcon(summary.lastChild)
@@ -1175,7 +1176,11 @@ function createMessageBox(name, timestamp) {
   pinBtn.style.float = "right";
   pinBtn.style.display = "inline-block";
   messageBox.setAttribute("pinned", "false");
-  pinBtn.onclick = function () { rc.updateSummary(Date.now(), "pin", "pinBox", timestamp); };
+  pinBtn.onclick = function () { 
+    rc.updateSummary(Date.now(), "pin", "pinBox", timestamp); 
+    if (messageBox.getAttribute("pinned") === "false"){ rc.addUserLog(Date.now(), "PIN-BOX/TIMESTAMP=" +timestamp.toString()+ "\n");}
+    else {rc.addUserLog(Date.now(), "UNPIN-BOX/TIMESTAMP=" + timestamp.toString() + "\n");}
+  };
 
   title.append(pinBtn);
   messageBox.append(title);
@@ -1254,7 +1259,6 @@ function pinBox(timestamp) {
   let newPin = document.createElement("a");
 
   if (messageBox.getAttribute("pinned") === "false") {
-    rc.addUserLog(Date.now(), "PIN-BOX/TIMESTAMP=" + stringTime + "\n");
     messageBox.setAttribute("pinned", "true");
     newPin.setAttribute("id", "pin" + stringTime);
     newPin.href = "#";
@@ -1286,7 +1290,6 @@ function pinBox(timestamp) {
     pinBtn.childNodes[0].style.color = "#000000";
   }
   else {
-    rc.addUserLog(Date.now(), "UNPIN-BOX/TIMESTAMP=" + stringTime + "\n");
     messageBox.setAttribute("pinned", "false");
     let delPin = document.getElementById("pin" + stringTime);
     delPin.remove();
