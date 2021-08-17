@@ -600,6 +600,7 @@ function addKeyword(box, timestamp) {
   keyInput.placeholder = "입력해주세요/";
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
+      rc.addUserLog(Date.now(), "ADD-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
       rc.updateSummary(Date.now(), "addkey", keyInput.value, timestamp);
       keyInputSpan.remove();
     }
@@ -627,7 +628,6 @@ function addKeyword(box, timestamp) {
 
 // Helper function for adding a new keyword in message box
 function addKeywordHelper(keyword, timestamp) {
-  rc.addUserLog(Date.now(), "ADD-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
   let messageBox = document.getElementById(timestamp.toString());
   let keywordBox = messageBox.childNodes[2];
   var newKeyword = document.createElement("p");
@@ -639,7 +639,10 @@ function addKeywordHelper(keyword, timestamp) {
   delBtn.style.backgroundColor = "transparent";
   delBtn.style.border = 0;
   delBtn.style.display = "none";
-  delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp); };
+  delBtn.onclick = function () {
+    rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
+    removeKeyword(this.parentNode, timestamp);
+  };
   newKeyword.append(delBtn);
   newKeyword.style.display = "inline-block";
   newKeyword.style.padding = "0px 3px 0px 3px";
@@ -658,7 +661,6 @@ function addKeywordHelper(keyword, timestamp) {
 }
 
 function delKeyword(timestamp, delKeywordBtn) {
-  // rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
   let messageBox = document.getElementById(timestamp.toString());
   let keywordBox = messageBox.childNodes[2];
   let state = delKeywordBtn.getAttribute("state");
@@ -716,7 +718,10 @@ function addKeywordBlockHelper(timestamp, keyword) {
   delBtn.className = "fas fa-times";
   delBtn.style.backgroundColor = "transparent";
   delBtn.style.border = 0;
-  delBtn.onclick = function () { removeKeyword(this.parentNode, timestamp) };
+  delBtn.onclick = function () { 
+    rc.addUserLog(Date.now(), "DELETE-KEYWORD/MSG=" + keyword + "/TIMESTAMP=" + timestamp + "\n");
+    removeKeyword(this.parentNode, timestamp)
+  };
   delBtn.style.display = "none";
   keywordBtn.append(delBtn);
 
