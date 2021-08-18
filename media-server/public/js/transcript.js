@@ -294,7 +294,7 @@ function onRestore(past_paragraphs) {
 
     let datas = past_paragraphs[timestamp];
 
-    // Restore pase paragraphs
+    // Restore past paragraphs
     messageBox = createMessageBox(datas["speakerName"], timestamp);
 
     let transcript, summaryArr, confArr, name, hasSummary;
@@ -364,14 +364,14 @@ function onUpdateSummary(type, content, timestamp) {
     pinBox(timestamp);
     return;
   }
-  else if (type === "addkey") {
-    addKeywordHelper(content, timestamp);
-    return;
-  }
-  else if (type === "delkey") {
-    removeKeywordHelper(content, timestamp);
-    return;
-  }
+  // else if (type === "addkey") {
+  //   addKeywordHelper(content, timestamp);
+  //   return;
+  // }
+  // else if (type === "delkey") {
+  //   removeKeywordHelper(content, timestamp);
+  //   return;
+  // }
 
   let messageBox = document.getElementById(timestamp.toString());
   let summaryEl = null;
@@ -517,6 +517,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
     addKeywordBlockHelper(timestamp, keyword);
   }
 
+  /*
   // Add button for deleting keywords
   var delKeywordBtn = document.createElement("button");
   var delImage = document.createElement("i");
@@ -543,6 +544,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
   addKeywordBtn.onclick = function () { addKeyword(keywordBox, timestamp); };
   addKeywordBtn.append(addImage);
   keywordBox.append(addKeywordBtn);
+  */
 
   // Add buttons for trending keywords
   var trendingList = summaryArr[3].split("@@@@@CD@@@@@AX@@@@@");
@@ -587,6 +589,7 @@ function onSummary(summaryArr, confArr, name, timestamp) {
 
 }
 
+/*
 // Helper function for adding new keywords
 function addKeyword(box, timestamp) {
   console.log("Add keyword for messagebox");
@@ -594,7 +597,7 @@ function addKeyword(box, timestamp) {
   var keyInput = document.createElement("input");
   keyInput.style.fontSize = "small";
   keyInput.style.marginLeft = "5px";
-  keyInput.placeholder = "입력해주세요/";
+  keyInput.placeholder = "입력해주세요";
   keyInput.addEventListener('keypress', async e => {
     if (e.code === 'Enter') {
       rc.addUserLog(Date.now(), "ADD-KEYWORD/MSG=" + keyInput.value + "/TIMESTAMP=" + timestamp + "\n");
@@ -698,6 +701,7 @@ function removeKeywordHelper(keyword, timestamp) {
   msgKeyList.splice(idx, 1);
   keywordBtn.remove();
 }
+*/
 
 function addKeywordBlockHelper(timestamp, keyword) {
   let msgBox = getMessageBox(timestamp);
