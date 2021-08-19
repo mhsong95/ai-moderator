@@ -37,6 +37,7 @@ var favoriteKeywords = [];
 let scrollPos = 0;
 var isScrolling;
 var subtaskPopup;
+var mapPopup;
 var subtaskTryCnt = 1;
 let tempAnswers = [];
 
@@ -105,7 +106,10 @@ function onStartTimer(startTime) {
 // Open popup for map
 function openMap() {
   rc.addUserLog(Date.now(), "OPEN-MAP\n");
-  window.open("../map.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=900");
+  mapPopup = window.open("../map.html", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100,width=1200,height=900");
+  mapPopup.onbeforeunload = function () {
+    overlay_off();
+  };
 }
 
 // Unmute when closing subtask popup

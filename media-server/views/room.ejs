@@ -27,12 +27,13 @@
 
   <body>
     <div id="overlay">
-      <button id="text" class="btn btn-primary btn-lg shadow-none disabled" style="margin: 0;
+      <button id="text" class="btn btn-primary btn-lg shadow-none" style="margin: 0;
               position: absolute;
               top: 50%;
               left: 50%;
               -ms-transform: translate(-50%, -50%);
-              transform: translate(-50%, -50%);">설문을 끝내고 돌아와 주세요.</button>
+              transform: translate(-50%, -50%);" onclick="overlay_off()">회의록을 보시려면 팝업 창을 닫아 주세요! (해결되지 않으면 버튼을 눌러
+        주세요)</button>
     </div>
 
     <!-- Left Layout -->
@@ -272,7 +273,7 @@
         <img src="/img/scrolldownbtn.png" style="width: 100px;" style="padding: 0px; margin: 0px;">
       </button>
 
-      <button type="button" onclick="openMap();" class="btn btn-warning btn-md shadow-none fw-bold"
+      <button type="button" onclick="openMap(); overlay_on();" class="btn btn-warning btn-md shadow-none fw-bold"
         style="margin-top: 10px; margin-right: 10px; float: right;">
         지도 보기
       </button>

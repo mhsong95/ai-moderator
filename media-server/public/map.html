@@ -4,7 +4,8 @@
     <head>
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous" />
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
@@ -12,152 +13,197 @@
         <link rel="stylesheet" href="/css/map.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
     </head>
+
     <body>
         <p id="title" style="margin: 20px 20px 20px 20px; font-size: x-large; font-weight: bold;">[ 검색창 ]</p>
 
         <div class="tab">
-            <button id="btn1" class="tablinks btn btn-dark btn-md rounded-top shadow-none" onclick="showInfo(this.textContent);">1일차 (명동)</button>
-            <button id="btn2" class="tablinks btn btn-outline-dark btn-md rounded-top shadow-none" onclick="showInfo(this.textContent);">2일차 (강남)</button>
+            <button id="btn1" class="tablinks btn btn-dark btn-md rounded-top shadow-none"
+                onclick="showInfo(this.textContent);">1일차 (명동)</button>
+            <button id="btn2" class="tablinks btn btn-outline-dark btn-md rounded-top shadow-none"
+                onclick="showInfo(this.textContent);">2일차 (강남)</button>
         </div>
         <div id="search-view" class="tabcontent">
 
             <div id="foodSearch" style="margin: 0px 0px 0px 10px; float: left; width: 100%;">
-                <div display="inline-block" style="float: left; height: 1400px; background-color: #cff7ff; border: 1px solid grey;">
+                <div display="inline-block"
+                    style="float: left; height: 1400px; background-color: #cff7ff; border: 1px solid grey;">
                     <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
                         <p style="margin-top: 10px;">[ 음식점 ] </p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">1. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">애성회관</button></span> (한우곰탕)</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 월-금 10:00~21:00<br>토요일 10:00~20:00<br>가격: ₩ 8,000 ~ ₩ 60,000</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">1. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">애성회관</button></span> (한우곰탕)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 월-금 10:00~21:00<br>토요일 10:00~20:00<br>가격:
+                            ₩ 8,000 ~ ₩ 60,000</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">2. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">대성골뱅이치킨</button></span> (치킨)</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 14:30~22:00<br>가격: ₩ 19,000 ~ ₩ 27,000</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">2. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">대성골뱅이치킨</button></span> (치킨)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 14:30~22:00<br>가격: ₩ 19,000 ~ ₩ 27,000
+                        </p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">3. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">남도식당</button></span> (추어탕)</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">3. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">남도식당</button></span> (추어탕)</p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~20:30<br>가격: ₩ 10,000</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">4. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">호수집</button></span> (닭볶음탕)</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:00<br>(Break time 14:00~17:00)<br>가격: ₩ 9,000 ~ ₩ 23,000 </p>
+                        <p style="margin-left: 5px; margin-top: 5px;">4. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">호수집</button></span> (닭볶음탕)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:00<br>(Break time
+                            14:00~17:00)<br>가격: ₩ 9,000 ~ ₩ 23,000 </p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">5. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">무궁화</button></span> (한정식 코스)</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:00<br>(Break time 14:30~18:00)<br>가격: ₩ 140,000</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">5. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">무궁화</button></span> (한정식 코스)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:00<br>(Break time
+                            14:30~18:00)<br>가격: ₩ 140,000</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">6. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">루브리카</button></span> (양식 레스토랑)</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:30<br>(Break time 14:30~18:00)<br>가격: ₩ 10,000</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">6. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">루브리카</button></span> (양식 레스토랑)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:30~22:30<br>(Break time
+                            14:30~18:00)<br>가격: ₩ 10,000</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">7. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">황소막창구이</button></span> (소막창)</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 05:30~22:30<br>(토요일 휴무)<br>가격: ₩ 13,000 ~ ₩ 16,000</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">7. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">황소막창구이</button></span> (소막창)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 05:30~22:30<br>(토요일 휴무)<br>가격: ₩ 13,000 ~
+                            ₩ 16,000</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">8. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">고수레</button></span> (차돌 온면)</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~22:00<br>(Break time 15:00~17:00)<br>가격: ₩ 9,000 ~ ₩ 11,000</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">8. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">고수레</button></span> (차돌 온면)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 11:00~22:00<br>(Break time
+                            15:00~17:00)<br>가격: ₩ 9,000 ~ ₩ 11,000</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">9. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">더백푸드트럭</button></span> (수제버거))</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~22:00<br>(Break time 14:30~18:00)<br>가격: ₩ 8,800 ~ ₩ 98,000</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">9. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">더백푸드트럭</button></span> (수제버거))</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 10:30~22:00<br>(Break time
+                            14:30~18:00)<br>가격: ₩ 8,800 ~ ₩ 98,000</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">10. <span><button type="button" class="clickBtn" onclick="seePage(this.textContent);">제로컴플렉스</button></span> (프렌치 레스토랑)</p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 12:00~23:00<br>(Break time 15:00~18:00)<br>가격: ₩ 75,000</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">10. <span><button type="button" class="clickBtn"
+                                    onclick="seePage(this.textContent);">제로컴플렉스</button></span> (프렌치 레스토랑)</p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">영업시간: 12:00~23:00<br>(Break time
+                            15:00~18:00)<br>가격: ₩ 75,000</p>
                     </div>
                 </div>
             </div>
 
             <div id="placeSearch" display="inline-block" style="margin: 0px 0px 0px 0px; float: left; width: 100%;">
-                <div display="inline-block" style="float:left; height: 1400px; border: 1px solid grey; background-color: #fbf0fd;">
+                <div display="inline-block"
+                    style="float:left; height: 1400px; border: 1px solid grey; background-color: #fbf0fd;">
                     <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
                         <p style="margin-top: 10px;">[ 관광지 ]</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">1. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">서울역사박물관</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px;">1. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">서울역사박물관</button></span></p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 매일 09:00~18:00</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">2. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">덕수궁</button></span></p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">입장료 1천원<br>운영시간: 매일 09:00~18:00<br>(월요일 휴궁)<br>상설행사: 11:00, 14:00, 15:30</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">2. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">덕수궁</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">입장료 1천원<br>운영시간: 매일 09:00~18:00<br>(월요일
+                            휴궁)<br>상설행사: 11:00, 14:00, 15:30</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">3. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">서울시립미술관</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px;">3. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">서울시립미술관</button></span></p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 평일 10:00~20:00<br>/ 주말 10:00~19:00</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">4. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">서울광장</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px;">4. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">서울광장</button></span></p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 평일 09:00~21:00<br>/ 주말 09:00~18:00</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px;">5. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">명동거리</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px;">5. <span><button
+                                    class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">명동거리</button></span></p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">6. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">서울글로벌문화체험센터</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px;">6. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">서울글로벌문화체험센터</button></span></p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 10:00~19:00 (월, 공휴일 휴관)</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-bottom: 10px; margin-top: 5px;">7. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">명동대성당</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 10px; margin-top: 5px;">7. <span><button
+                                    class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">명동대성당</button></span></p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">8. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">남산골한옥마을</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px;">8. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">남산골한옥마을</button></span></p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 09:00~20:00<br>/ 4~10월 09:00~21:00</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">9. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">숭례문</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px;">9. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">숭례문</button></span></p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 09:00~18:00<br>/ 6~8월 09:00~18:30</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">10. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">남대문시장</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px;">10. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">남대문시장</button></span></p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 00:00~23:00 (일 휴무)</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">11. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">문화역서울 284</button></span></p>
+                        <p style="margin-left: 5px; margin-top: 5px;">11. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">문화역서울 284</button></span></p>
                         <p style="margin-left: 5px; margin-bottom: 5px;">운영시간: 10:00~19:00<br>(수 3시간 연장)</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">12. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">남산공원</button></span></p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">케이블카 성인: 왕복 9500원, 편도 7000원<br>운영시간: 10:00~23:00</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">12. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">남산공원</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">케이블카 성인: 왕복 9500원, 편도 7000원<br>운영시간:
+                            10:00~23:00</p>
                     </div>
                     <div class="item">
-                        <p style="margin-left: 5px; margin-top: 5px;">13. <span><button class="clickBtn" type="button" onclick="seePage(this.textContent);">남산서울타워</button></span></p>
-                        <p style="margin-left: 5px; margin-bottom: 5px;">전망대 입장료: 대인 16,000원<br>운영시간: 10:00~23:00 / 토 10:00~24:00</p>
+                        <p style="margin-left: 5px; margin-top: 5px;">13. <span><button class="clickBtn" type="button"
+                                    onclick="seePage(this.textContent);">남산서울타워</button></span></p>
+                        <p style="margin-left: 5px; margin-bottom: 5px;">전망대 입장료: 대인 16,000원<br>운영시간: 10:00~23:00 / 토
+                            10:00~24:00</p>
                     </div>
                 </div>
             </div>
 
-            <iframe id="iframe-1" style="width:100%; height: 1400px; border: 2px solid black; border-radius: 5px; margin: 0px 0px 0px 0px;" src="https://pcmap.place.naver.com/restaurant/32770171/menu/list" title="homepage"></iframe>    
+            <iframe id="iframe-1"
+                style="width:100%; height: 1400px; border: 2px solid black; border-radius: 5px; margin: 0px 0px 0px 0px;"
+                src="https://pcmap.place.naver.com/restaurant/32770171/menu/list" title="homepage"></iframe>
 
         </div>
 
         <script>
-            let placeList = { "애성회관": "https://pcmap.place.naver.com/restaurant/32770171/menu/list", "대성골뱅이치킨": "https://pcmap.place.naver.com/restaurant/13475829/menu/list",
-                            "남도식당": "https://pcmap.place.naver.com/restaurant/13078828/menu/list", "호수집": "https://pcmap.place.naver.com/restaurant/37581971/menu/list",
-                            "무궁화": "https://pcmap.place.naver.com/restaurant/11715781/menu/list", "루브리카": "https://pcmap.place.naver.com/restaurant/11716462/menu/list",
-                            "황소막창구이": "https://pcmap.place.naver.com/restaurant/1799022210/menu/list", "고수레": "https://blog.naver.com/stepartnet/222182634890",
-                            "더백푸드트럭": "https://m.store.naver.com/restaurants/36473368/tabs/menus/yogiyo/list?more=false&entry=bmp&pcmap=1", "제로컴플렉스": "https://pcmap.place.naver.com/restaurant/32762172/menu/list",
-                            "서울역사박물관": "https://pcmap.place.naver.com/place/11784657/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559504223",  "덕수궁": "https://pcmap.place.naver.com/place/11571730/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559886025",
-                            "서울시립미술관": "https://pcmap.place.naver.com/place/12125053/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559904231", "서울광장": "https://pcmap.place.naver.com/place/11796247/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559918699",
-                            "명동거리": "https://pcmap.place.naver.com/place/18694135/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559932572", "서울글로벌문화체험센터": "https://pcmap.place.naver.com/place/13269795/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559953869",
-                            "명동대성당": "https://pcmap.place.naver.com/place/11781308/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559976665", "남산골한옥마을": "https://pcmap.place.naver.com/place/13198659/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559994994",
-                            "숭례문": "https://pcmap.place.naver.com/place/13491509/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560012467", "남대문시장": "https://pcmap.place.naver.com/place/13304144/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560027041",
-                            "문화역서울 284": "https://pcmap.place.naver.com/place/20757885/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560041332", "남산공원": "https://pcmap.place.naver.com/place/13087823/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560058862",
-                            "남산서울타워": "https://pcmap.place.naver.com/place/38345004/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560077172", "미즈컨테이너": "https://pcmap.place.naver.com/restaurant/975834908/menu/list",
-                            "도림": "https://pcmap.place.naver.com/restaurant/18456560/menu/list", "을밀대": "https://pcmap.place.naver.com/restaurant/1676700042/menu/list",
-                            "한아람정육식당": "https://pcmap.place.naver.com/restaurant/248397751/menu/list", "회진포 막국수": "https://pcmap.place.naver.com/restaurant/19873545/menu/list",
-                            "라미옥": "https://pcmap.place.naver.com/restaurant/1142435232/menu/list", "산들해": "https://pcmap.place.naver.com/restaurant/19769266/menu/list",
-                            "하동관": "https://pcmap.place.naver.com/restaurant/36112273/menu/list", "광화문미진": "https://m.booking.naver.com/order/bizes/418334/items/3604875?theme=place&service-target=map-pc&refererCode=menutab&area=bmp",
-                            "고봉삼계탕": "https://pcmap.place.naver.com/restaurant/1029380546/menu/list", "잠실한강공원": "https://pcmap.place.naver.com/place/13416876/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571322086",
-                            "잠실종합운동장": "https://pcmap.place.naver.com/place/11622958/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571357621", "석촌호수": "https://pcmap.place.naver.com/place/13491520/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571375019",
-                            "롯데월드/롯데월드타워/롯데몰": "https://pcmap.place.naver.com/place/35306752/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571399857", "롯데월드 민속박물관": "https://pcmap.place.naver.com/place/11620605/home?entry=bmp&from=map&fromPanelNum=2&ts=1628574370830",
-                            "롯데월드": "https://pcmap.place.naver.com/place/11583235/home?entry=bmp&from=map&fromPanelNum=2&ts=1628840588484", "대중음악박물관": "https://pcmap.place.naver.com/restaurant/1428853437/home?entry=bmp&from=map&fromPanelNum=2&ts=1628840622398",
-                            "몽촌토성": "https://pcmap.place.naver.com/place/13491675/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571426018", "올림픽공원": "https://pcmap.place.naver.com/place/12268494/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571442713",
-                            "몽촌역사관": "https://pcmap.place.naver.com/place/11620616/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571459098", "대중음악전시관": "https://pcmap.place.naver.com/restaurant/1428853437/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571777899",
-                            "코엑스": "https://pcmap.place.naver.com/place/11576171/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571811473", "코엑스 아쿠아리움": "https://pcmap.place.naver.com/place/11606845/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571834357",
-                            "스타필드 코엑스몰": "https://pcmap.place.naver.com/place/12116304/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571919797", "봉은사": "https://pcmap.place.naver.com/place/11664007/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571853351",
-                            "한국문화의집": "https://pcmap.place.naver.com/place/1102669403/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571885214", "화진포 막국수": "https://pcmap.place.naver.com/restaurant/19873545/menu/list"
-                            };
+            let placeList = {
+                "애성회관": "https://pcmap.place.naver.com/restaurant/32770171/menu/list", "대성골뱅이치킨": "https://pcmap.place.naver.com/restaurant/13475829/menu/list",
+                "남도식당": "https://pcmap.place.naver.com/restaurant/13078828/menu/list", "호수집": "https://pcmap.place.naver.com/restaurant/37581971/menu/list",
+                "무궁화": "https://pcmap.place.naver.com/restaurant/11715781/menu/list", "루브리카": "https://pcmap.place.naver.com/restaurant/11716462/menu/list",
+                "황소막창구이": "https://pcmap.place.naver.com/restaurant/1799022210/menu/list", "고수레": "https://blog.naver.com/stepartnet/222182634890",
+                "더백푸드트럭": "https://m.store.naver.com/restaurants/36473368/tabs/menus/yogiyo/list?more=false&entry=bmp&pcmap=1", "제로컴플렉스": "https://pcmap.place.naver.com/restaurant/32762172/menu/list",
+                "서울역사박물관": "https://pcmap.place.naver.com/place/11784657/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559504223", "덕수궁": "https://pcmap.place.naver.com/place/11571730/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559886025",
+                "서울시립미술관": "https://pcmap.place.naver.com/place/12125053/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559904231", "서울광장": "https://pcmap.place.naver.com/place/11796247/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559918699",
+                "명동거리": "https://pcmap.place.naver.com/place/18694135/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559932572", "서울글로벌문화체험센터": "https://pcmap.place.naver.com/place/13269795/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559953869",
+                "명동대성당": "https://pcmap.place.naver.com/place/11781308/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559976665", "남산골한옥마을": "https://pcmap.place.naver.com/place/13198659/home?entry=bmp&from=map&fromPanelNum=2&ts=1628559994994",
+                "숭례문": "https://pcmap.place.naver.com/place/13491509/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560012467", "남대문시장": "https://pcmap.place.naver.com/place/13304144/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560027041",
+                "문화역서울 284": "https://pcmap.place.naver.com/place/20757885/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560041332", "남산공원": "https://pcmap.place.naver.com/place/13087823/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560058862",
+                "남산서울타워": "https://pcmap.place.naver.com/place/38345004/home?entry=bmp&from=map&fromPanelNum=2&ts=1628560077172", "미즈컨테이너": "https://pcmap.place.naver.com/restaurant/975834908/menu/list",
+                "도림": "https://pcmap.place.naver.com/restaurant/18456560/menu/list", "을밀대": "https://pcmap.place.naver.com/restaurant/1676700042/menu/list",
+                "한아람정육식당": "https://pcmap.place.naver.com/restaurant/248397751/menu/list", "회진포 막국수": "https://pcmap.place.naver.com/restaurant/19873545/menu/list",
+                "라미옥": "https://pcmap.place.naver.com/restaurant/1142435232/menu/list", "산들해": "https://pcmap.place.naver.com/restaurant/19769266/menu/list",
+                "하동관": "https://pcmap.place.naver.com/restaurant/36112273/menu/list", "광화문미진": "https://m.booking.naver.com/order/bizes/418334/items/3604875?theme=place&service-target=map-pc&refererCode=menutab&area=bmp",
+                "고봉삼계탕": "https://pcmap.place.naver.com/restaurant/1029380546/menu/list", "잠실한강공원": "https://pcmap.place.naver.com/place/13416876/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571322086",
+                "잠실종합운동장": "https://pcmap.place.naver.com/place/11622958/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571357621", "석촌호수": "https://pcmap.place.naver.com/place/13491520/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571375019",
+                "롯데월드/롯데월드타워/롯데몰": "https://pcmap.place.naver.com/place/35306752/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571399857", "롯데월드 민속박물관": "https://pcmap.place.naver.com/place/11620605/home?entry=bmp&from=map&fromPanelNum=2&ts=1628574370830",
+                "롯데월드": "https://pcmap.place.naver.com/place/11583235/home?entry=bmp&from=map&fromPanelNum=2&ts=1628840588484", "대중음악박물관": "https://pcmap.place.naver.com/restaurant/1428853437/home?entry=bmp&from=map&fromPanelNum=2&ts=1628840622398",
+                "몽촌토성": "https://pcmap.place.naver.com/place/13491675/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571426018", "올림픽공원": "https://pcmap.place.naver.com/place/12268494/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571442713",
+                "몽촌역사관": "https://pcmap.place.naver.com/place/11620616/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571459098", "대중음악전시관": "https://pcmap.place.naver.com/restaurant/1428853437/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571777899",
+                "코엑스": "https://pcmap.place.naver.com/place/11576171/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571811473", "코엑스 아쿠아리움": "https://pcmap.place.naver.com/place/11606845/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571834357",
+                "스타필드 코엑스몰": "https://pcmap.place.naver.com/place/12116304/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571919797", "봉은사": "https://pcmap.place.naver.com/place/11664007/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571853351",
+                "한국문화의집": "https://pcmap.place.naver.com/place/1102669403/home?entry=bmp&from=map&fromPanelNum=2&ts=1628571885214", "화진포 막국수": "https://pcmap.place.naver.com/restaurant/19873545/menu/list"
+            };
 
             let food_day1 = `<div display="inline-block" style="float: left; height: 1400px; border: 1px solid grey; background-color: #cff7ff;">
                     <div style="border: 1px solid grey; text-align: center; font-size: larger; font-weight: bold;">
@@ -368,7 +414,7 @@
                 let iframe = document.getElementById("iframe-1");
                 iframe.setAttribute("src", placeList[place]);
             }
-            
+
             function showInfo(place) {
                 let foodList = document.getElementById("foodSearch");
                 let placeList = document.getElementById("placeSearch");
@@ -401,6 +447,15 @@
                 }
             }
 
+            window.addEventListener("beforeunload", function (e) {
+                window.opener.overlay_off();
+                
+
+                (e || window.event).returnValue = null;
+                return 'Are you sure you want to leave this page?';
+            });
+
         </script>
     </body>
+
 </html>
